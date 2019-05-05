@@ -8,7 +8,13 @@ package com.baselib.instant.mvp;
  * @author wsb
  */
 public abstract class BasePresenter<V extends IBaseView, M extends BaseModel> {
+    /**
+     * 内部所持有的控件操作对象
+     * */
     private V mView;
+    /**
+     * 内部所持有的数据操作对象
+     * */
     private M mModel;
 
     public BasePresenter() {

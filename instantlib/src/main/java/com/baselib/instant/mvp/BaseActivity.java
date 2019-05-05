@@ -3,6 +3,7 @@ package com.baselib.instant.mvp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.util.Log;
 
 /**
@@ -51,7 +52,10 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      * @return 可展示在界面上的进度框
      */
     public AlertDialog buildProgressBar() {
-        return new AlertDialog.Builder(this).setTitle("请稍候").create();
+        AlertDialog alertDialog = new AlertDialog.Builder(this).setTitle("正在请求数据").setMessage("请稍候").create();
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
+        return alertDialog;
     }
 
     /**
@@ -134,7 +138,8 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      *
      * @return 加载到界面上的布局id
      */
-    public abstract int getContentId();
+    public abstract @LayoutRes
+    int getContentId();
 
     /**
      * 可以在设置内容布局之前对activity的相关操作，如设置全屏,无标题,沉浸式等
