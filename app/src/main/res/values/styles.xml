@@ -8,4 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!--闪屏界面主题-->
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <!--只需要提供这个属性即可,配上指定图片-->
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@drawable/background_splash</item>
+    </style>
+
 </resources>

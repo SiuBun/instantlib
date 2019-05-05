@@ -3,13 +3,20 @@ package com.baselib.instant.mvp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.util.Log;
+
+import com.baselib.instant.manager.BusinessHandler;
 
 /**
  * activity基类
  * <p>
- * 项目中activity相关类都要继承自该类.可以通过实现{@link #getContentId()},{@link #buildProgressBar()}等来实现界面快速构建.
+ * 项目中activity相关类都要继承自该类.可以通过实现
+ * <Li>{@link #getContentId()},
+ * <Li>{@link #buildProgressBar()}
+ * 等抽象方法来实现界面快速构建.
  * <p>
  * 子类继承该类时候需要传入对应泛型指定P层和V层,原先需要子类手动继承,后优化调整为子类提供接口实例即可,从面向方法调整为面向接口编程
  *
@@ -18,22 +25,44 @@ import android.util.Log;
 public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends Activity {
     private P mPresenter;
     private AlertDialog mProgressBar;
-    private String tag = "mvp";
+    private String TAG = "mvp";
+    private BusinessHandler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        activitySettingBeforeCreate();
         super.onCreate(savedInstanceState);
-        setContentView(getContentId());
+        activitySettingBeforeCreate();
+        if (0 != getContentId()){
+            setContentView(getContentId());
+        }
         activitySettingAfterCreate();
 
         initView();
         initListener();
+        initHandler();
         mPresenter = iniPresenter();
         if (mPresenter != null) {
             mPresenter.attach(getViewImpl());
         }
+        initData();
     }
+
+    private void initHandler() {
+        mHandler = new BusinessHandler(Looper.getMainLooper(), getHandlerListener());
+    }
+
+    /**
+     * 如果子类需要Handler的消息做回调处理,可以直接重写该方法进行处理
+     * @return 消息回调处理对象
+     * */
+    public BusinessHandler.IHandlerMsgListener getHandlerListener() {
+        return null;
+    }
+
+    /**
+     * 加载数据
+     * */
+    protected abstract void initData();
 
     /**
      * 设置基类中所内置控件
@@ -71,11 +100,11 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
                     if (!mProgressBar.isShowing()) {
                         mProgressBar.show();
 
-                        Log.d(tag, "弹窗展示");
+                        Log.d(TAG, "弹窗展示");
                     }
                 } else {
                     mProgressBar.dismiss();
-                    Log.d(tag, "弹窗关闭");
+                    Log.d(TAG, "弹窗关闭");
                 }
             }
         });
@@ -93,6 +122,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     @Override
     protected void onDestroy() {
         widgetDestory();
+        mHandler.onDestroy();
         mPresenter.detach();
         super.onDestroy();
     }
@@ -109,6 +139,8 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
     /**
      * 初始化P层对象
+     *
+     * @return P层逻辑对象
      */
     protected abstract P iniPresenter();
 
@@ -119,6 +151,10 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      */
     public P getPresenter() {
         return mPresenter;
+    }
+
+    public BusinessHandler getHandler() {
+        return mHandler;
     }
 
     /**
@@ -153,5 +189,9 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      */
     protected void activitySettingAfterCreate() {
         supportView();
+    }
+
+    public Activity getActivity(){
+        return this;
     }
 }
