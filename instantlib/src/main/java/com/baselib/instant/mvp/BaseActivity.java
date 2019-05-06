@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.util.Log;
 
@@ -25,25 +24,27 @@ import com.baselib.instant.manager.BusinessHandler;
 public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends Activity {
     private P mPresenter;
     private AlertDialog mProgressBar;
-    private String TAG = "mvp";
+    public final String TAG = "mvp";
     private BusinessHandler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activitySettingBeforeCreate();
+        activitySettingBeforeSetContent();
         if (0 != getContentId()){
             setContentView(getContentId());
         }
-        activitySettingAfterCreate();
+        activitySettingAfterSetContent();
 
+//        初始化控件和监听,及轮询处理等
         initView();
         initListener();
-        initHandler();
+
         mPresenter = iniPresenter();
         if (mPresenter != null) {
             mPresenter.attach(getViewImpl());
         }
+
         initData();
     }
 
@@ -180,15 +181,16 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     /**
      * 可以在设置内容布局之前对activity的相关操作，如设置全屏,无标题,沉浸式等
      */
-    protected void activitySettingBeforeCreate() {
+    protected void activitySettingBeforeSetContent() {
 
     }
 
     /**
      * 可以在设置内容布局之后对activity的相关操作
      */
-    protected void activitySettingAfterCreate() {
+    protected void activitySettingAfterSetContent() {
         supportView();
+        initHandler();
     }
 
     public Activity getActivity(){

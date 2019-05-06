@@ -3,14 +3,19 @@ package com.baselib.mvpuse.widget;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import com.baselib.instant.mvp.BaseActivity;
+import com.baselib.instant.permission.PermissionsManager;
 import com.baselib.mvpuse.R;
+import com.baselib.mvpuse.model.SplashModel;
 import com.baselib.mvpuse.presenter.SplashPresenter;
 import com.baselib.mvpuse.view.SplashView;
 
+import java.util.Arrays;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
@@ -25,18 +30,36 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
 
     @Override
     protected void initData() {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
-                finish();
-                //取消界面跳转时的动画
-                overridePendingTransition(0, 0);
+        SplashModel model = getPresenter().getModel();
 
+        PermissionsManager.getInstance().checkPermissions(getActivity(), model.getPermissions(), 1001, new PermissionsManager.IPermissionsCheckCallback() {
+
+            @Override
+            public void onCheckedFinish(String[] permissionsBeDenied) {
+                if (permissionsBeDenied==null||permissionsBeDenied.length == 0){
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            junpToMain();
+                        }
+                    };
+                    getHandler().postDelayed(runnable, TimeUnit.SECONDS.toMillis(1));
+                }else {
+                    Log.d(TAG,"被拒绝的权限如下"+ Arrays.toString(permissionsBeDenied));
+
+                    PermissionsManager.getInstance().notifyReqPermission(getActivity(),permissionsBeDenied);
+
+                }
             }
-        };
-        getHandler().postDelayed(runnable, TimeUnit.SECONDS.toMillis(2));
+        });
+    }
+
+    private void junpToMain() {
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        startActivity(intent);
+        finish();
+        //取消界面跳转时的动画
+        overridePendingTransition(0, 0);
     }
 
     @Override
@@ -66,7 +89,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     }
 
     @Override
-    protected void activitySettingBeforeCreate() {
+    protected void activitySettingBeforeSetContent() {
 //        在Activity中恢复原有的style样式【否则的话，当activity的布局文件设置背景色为透明的时候，就会发现窗口的背景还是那张图片】
 //        setTheme(R.style.AppTheme);
     }
@@ -80,5 +103,11 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionsManager.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
