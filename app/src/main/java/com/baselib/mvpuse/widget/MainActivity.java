@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.mvp.BaseActivity;
 import com.baselib.mvpuse.presenter.MainPresenter;
 import com.baselib.mvpuse.view.MainView;
@@ -100,6 +101,9 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
             @Override
             public void loginResult(boolean result) {
                 Toast.makeText(MainActivity.this, result ? "成功" : "失败", Toast.LENGTH_SHORT).show();
+                if (result){
+                    FloatButtonController.FLOAT_BUTTON_CONTROLLER.showFloatButton(getActivity());
+                }
             }
         };
     }

@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.baselib.instant.Const;
+import com.baselib.mvpuse.manager.IManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,36 +25,35 @@ import java.util.Map;
  *
  * @author wsb
  */
-public class PermissionsManager {
-
-    private final int NOTIFY_REQ_CODE = 1002;
-
-    private PermissionsManager() {
-    }
+public class PermissionsManager implements IManager {
 
     /**
-     * 静态实例,借助静态代码块实现类加载时候进行初始化
-     */
-    private static PermissionsManager sManagerInstance;
+     * 提示重新授权所用请求码,项目中其他权限请求码避开使用
+     * */
+    private final int NOTIFY_REQ_CODE = 1002;
 
-    static {
-        sManagerInstance = new PermissionsManager();
-    }
-
-
-    public static PermissionsManager getInstance() {
-        return sManagerInstance;
-    }
+//    private PermissionsManager() {
+//    }
+//
+//    /**
+//     * 静态实例,借助静态代码块实现类加载时候进行初始化
+//     */
+//    private static PermissionsManager sManagerInstance;
+//
+//    static {
+//        sManagerInstance = new PermissionsManager();
+//    }
+//
+//
+//    public static PermissionsManager getInstance() {
+//        return sManagerInstance;
+//    }
 
     /**
      * 存储回调对象的map，请求码对应回调对象
      */
     private Map<Integer, IPermissionsCheckCallback> mCallbackMap = new HashMap<>();
 
-    /**
-     * 不再提示权限时的展示对话框
-     */
-    private AlertDialog mPermissionDialog;
 
     /**
      * 使用功能前针对权限对象进行检测，检测后执行回调内容
@@ -141,19 +141,21 @@ public class PermissionsManager {
         }
 
         if (list.isEmpty()) {
-            new AlertDialog.Builder(activity).setMessage("已关闭相关权限,可能影响部分功能,是否重新授权").setPositiveButton("重新授权", new DialogInterface.OnClickListener() {
+            DialogInterface.OnClickListener positive = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                     mCallbackMap.put(NOTIFY_REQ_CODE, callback);
                     ActivityCompat.requestPermissions(activity, permissionsBeDenied, NOTIFY_REQ_CODE);
                 }
-            }).setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+            };
+            DialogInterface.OnClickListener negative = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                 }
-            }).create().show();
+            };
+            new AlertDialog.Builder(activity).setMessage("已关闭相关权限,可能影响部分功能,是否重新授权").setPositiveButton("重新授权", positive).setNegativeButton("拒绝", negative).create().show();
         } else {
             showSystemPermissionsSettingDialog(activity, permissionsBeDenied);
         }
@@ -169,13 +171,12 @@ public class PermissionsManager {
     private void showSystemPermissionsSettingDialog(final Activity activity, String[] permissionsBeDenied) {
         final String mPackName = activity.getPackageName();
 
-        if (mPermissionDialog == null) {
-            mPermissionDialog = new AlertDialog.Builder(activity)
+            new AlertDialog.Builder(activity)
                     .setMessage("已禁用相关权限如下:\n \t " + Arrays.toString(permissionsBeDenied) + "\n 请进入应用权限页手动授予再打开应用")
                     .setPositiveButton("设置", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            cancelPermissionDialog();
+                            dialog.dismiss();
 
                             Uri packageURI = Uri.parse("package:" + mPackName);
                             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
@@ -188,14 +189,11 @@ public class PermissionsManager {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //关闭页面或者做其他操作
-                            cancelPermissionDialog();
+                            dialog.dismiss();
                         }
                     })
-                    .create();
+                    .create().show();
         }
-        mPermissionDialog.show();
-    }
-
 
     /**
      * 请求所有目标权限成功
@@ -220,11 +218,11 @@ public class PermissionsManager {
         }
     }
 
-    private void cancelPermissionDialog() {
-        if (mPermissionDialog != null) {
-            mPermissionDialog.cancel();
-            mPermissionDialog = null;
-        }
+
+    @Override
+    public void detach() {
+        mCallbackMap.clear();
+        mCallbackMap = null;
 
     }
 

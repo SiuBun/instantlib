@@ -1,23 +1,19 @@
 package com.baselib.mvpuse.widget;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import com.baselib.instant.Const;
+import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseActivity;
 import com.baselib.instant.permission.PermissionsManager;
-import com.baselib.mvpuse.R;
 import com.baselib.mvpuse.model.SplashModel;
 import com.baselib.mvpuse.presenter.SplashPresenter;
 import com.baselib.mvpuse.view.SplashView;
 
 import java.util.Arrays;
-import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,6 +29,8 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     protected void initData() {
         SplashModel model = getPresenter().getModel();
 
+        final PermissionsManager manager = (PermissionsManager)GlobalManager.getInstance().getManager(GlobalManager.PERMISSION_SERVICE);
+
         PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
 
             @Override
@@ -41,14 +39,14 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
                     delayedToJump();
                 } else {
                     Log.d(Const.TAG, "被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
-                    repeatPermissionReq(permissionsBeDenied);
+                    repeatPermissionReq(manager,permissionsBeDenied);
                 }
             }
         };
-        PermissionsManager.getInstance().checkPermissions(getActivity(), model.getPermissions(), 1001, checkCallback);
+        manager.checkPermissions(getActivity(), model.getPermissions(), 1001, checkCallback);
     }
 
-    private void repeatPermissionReq(String[] permissionsBeDenied) {
+    private void repeatPermissionReq(PermissionsManager manager,String[] permissionsBeDenied) {
         PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
 
             @Override
@@ -58,7 +56,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
                 }
             }
         };
-        PermissionsManager.getInstance().notifyReqPermission(getActivity(),permissionsBeDenied, checkCallback);
+        manager.notifyReqPermission(getActivity(),permissionsBeDenied, checkCallback);
     }
 
     private void delayedToJump() {
@@ -125,6 +123,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        PermissionsManager.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
+        final PermissionsManager manager = (PermissionsManager)GlobalManager.getInstance().getManager(GlobalManager.PERMISSION_SERVICE);
+        manager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--默认  -->
+    
+    <!-- sp -->
+    <dimen name="zo_10sp">10sp</dimen>
+    <dimen name="zo_14sp">14sp</dimen>
+    <dimen name="zo_16sp">16sp</dimen>
+    <dimen name="zo_17sp">17sp</dimen>
+    <dimen name="zo_18sp">18sp</dimen>
+    <dimen name="zo_20sp">20sp</dimen>
+    <dimen name="zo_22sp">22sp</dimen>
+    <dimen name="zo_24sp">24sp</dimen>
+    <dimen name="zo_28sp">28sp</dimen>
+
+    <!-- dp or dip -->
+    <dimen name="zo_1dp">1dp</dimen>
+    <dimen name="zo_3dp">3dp</dimen>
+    <dimen name="zo_5dp">5dp</dimen>
+    <dimen name="zo_8dp">8dp</dimen>
+    <dimen name="zo_10dp">10dp</dimen>
+    <dimen name="zo_11dp">11dp</dimen>
+    <dimen name="zo_12dp">12dp</dimen>
+    <dimen name="zo_13dp">13dp</dimen>
+    <dimen name="zo_15dp">15dp</dimen>
+    <dimen name="zo_16dp">16dp</dimen>
+    <dimen name="zo_17dp">17dp</dimen>
+    <dimen name="zo_18dp">18dp</dimen>
+    <dimen name="zo_20dp">20dp</dimen>
+    <dimen name="zo_21dp">21dp</dimen>
+    <dimen name="zo_25dp">25dp</dimen>
+    <dimen name="zo_26dp">26dp</dimen>
+    <dimen name="zo_27dp">27dp</dimen>
+    <dimen name="zo_28dp">28dp</dimen>
+    <dimen name="zo_29dp">29dp</dimen>
+    <dimen name="zo_31dp">31dp</dimen>
+    <dimen name="zo_30dp">30dp</dimen>
+    <dimen name="zo_35dp">35dp</dimen>
+    <dimen name="zo_40dp">40dp</dimen>
+    <dimen name="zo_45dp">45dp</dimen>
+    <dimen name="zo_50dp">50dp</dimen>
+    <dimen name="zo_60dp">60dp</dimen>
+    <dimen name="zo_65dp">65dp</dimen>
+    <dimen name="zo_70dp">70dp</dimen>
+    <dimen name="zo_72dp">72dp</dimen>
+    <dimen name="zo_75dp">75dp</dimen>
+    <dimen name="zo_80dp">80dp</dimen>
+    <dimen name="zo_85dp">85dp</dimen>
+    <dimen name="zo_86dp">86dp</dimen>
+    <dimen name="zo_100dp">100dp</dimen>
+    <dimen name="zo_110dp">110dp</dimen>
+    <dimen name="zo_120dp">120dp</dimen>
+    <dimen name="zo_125dp">125dp</dimen>
+    <dimen name="zo_132dp">132dp</dimen>
+    <dimen name="zo_140dp">140dp</dimen>
+    <dimen name="zo_150dp">150dp</dimen>
+    <dimen name="zo_180dp">180dp</dimen>
+    <dimen name="zo_200dp">200dp</dimen>
+    <dimen name="zo_220dp">220dp</dimen>
+    <dimen name="zo_250dp">250dp</dimen>
+    <dimen name="zo_270dp">270dp</dimen>
+    <dimen name="zo_300dp">300dp</dimen>
+    <dimen name="zo_400dp">400dp</dimen>
+    <dimen name="zo_450dp">450dp</dimen>
+  
+  
+    
+    
+     <!-- 适配参数 -->
+    <dimen name="zo_500dp">25dp</dimen>
+    <dimen name="zo_501dp">60dp</dimen>
+    <dimen name="zo_502dp">16dp</dimen>
+    <dimen name="zo_503dp">0dp</dimen>
+    <dimen name="zo_504dp">5dp</dimen>
+    <dimen name="zo_505dp">25dp</dimen>
+    <dimen name="zo_506dp">25dp</dimen>
+    <dimen name="zo_508dp">30dp</dimen>
+    <dimen name="zo_509dp">10dp</dimen>
+    <dimen name="zo_510dp">4dp</dimen>
+    <dimen name="zo_511dp">10dp</dimen>
+    <dimen name="zo_512dp">20dp</dimen>
+    <dimen name="zo_513dp">20dp</dimen>
+    <dimen name="zo_514dp">10dp</dimen>
+    <dimen name="zo_515dp">30dp</dimen>
+    <dimen name="zo_516dp">20dp</dimen>
+    <dimen name="zo_517dp">0dp</dimen>
+    
+
+    <!-- other -->
+
+</resources>

@@ -29,6 +29,8 @@ import com.baselib.instant.manager.BusinessHandler;
  * <Li>{@link #initPresenter()}应该使用什么样的P层对象</Li>
  * <Li>{@link #getFragmentLayout()}方法返回什么内容的布局</Li>
  * <Li>{@link #initFragmentViews(View)}布局内容里哪些控件对象需要实体化</Li>
+ *
+ * @author wsb
  */
 public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView> extends Fragment {
     public View mFragmentView;
@@ -194,6 +196,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     @Override
     public void onDestroyView() {
         mBasePresenter.detach();
+        mHandler.onDestroy();
         super.onDestroyView();
     }
 }

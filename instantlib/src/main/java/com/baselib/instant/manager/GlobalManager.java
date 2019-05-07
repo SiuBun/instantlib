@@ -1,0 +1,84 @@
+package com.baselib.instant.manager;
+
+import com.baselib.instant.permission.PermissionsManager;
+import com.baselib.mvpuse.manager.IManager;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 全局功能管理对象
+ * <p>
+ * 权限,网络等管理对象在该对象创建时候进行实例化并存入列表,通过该对象获取
+ *
+ * @author wsb
+ */
+public class GlobalManager implements IManager {
+
+    private GlobalManager() {
+    }
+
+    @Override
+    public void detach() {
+        if (!mManagerMap.isEmpty()) {
+            for (String name : mManagerMap.keySet()) {
+                IManager manager = mManagerMap.get(name);
+                if (manager != null) {
+                    manager.detach();
+                }
+            }
+            mManagerMap.clear();
+        }
+        InnerProvider.single = null;
+
+    }
+
+    /**
+     * 静态内部类
+     */
+    private static class InnerProvider {
+        private static GlobalManager single = new GlobalManager();
+    }
+
+    public static GlobalManager getInstance() {
+        return InnerProvider.single;
+    }
+
+    /**
+     * 项目相关管理对象都存储在该容器内
+     */
+    private Map<String, IManager> mManagerMap = new HashMap<>();
+
+    public static final String PERMISSION_SERVICE = "permission_service";
+
+    /**
+     * 根据名称获取对应管理对象
+     *
+     * @param name 目标名称
+     * @return 各功能管理对象
+     */
+    public IManager getManager(String name) {
+        IManager baseManager = mManagerMap.get(name);
+        if (baseManager == null) {
+            baseManager = createManagerByName(name);
+            mManagerMap.put(name, baseManager);
+        }
+        return baseManager;
+    }
+
+    /**
+     * 创建不同的管理对象
+     *
+     * @param name 目标名称
+     * @return 各功能管理对象
+     */
+    private IManager createManagerByName(String name) {
+        IManager baseManager;
+        if (PERMISSION_SERVICE.equals(name)) {
+            baseManager = new PermissionsManager();
+        } else {
+            baseManager = null;
+        }
+        return baseManager;
+    }
+}
