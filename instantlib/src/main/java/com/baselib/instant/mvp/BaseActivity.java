@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.support.annotation.LayoutRes;
 import android.util.Log;
 
+import com.baselib.instant.Const;
 import com.baselib.instant.manager.BusinessHandler;
 
 /**
@@ -24,7 +25,6 @@ import com.baselib.instant.manager.BusinessHandler;
 public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends Activity {
     private P mPresenter;
     private AlertDialog mProgressBar;
-    public final String TAG = "mvp";
     private BusinessHandler mHandler;
 
     @Override
@@ -101,11 +101,11 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
                     if (!mProgressBar.isShowing()) {
                         mProgressBar.show();
 
-                        Log.d(TAG, "弹窗展示");
+                        Log.d(Const.TAG, "弹窗展示");
                     }
                 } else {
                     mProgressBar.dismiss();
-                    Log.d(TAG, "弹窗关闭");
+                    Log.d(Const.TAG, "弹窗关闭");
                 }
             }
         });

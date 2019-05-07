@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.baselib.instant.Const;
 import com.baselib.instant.mvp.BaseActivity;
 import com.baselib.instant.permission.PermissionsManager;
 import com.baselib.mvpuse.R;
@@ -37,21 +38,33 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
             @Override
             public void onCheckedFinish(String[] permissionsBeDenied) {
                 if (permissionsBeDenied==null||permissionsBeDenied.length == 0){
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            junpToMain();
-                        }
-                    };
-                    getHandler().postDelayed(runnable, TimeUnit.SECONDS.toMillis(1));
+                    delayedToJump();
                 }else {
-                    Log.d(TAG,"被拒绝的权限如下"+ Arrays.toString(permissionsBeDenied));
+                    Log.d(Const.TAG,"被拒绝的权限如下"+ Arrays.toString(permissionsBeDenied));
 
-                    PermissionsManager.getInstance().notifyReqPermission(getActivity(),permissionsBeDenied);
+                    PermissionsManager.getInstance().notifyReqPermission(getActivity(),permissionsBeDenied,new PermissionsManager.IPermissionsCheckCallback(){
+
+                        @Override
+                        public void onCheckedFinish(String[] permissionsBeDenied) {
+                            if (permissionsBeDenied==null||permissionsBeDenied.length == 0){
+                                delayedToJump();
+                            }
+                        }
+                    });
 
                 }
             }
         });
+    }
+
+    private void delayedToJump() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                junpToMain();
+            }
+        };
+        getHandler().postDelayed(runnable, TimeUnit.SECONDS.toMillis(1));
     }
 
     private void junpToMain() {

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.baselib.instant.Const;
 import com.baselib.instant.manager.BusinessHandler;
 
 
@@ -33,7 +34,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public View mFragmentView;
     public P mBasePresenter;
     private AlertDialog mProgressBar;
-    private String TAG = "mvp";
     private BusinessHandler mHandler;
 
     /**
@@ -178,11 +178,11 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
                     if (!mProgressBar.isShowing()) {
                         mProgressBar.show();
 
-                        Log.d(TAG, "弹窗展示");
+                        Log.d(Const.TAG, "弹窗展示");
                     }
                 } else {
                     mProgressBar.dismiss();
-                    Log.d(TAG, "弹窗关闭");
+                    Log.d(Const.TAG, "弹窗关闭");
                 }
             }
         });
