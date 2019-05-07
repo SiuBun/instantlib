@@ -33,28 +33,32 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     protected void initData() {
         SplashModel model = getPresenter().getModel();
 
-        PermissionsManager.getInstance().checkPermissions(getActivity(), model.getPermissions(), 1001, new PermissionsManager.IPermissionsCheckCallback() {
+        PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
 
             @Override
             public void onCheckedFinish(String[] permissionsBeDenied) {
-                if (permissionsBeDenied==null||permissionsBeDenied.length == 0){
+                if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
                     delayedToJump();
-                }else {
-                    Log.d(Const.TAG,"被拒绝的权限如下"+ Arrays.toString(permissionsBeDenied));
-
-                    PermissionsManager.getInstance().notifyReqPermission(getActivity(),permissionsBeDenied,new PermissionsManager.IPermissionsCheckCallback(){
-
-                        @Override
-                        public void onCheckedFinish(String[] permissionsBeDenied) {
-                            if (permissionsBeDenied==null||permissionsBeDenied.length == 0){
-                                delayedToJump();
-                            }
-                        }
-                    });
-
+                } else {
+                    Log.d(Const.TAG, "被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
+                    repeatPermissionReq(permissionsBeDenied);
                 }
             }
-        });
+        };
+        PermissionsManager.getInstance().checkPermissions(getActivity(), model.getPermissions(), 1001, checkCallback);
+    }
+
+    private void repeatPermissionReq(String[] permissionsBeDenied) {
+        PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
+
+            @Override
+            public void onCheckedFinish(String[] permissionsBeDenied) {
+                if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
+                    delayedToJump();
+                }
+            }
+        };
+        PermissionsManager.getInstance().notifyReqPermission(getActivity(),permissionsBeDenied, checkCallback);
     }
 
     private void delayedToJump() {

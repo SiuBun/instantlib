@@ -92,8 +92,8 @@ public class PermissionsManager {
 
     /**
      * 对应activity生命周期
-     *
-     * 请求
+     * <p>
+     * 请求权限回调里执行各请求码对应的响应对象回调,并将已经拒绝的权限内容返回
      *
      * @param requestCode  请求码
      * @param permissions  权限组
@@ -117,8 +117,8 @@ public class PermissionsManager {
                 checkPermissionFinish(requestCode, strings);
             }
 
-        }else {
-            Log.d(Const.TAG,"本次权限请求响应并非权限管理工具所发起的权限请求");
+        } else {
+            Log.d(Const.TAG, "本次权限请求响应并非权限管理工具所发起的权限请求");
         }
     }
 
