@@ -79,7 +79,6 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
     private int mScreenWidth, mScreenHeight;
     private float mTouchStartX, mTouchStartY, mLogoSize, mIconSize, mMargin, mTextSize;
 
-    private Context mContext;
     private FloatEventListener mFloatEventListener;
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mWmParams;
@@ -169,7 +168,6 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
 
     private FloatButton(Context context, FloatEventListener listener) {
         super(context);
-        mContext = context;
         mFloatEventListener = listener;
         sInstance = this;
 
@@ -510,28 +508,28 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
         layMenu.setOrientation(LinearLayout.HORIZONTAL);
 
         // 用户信息
-        layAccount = setMenuItem(context,layAccount,"ball_account",R.drawable.zo_float_person, FloatButtonController.USER_CENTER_VIEW);
+        layAccount = setMenuItem(context,layAccount,"account",R.drawable.zo_float_person, FloatButtonController.USER_CENTER_VIEW);
         // 消息
         if (sMsgVisible) {
-            layMsg = setMenuItem(context,layMsg,"ball_feedback",R.drawable.zo_float_msg,FloatButtonController.FEEDBACK_VIEW);
+            layMsg = setMenuItem(context,layMsg,"feedback",R.drawable.zo_float_msg,FloatButtonController.FEEDBACK_VIEW);
         }
 
         // 社区
         if (sCommunityVisible) {
-            layCommunity = setMenuItem(context,layCommunity,"ball_community",R.drawable.zo_float_shequ,FloatButtonController.COMMUNITY_VIEW);
+            layCommunity = setMenuItem(context,layCommunity,"community",R.drawable.zo_float_shequ,FloatButtonController.COMMUNITY_VIEW);
         }
 
         // 客服
         if (sCustomerVisible) {
-            layCustomer = setMenuItem(context,layCustomer,"ball_customerservice",R.drawable.zo_float_kefu,FloatButtonController.CUSTOMER_SERVICE_VIEW);
+            layCustomer = setMenuItem(context,layCustomer,"customerservice",R.drawable.zo_float_kefu,FloatButtonController.CUSTOMER_SERVICE_VIEW);
         }
         // 公告
         if (sAnnouncementVisible) {
-            layAnnouncement = setMenuItem(context,layAnnouncement,"ball_announcement",R.drawable.zo_float_announcement,FloatButtonController.ANNOUNCEMENT_VIEW);
+            layAnnouncement = setMenuItem(context,layAnnouncement,"announcement",R.drawable.zo_float_announcement,FloatButtonController.ANNOUNCEMENT_VIEW);
         }
 
         // 隐藏
-        layHide = createMenuItem(context, "ball_hide", R.drawable.zo_float_hide, false);
+        layHide = createMenuItem(context, "hide", R.drawable.zo_float_hide, false);
         layHide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

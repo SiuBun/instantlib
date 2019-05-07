@@ -33,7 +33,9 @@
             android:layout_height="wrap_content"
             android:ems="10"
             tools:layout_editor_absoluteX="98dp"
-            tools:layout_editor_absoluteY="256dp" />
+            tools:layout_editor_absoluteY="256dp"
+            android:text="abc"
+            />
 
         <EditText
             android:id="@+id/editText2"
@@ -41,14 +43,22 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
+            android:text="123"
             tools:layout_editor_absoluteX="97dp"
             tools:layout_editor_absoluteY="301dp" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/button_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button"
+            android:text="login"
+            tools:layout_editor_absoluteX="161dp"
+            tools:layout_editor_absoluteY="363dp" />
+        <Button
+            android:id="@+id/button_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="logout"
             tools:layout_editor_absoluteX="161dp"
             tools:layout_editor_absoluteY="363dp" />
     </LinearLayout>

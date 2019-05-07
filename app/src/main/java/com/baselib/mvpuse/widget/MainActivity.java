@@ -16,7 +16,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.baselib.instant.floatwindow.AbstractShowMode;
 import com.baselib.instant.floatwindow.FloatButtonController;
+import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseActivity;
 import com.baselib.mvpuse.presenter.MainPresenter;
 import com.baselib.mvpuse.view.MainView;
@@ -32,14 +34,17 @@ import com.baselib.mvpuse.R;
 public class MainActivity extends BaseActivity<MainPresenter, MainView> {
 
     private Button mBtnLogin;
+    private Button mBtnLogout;
     private EditText mEtAccount;
     private EditText mEtPsw;
     private LinearLayout mLltLoginContainer;
     private ImageView mIvLogo;
+    private FloatButtonController mFloatButtonController;
 
     @Override
     protected void initData() {
         iniAnim();
+        mFloatButtonController = (FloatButtonController) GlobalManager.getInstance().getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
     }
 
     private void iniAnim() {
@@ -102,7 +107,10 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
             public void loginResult(boolean result) {
                 Toast.makeText(MainActivity.this, result ? "成功" : "失败", Toast.LENGTH_SHORT).show();
                 if (result){
-                    FloatButtonController.FLOAT_BUTTON_CONTROLLER.showFloatButton(getActivity());
+                    AbstractShowMode showType = FloatButtonController.getShowType(false);
+                    mFloatButtonController
+                            .setShowType(showType)
+                            .showFloatButton(getActivity());
                 }
             }
         };
@@ -125,13 +133,21 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
                 getPresenter().doLogin(account, pws);
             }
         });
+
+        mBtnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFloatButtonController.closeFloatButton();
+            }
+        });
     }
 
     @Override
     protected void initView() {
         mIvLogo = findViewById(R.id.iv_logo);
         mLltLoginContainer = findViewById(R.id.llt_login_container);
-        mBtnLogin = findViewById(R.id.button);
+        mBtnLogin = findViewById(R.id.button_login);
+        mBtnLogout = findViewById(R.id.button_logout);
         mEtAccount = findViewById(R.id.editText);
         mEtPsw = findViewById(R.id.editText2);
 

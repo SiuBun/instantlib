@@ -1,13 +1,15 @@
 package com.baselib.instant.floatwindow;
 
 import android.app.Activity;
-import android.os.UserManager;
 
-public enum  FloatButtonController {
-    /**
-     * 实例对象
-     */
-    FLOAT_BUTTON_CONTROLLER;
+import com.baselib.mvpuse.manager.IManager;
+
+/**
+ * 悬浮窗管理对象
+ *
+ * @author wsb
+ */
+public class FloatButtonController implements IManager {
 
     public static final int USER_CENTER_VIEW = 0;
     public static final int COMMUNITY_VIEW = 1;
@@ -17,6 +19,16 @@ public enum  FloatButtonController {
     public static final int ANNOUNCEMENT_VIEW = 5;
     public static final int FEEDBACK_VIEW = 6;
 
+    /**
+     * 悬浮窗展示类型
+     * */
+    private AbstractShowMode mShowType;
+
+
+    public FloatButtonController setShowType(AbstractShowMode showType) {
+        mShowType = showType;
+        return this;
+    }
 
     /**
      * 悬浮窗按钮展示
@@ -26,14 +38,17 @@ public enum  FloatButtonController {
      * @param activity 展示所用上下文
      */
     public void showFloatButton(final Activity activity) {
-        AbstractShowMode showType = getShowType(false);
         FloatEventListener listener = new FloatEventListener() {
             @Override
             public void eventCode(int code) {
                 getEventDispatcher(code).dispatchEvent(activity);
             }
         };
-        showType.showFloatButton(activity, listener);
+        mShowType.showFloatButton(activity, listener);
+    }
+
+    public void closeFloatButton() {
+        mShowType.closeFloatButton();
     }
 
     /**
@@ -42,7 +57,7 @@ public enum  FloatButtonController {
      * @param isTourists 是否为游客身份
      * @return 展示的悬浮窗类型
      */
-    private AbstractShowMode getShowType(boolean isTourists) {
+    public static AbstractShowMode getShowType(boolean isTourists) {
         AbstractShowMode type;
         if (isTourists) {
             type = new TouristsFloatMode();
@@ -87,5 +102,10 @@ public enum  FloatButtonController {
                 break;
         }
         return eventDispatcher;
+    }
+
+    @Override
+    public void detach() {
+        mShowType = null;
     }
 }

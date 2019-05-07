@@ -1,5 +1,6 @@
 package com.baselib.instant.manager;
 
+import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.permission.PermissionsManager;
 import com.baselib.mvpuse.manager.IManager;
 
@@ -50,6 +51,7 @@ public class GlobalManager implements IManager {
     private Map<String, IManager> mManagerMap = new HashMap<>();
 
     public static final String PERMISSION_SERVICE = "permission_service";
+    public static final String FLOAT_WINDOWS_SERVICE = "float_windows_service";
 
     /**
      * 根据名称获取对应管理对象
@@ -74,10 +76,16 @@ public class GlobalManager implements IManager {
      */
     private IManager createManagerByName(String name) {
         IManager baseManager;
-        if (PERMISSION_SERVICE.equals(name)) {
-            baseManager = new PermissionsManager();
-        } else {
-            baseManager = null;
+        switch (name) {
+            case PERMISSION_SERVICE:
+                baseManager = new PermissionsManager();
+                break;
+            case FLOAT_WINDOWS_SERVICE:
+                baseManager = new FloatButtonController();
+                break;
+            default:
+                baseManager = null;
+                break;
         }
         return baseManager;
     }

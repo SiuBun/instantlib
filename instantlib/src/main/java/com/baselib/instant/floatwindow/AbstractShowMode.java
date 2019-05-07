@@ -17,4 +17,8 @@ public abstract class AbstractShowMode {
      * @param listener 该模式下按钮事件监听
      */
     public abstract void showFloatButton(Activity activity, FloatEventListener listener);
+
+    public void closeFloatButton(){
+        FloatButton.close();
+    }
 }
