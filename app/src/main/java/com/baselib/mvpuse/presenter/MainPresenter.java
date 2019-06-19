@@ -11,27 +11,4 @@ public class MainPresenter extends BasePresenter<MainView, MainModel> {
         return new MainModel();
     }
 
-    public void doLogin(String account, String pws) {
-        getModel().doLogin(account,pws,getLoginListener());
-    }
-
-    private ILoginListener getLoginListener() {
-        return new ILoginListener() {
-            @Override
-            public void loginFinish() {
-                getView().controlProgress(false);
-            }
-
-            @Override
-            public void loginResult(boolean result) {
-                getView().loginResult(result);
-            }
-        };
-    }
-
-    public interface ILoginListener {
-        void loginFinish();
-
-        void loginResult(boolean success);
-    }
 }

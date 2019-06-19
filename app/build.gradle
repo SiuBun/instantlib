@@ -20,7 +20,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':instantlib')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha02'
-    implementation project(':instantlib')
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 }

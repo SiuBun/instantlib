@@ -33,8 +33,8 @@ import com.baselib.instant.manager.BusinessHandler;
  * @author wsb
  */
 public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView> extends Fragment {
-    public View mFragmentView;
-    public P mBasePresenter;
+    private View mFragmentView;
+    private P mBasePresenter;
     private AlertDialog mProgressBar;
     private BusinessHandler mHandler;
 
@@ -59,6 +59,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
         if (mBasePresenter != null) {
             mBasePresenter.attach(getViewImpl());
         }
+        initData();
 
         return mFragmentView;
     }
@@ -85,6 +86,11 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     protected abstract P initPresenter();
 
     /**
+     * 加载数据
+     * */
+    protected abstract void initData();
+
+    /**
      * 初始化该fragment内的控件对象
      *
      * @param fragmentView fragment对象所填充的布局
@@ -104,6 +110,10 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
         return null;
     }
 
+    public P getPresenter() {
+        return mBasePresenter;
+    }
+
     /**
      * 初始化界面内相关监听
      */
@@ -115,8 +125,8 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      * @param viewId 控件id
      * @return id对应的控件对象
      */
-    public View findViewById(@IdRes int viewId) {
-        return mFragmentView.findViewById(viewId);
+    public <C extends View> C findViewById(@IdRes int viewId, Class<C> clz) {
+        return (C)mFragmentView.findViewById(viewId);
     }
 
     /**
