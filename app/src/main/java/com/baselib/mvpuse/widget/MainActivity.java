@@ -20,9 +20,9 @@ import com.baselib.instant.floatwindow.AbstractShowMode;
 import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseActivity;
+import com.baselib.mvpuse.R;
 import com.baselib.mvpuse.presenter.MainPresenter;
 import com.baselib.mvpuse.view.MainView;
-import com.baselib.mvpuse.R;
 
 /**
  * 示例界面
@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
     @Override
     protected void initData() {
         iniAnim();
-        mFloatButtonController = (FloatButtonController) GlobalManager.getInstance().getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
+        mFloatButtonController = (FloatButtonController) GlobalManager.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
     }
 
     private void iniAnim() {
@@ -106,7 +106,7 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
             @Override
             public void loginResult(boolean result) {
                 Toast.makeText(MainActivity.this, result ? "成功" : "失败", Toast.LENGTH_SHORT).show();
-                if (result){
+                if (result) {
                     AbstractShowMode showType = FloatButtonController.getShowType(false);
                     mFloatButtonController
                             .setShowType(showType)

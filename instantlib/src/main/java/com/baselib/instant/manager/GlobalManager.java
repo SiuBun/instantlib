@@ -1,8 +1,9 @@
 package com.baselib.instant.manager;
 
 import com.baselib.instant.floatwindow.FloatButtonController;
+import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.permission.PermissionsManager;
-import com.baselib.mvpuse.manager.IManager;
+import com.baselib.manager.IManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class GlobalManager implements IManager {
         private static GlobalManager single = new GlobalManager();
     }
 
-    public static GlobalManager getInstance() {
+    private static GlobalManager getInstance() {
         return InnerProvider.single;
     }
 
@@ -52,6 +53,7 @@ public class GlobalManager implements IManager {
 
     public static final String PERMISSION_SERVICE = "permission_service";
     public static final String FLOAT_WINDOWS_SERVICE = "float_windows_service";
+    public static final String NETWORK_SERVICE = "network_service";
 
     /**
      * 根据名称获取对应管理对象
@@ -59,13 +61,21 @@ public class GlobalManager implements IManager {
      * @param name 目标名称
      * @return 各功能管理对象
      */
-    public IManager getManager(String name) {
-        IManager baseManager = mManagerMap.get(name);
+    public static IManager getManager(String name) {
+        IManager baseManager = getInstance().mManagerMap.get(name);
         if (baseManager == null) {
-            baseManager = createManagerByName(name);
-            mManagerMap.put(name, baseManager);
+            baseManager = getInstance().createManagerByName(name);
+            getInstance().mManagerMap.put(name, baseManager);
         }
         return baseManager;
+    }
+
+    public static NetworkManager getNetworkManager() {
+        return (NetworkManager) getManager(NETWORK_SERVICE);
+    }
+
+    public static void initNetManager(NetworkManager networkManager) {
+        getInstance().mManagerMap.put(NETWORK_SERVICE,networkManager);
     }
 
     /**

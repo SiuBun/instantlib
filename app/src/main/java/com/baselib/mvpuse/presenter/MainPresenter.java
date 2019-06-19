@@ -12,7 +12,6 @@ public class MainPresenter extends BasePresenter<MainView, MainModel> {
     }
 
     public void doLogin(String account, String pws) {
-
         getModel().doLogin(account,pws,getLoginListener());
     }
 

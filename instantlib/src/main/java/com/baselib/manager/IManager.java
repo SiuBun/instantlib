@@ -1,4 +1,4 @@
-package com.baselib.mvpuse.manager;
+package com.baselib.manager;
 
 /**
  * 管理对象基类

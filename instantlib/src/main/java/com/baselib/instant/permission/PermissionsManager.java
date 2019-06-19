@@ -13,7 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.baselib.instant.Const;
-import com.baselib.mvpuse.manager.IManager;
+import com.baselib.manager.IManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
