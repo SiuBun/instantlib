@@ -46,7 +46,7 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
             public void loginResult(boolean result) {
                 Toast.makeText(getActivity(), result ? "成功" : "失败", Toast.LENGTH_SHORT).show();
                 if (result) {
-                    startFragmentByClz(R.id.flt_main_root,new MenuFragment());
+                    startFragmentByClz(R.id.flt_main_root,new MenuFragment(),true);
                 }
             }
         };

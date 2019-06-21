@@ -1,10 +1,8 @@
 package com.baselib.mvpuse.widget;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.baselib.instant.Const;
 import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseFragment;
@@ -14,18 +12,9 @@ import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
-import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
