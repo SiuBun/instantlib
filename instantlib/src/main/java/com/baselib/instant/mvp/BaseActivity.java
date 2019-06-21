@@ -31,9 +31,10 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreate");
         super.onCreate(savedInstanceState);
         activitySettingBeforeSetContent();
-        if (0 != getContentId()){
+        if (0 != getContentId()) {
             setContentView(getContentId());
         }
         activitySettingAfterSetContent();
@@ -56,15 +57,16 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
     /**
      * 如果子类需要Handler的消息做回调处理,可以直接重写该方法进行处理
+     *
      * @return 消息回调处理对象
-     * */
+     */
     public BusinessHandler.IHandlerMsgListener getHandlerListener() {
         return null;
     }
 
     /**
      * 加载数据
-     * */
+     */
     protected abstract void initData();
 
     /**
@@ -105,7 +107,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
                         LogUtils.d("弹窗展示");
                     }
                 } else {
-                    if (mProgressBar.isShowing()){
+                    if (mProgressBar.isShowing()) {
                         mProgressBar.dismiss();
                         LogUtils.d("弹窗关闭");
                     }
@@ -130,6 +132,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
         mHandler.onDestroy();
         mPresenter.detach();
         super.onDestroy();
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
     }
 
     /**
@@ -197,7 +200,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
         initHandler();
     }
 
-    public Activity getActivity(){
+    public Activity getActivity() {
         return this;
     }
 }

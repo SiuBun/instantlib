@@ -10,7 +10,7 @@ import com.baselib.instant.Const;
  * log工具类
  *
  * @author wsb
- * */
+ */
 public class LogUtils {
     private static final String TAG = Const.TAG;
     private static boolean LOG_SWITCH = false;
@@ -41,11 +41,21 @@ public class LogUtils {
         StringBuilder sb = new StringBuilder();
         if (args.length == 0) {
             sb.append("args is empty");
-        }else {
+        } else {
             for (Object object : args) {
                 sb.append(object).append(" ");
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * 生命周期log
+     *
+     * @param simpleName 类名
+     * @param content    方法名
+     */
+    public static void lifeLog(String simpleName, String content) {
+        i(simpleName + content);
     }
 }

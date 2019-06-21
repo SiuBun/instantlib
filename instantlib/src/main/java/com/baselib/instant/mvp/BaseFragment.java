@@ -51,7 +51,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        LogUtils.i(this.getClass().getSimpleName() +" onCreateView");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreateView");
         mFragmentView = inflater.inflate(getFragmentLayout(), container, false);
 
         initFragmentViews(mFragmentView);
@@ -89,7 +89,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
 
     /**
      * 加载数据
-     * */
+     */
     protected abstract void initData();
 
     /**
@@ -106,8 +106,9 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
 
     /**
      * 如果子类需要Handler的消息做回调处理,可以直接重写该方法进行处理
+     *
      * @return 消息回调处理对象
-     * */
+     */
     public BusinessHandler.IHandlerMsgListener getHandlerListener() {
         return null;
     }
@@ -128,7 +129,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      * @return id对应的控件对象
      */
     public <C extends View> C findViewById(@IdRes int viewId, Class<C> clz) {
-        return (C)mFragmentView.findViewById(viewId);
+        return (C) mFragmentView.findViewById(viewId);
     }
 
     /**
@@ -138,14 +139,15 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      * @param fragment     目标fragment对象
      */
     public void startFragmentByClz(@IdRes int fragmentRoot, Fragment fragment) {
-        startFragmentByClz(fragmentRoot, fragment,false);
+        startFragmentByClz(fragmentRoot, fragment, false);
     }
 
-    public void startFragmentByClz(@IdRes int fragmentRoot, Fragment fragment,boolean removeCurrent) {
+    public void startFragmentByClz(@IdRes int fragmentRoot, Fragment fragment, boolean removeCurrent) {
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        if (removeCurrent){
-            transaction.replace(fragmentRoot,fragment);
-        }else {
+        if (removeCurrent) {
+            transaction.replace(fragmentRoot, fragment);
+        } else {
+            transaction.hide(this);
             transaction.add(fragmentRoot, fragment);
             transaction.addToBackStack(null);
         }
@@ -199,10 +201,10 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
                 if (show) {
                     if (!mProgressBar.isShowing()) {
                         mProgressBar.show();
-                        LogUtils.d( "弹窗展示");
+                        LogUtils.d("弹窗展示");
                     }
                 } else {
-                    if (mProgressBar.isShowing()){
+                    if (mProgressBar.isShowing()) {
                         mProgressBar.dismiss();
                         LogUtils.d("弹窗关闭");
                     }
@@ -216,7 +218,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      */
     @Override
     public void onDestroyView() {
-        LogUtils.i(this.getClass().getSimpleName() +" onDestroyView");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroyView");
         widgetDestory();
         mBasePresenter.detach();
         mHandler.onDestroy();
@@ -236,61 +238,61 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        LogUtils.i(this.getClass().getSimpleName() +" onAttach");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onAttach");
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogUtils.i(this.getClass().getSimpleName() +" onCreate");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreate");
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        LogUtils.i(this.getClass().getSimpleName() +" onViewCreated");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onViewCreated");
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        LogUtils.i(this.getClass().getSimpleName() +" onActivityCreated");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onActivityCreated");
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        LogUtils.i(this.getClass().getSimpleName() +" onStart");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onStart");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        LogUtils.i(this.getClass().getSimpleName() +" onResume");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        LogUtils.i(this.getClass().getSimpleName() +" onPause");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onPause");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        LogUtils.i(this.getClass().getSimpleName() +" onStop");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onStop");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LogUtils.i(this.getClass().getSimpleName() +" onDestroy");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        LogUtils.i(this.getClass().getSimpleName() +" onDetach");
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onDetach");
     }
 
 }

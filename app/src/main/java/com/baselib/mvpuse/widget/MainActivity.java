@@ -6,9 +6,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 
 import com.baselib.instant.mvp.BaseActivity;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.R;
 import com.baselib.mvpuse.presenter.MainPresenter;
 import com.baselib.mvpuse.view.MainView;
+
+import java.util.List;
 
 /**
  * 示例界面
@@ -28,7 +31,8 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
 
     @Override
     protected MainView getViewImpl() {
-        return new MainView(){};
+        return new MainView() {
+        };
     }
 
     @Override
@@ -44,8 +48,7 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
     protected void initView() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.flt_main_root,new LoginFragment())
-                .addToBackStack(null)
+                .add(R.id.flt_main_root, new LoginFragment())
                 .commit();
     }
 
@@ -57,13 +60,18 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
 //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {
 //        if (keyCode == KeyEvent.KEYCODE_BACK) {
-//            //实现只在冷启动时显示启动页，即点击返回键与点击HOME键退出效果一致
-//            Intent intent = new Intent(Intent.ACTION_MAIN);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.addCategory(Intent.CATEGORY_HOME);
-//            startActivity(intent);
+//            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+//            if (fragments.size() == 1) {
+//                LogUtils.d("当前只剩下一个挂载的fragment,拦截退栈为home键");
+//                //实现只在冷启动时显示启动页，即点击返回键与点击HOME键退出效果一致
+//                Intent intent = new Intent(Intent.ACTION_MAIN);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                intent.addCategory(Intent.CATEGORY_HOME);
+//                startActivity(intent);
+//            }
 //            return true;
 //        }
 //        return super.onKeyDown(keyCode, event);
+//
 //    }
 }
