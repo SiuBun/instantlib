@@ -2,22 +2,24 @@ package com.baselib.instant.mvp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.baselib.instant.Const;
+import com.baselib.instant.R;
 import com.baselib.instant.manager.BusinessHandler;
+import com.baselib.instant.util.LogUtils;
 
 
 /**
@@ -49,6 +51,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        LogUtils.i(this.getClass().getSimpleName() +" onCreateView");
         mFragmentView = inflater.inflate(getFragmentLayout(), container, false);
 
         initFragmentViews(mFragmentView);
@@ -60,7 +63,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
             mBasePresenter.attach(getViewImpl());
         }
         initData();
-
         return mFragmentView;
     }
 
@@ -136,9 +138,17 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      * @param fragment     目标fragment对象
      */
     public void startFragmentByClz(@IdRes int fragmentRoot, Fragment fragment) {
+        startFragmentByClz(fragmentRoot, fragment,false);
+    }
+
+    public void startFragmentByClz(@IdRes int fragmentRoot, Fragment fragment,boolean removeCurrent) {
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.add(fragmentRoot, fragment);
-        transaction.addToBackStack(null);
+        if (removeCurrent){
+            transaction.replace(fragmentRoot,fragment);
+        }else {
+            transaction.add(fragmentRoot, fragment);
+            transaction.addToBackStack(null);
+        }
         transaction.commit();
     }
 
@@ -189,12 +199,13 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
                 if (show) {
                     if (!mProgressBar.isShowing()) {
                         mProgressBar.show();
-
-                        Log.d(Const.TAG, "弹窗展示");
+                        LogUtils.d( "弹窗展示");
                     }
                 } else {
-                    mProgressBar.dismiss();
-                    Log.d(Const.TAG, "弹窗关闭");
+                    if (mProgressBar.isShowing()){
+                        mProgressBar.dismiss();
+                        LogUtils.d("弹窗关闭");
+                    }
                 }
             }
         });
@@ -205,9 +216,82 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      */
     @Override
     public void onDestroyView() {
+        LogUtils.i(this.getClass().getSimpleName() +" onDestroyView");
+        widgetDestory();
         mBasePresenter.detach();
         mHandler.onDestroy();
         super.onDestroyView();
     }
+
+    /**
+     * 控件回收
+     * <p>
+     * 界面销毁阶段调用该方法进行相关控件销毁，如果子类有相关控件销毁操作可以重写该方法，在方法中执行
+     */
+    public void widgetDestory() {
+        controlProgressBar(false);
+        mProgressBar = null;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        LogUtils.i(this.getClass().getSimpleName() +" onAttach");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        LogUtils.i(this.getClass().getSimpleName() +" onCreate");
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        LogUtils.i(this.getClass().getSimpleName() +" onViewCreated");
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        LogUtils.i(this.getClass().getSimpleName() +" onActivityCreated");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        LogUtils.i(this.getClass().getSimpleName() +" onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LogUtils.i(this.getClass().getSimpleName() +" onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LogUtils.i(this.getClass().getSimpleName() +" onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        LogUtils.i(this.getClass().getSimpleName() +" onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LogUtils.i(this.getClass().getSimpleName() +" onDestroy");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        LogUtils.i(this.getClass().getSimpleName() +" onDetach");
+    }
+
 }
 

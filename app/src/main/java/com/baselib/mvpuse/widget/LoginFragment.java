@@ -14,12 +14,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.baselib.instant.floatwindow.AbstractShowMode;
-import com.baselib.instant.floatwindow.FloatButtonController;
-import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.mvpuse.R;
-import com.baselib.mvpuse.model.LoginFragModel;
 import com.baselib.mvpuse.presenter.LoginFragPresenter;
 import com.baselib.mvpuse.view.LoginFragView;
 
@@ -30,7 +26,7 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
     private EditText mEtPsw;
     private LinearLayout mLltLoginContainer;
     private ImageView mIvLogo;
-    private FloatButtonController mFloatButtonController;
+
 
     @Override
     public int getFragmentLayout() {
@@ -50,10 +46,7 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
             public void loginResult(boolean result) {
                 Toast.makeText(getActivity(), result ? "成功" : "失败", Toast.LENGTH_SHORT).show();
                 if (result) {
-                    AbstractShowMode showType = FloatButtonController.getShowType(false);
-                    mFloatButtonController
-                            .setShowType(showType)
-                            .showFloatButton(getActivity());
+                    startFragmentByClz(R.id.flt_main_root,new MenuFragment(),true);
                 }
             }
         };
@@ -67,7 +60,6 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
     @Override
     protected void initData() {
         iniAnim();
-        mFloatButtonController = (FloatButtonController) GlobalManager.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
     }
 
     @Override
@@ -96,7 +88,7 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
         mBtnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFloatButtonController.closeFloatButton();
+
             }
         });
     }

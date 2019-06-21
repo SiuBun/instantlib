@@ -2,6 +2,7 @@ package com.baselib.mvpuse.widget;
 
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 
 import com.baselib.instant.mvp.BaseActivity;
@@ -22,7 +23,6 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
 
     @Override
     protected void initData() {
-
     }
 
 
@@ -42,7 +42,11 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
 
     @Override
     protected void initView() {
-        mFragmentMain = getSupportFragmentManager().findFragmentById(R.id.frag_main_login);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.flt_main_root,new LoginFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -50,16 +54,16 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
         return R.layout.activity_main;
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            //实现只在冷启动时显示启动页，即点击返回键与点击HOME键退出效果一致
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            startActivity(intent);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            //实现只在冷启动时显示启动页，即点击返回键与点击HOME键退出效果一致
+//            Intent intent = new Intent(Intent.ACTION_MAIN);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.addCategory(Intent.CATEGORY_HOME);
+//            startActivity(intent);
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 }

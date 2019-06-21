@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.baselib.instant.Const;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.manager.IManager;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class PermissionsManager implements IManager {
      */
     public void checkPermissions(Activity activity, String[] permissions, int requestCode, IPermissionsCheckCallback callback) {
         if (NOTIFY_REQ_CODE == requestCode) {
-            Log.d(Const.TAG, "请不要使用该权限请求码,否则会出现权限重新请求错乱问题");
+            LogUtils.d("请不要使用该权限请求码,否则会出现权限重新请求错乱问题");
             return;
         }
         mCallbackMap.put(requestCode, callback);
@@ -118,7 +119,7 @@ public class PermissionsManager implements IManager {
             }
 
         } else {
-            Log.d(Const.TAG, "本次权限请求响应并非权限管理工具所发起的权限请求");
+            LogUtils.d( "本次权限请求响应并非权限管理工具所发起的权限请求");
         }
     }
 

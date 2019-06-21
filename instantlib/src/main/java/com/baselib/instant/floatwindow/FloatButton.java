@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.baselib.instant.R;
+import com.baselib.instant.util.LogUtils;
 
 import org.json.JSONObject;
 
@@ -148,7 +149,7 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
      */
     public static void onResume() {
         if(sInstance != null && sInstance.layContainer != null) {
-            Log.d(TAG, "FloatButton onResume");
+            LogUtils.d(TAG, "FloatButton onResume");
             sInstance.layContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -158,7 +159,7 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
      */
     public static void onPause() {
         if(sInstance != null && sInstance.layContainer != null) {
-            Log.d(TAG, "FloatButton onPause");
+            LogUtils.d(TAG, "FloatButton onPause");
             sInstance.layContainer.setVisibility(View.GONE);
         }
     }
@@ -383,7 +384,7 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
             mWmParams.alpha = 0.7f;
             mWindowManager.updateViewLayout(layContainer, mWmParams);
         } catch (Exception ex) {
-            Log.e(TAG, "WindowManager对已脱离的View操作产生异常，已捕获");
+            LogUtils.e(TAG, "WindowManager对已脱离的View操作产生异常，已捕获");
             ex.printStackTrace();
         }
     }

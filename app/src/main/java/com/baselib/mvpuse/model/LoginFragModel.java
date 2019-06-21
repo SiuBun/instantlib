@@ -2,7 +2,6 @@ package com.baselib.mvpuse.model;
 
 import com.baselib.instant.mvp.BaseModel;
 import com.baselib.mvpuse.presenter.LoginFragPresenter;
-import com.baselib.mvpuse.presenter.MainPresenter;
 
 public class LoginFragModel extends BaseModel {
     public void doLogin(String account, String pws, LoginFragPresenter.ILoginListener loginListener) {

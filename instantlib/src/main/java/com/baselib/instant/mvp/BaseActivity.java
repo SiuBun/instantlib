@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.baselib.instant.Const;
 import com.baselib.instant.manager.BusinessHandler;
+import com.baselib.instant.util.LogUtils;
 
 /**
  * activity基类
@@ -95,21 +96,23 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      * @param show true代表展示，false则是隐藏
      */
     public void controlProgressBar(final boolean show) {
-        runOnUiThread(new Runnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 if (show) {
                     if (!mProgressBar.isShowing()) {
                         mProgressBar.show();
-
-                        Log.d(Const.TAG, "弹窗展示");
+                        LogUtils.d("弹窗展示");
                     }
                 } else {
-                    mProgressBar.dismiss();
-                    Log.d(Const.TAG, "弹窗关闭");
+                    if (mProgressBar.isShowing()){
+                        mProgressBar.dismiss();
+                        LogUtils.d("弹窗关闭");
+                    }
                 }
             }
-        });
+        };
+        runOnUiThread(runnable);
     }
 
     /**

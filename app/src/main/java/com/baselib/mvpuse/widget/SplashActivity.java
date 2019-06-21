@@ -9,6 +9,7 @@ import com.baselib.instant.Const;
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseActivity;
 import com.baselib.instant.permission.PermissionsManager;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.model.SplashModel;
 import com.baselib.mvpuse.presenter.SplashPresenter;
 import com.baselib.mvpuse.view.SplashView;
@@ -38,7 +39,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
                 if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
                     delayedToJump();
                 } else {
-                    Log.d(Const.TAG, "被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
+                    LogUtils.d("被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
                     repeatPermissionReq(manager,permissionsBeDenied);
                 }
             }

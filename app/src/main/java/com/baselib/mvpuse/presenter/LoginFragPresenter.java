@@ -1,8 +1,15 @@
 package com.baselib.mvpuse.presenter;
 
+import android.os.CountDownTimer;
+import android.util.Log;
+
+import com.baselib.instant.Const;
 import com.baselib.instant.mvp.BasePresenter;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.model.LoginFragModel;
 import com.baselib.mvpuse.view.LoginFragView;
+
+import java.util.concurrent.TimeUnit;
 
 public class LoginFragPresenter extends BasePresenter<LoginFragView, LoginFragModel> {
     @Override
@@ -10,8 +17,21 @@ public class LoginFragPresenter extends BasePresenter<LoginFragView, LoginFragMo
         return new LoginFragModel();
     }
 
-    public void doLogin(String account, String pws) {
-        getModel().doLogin(account,pws,getLoginListener());
+    public void doLogin(final String account, final String pws) {
+        getView().controlProgress(true);
+        CountDownTimer countDownTimer = new CountDownTimer(TimeUnit.SECONDS.toMillis(1), TimeUnit.SECONDS.toMillis(1)){
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                LogUtils.d("倒数时间"+TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished));
+            }
+
+            @Override
+            public void onFinish() {
+                getModel().doLogin(account,pws,getLoginListener());
+            }
+        };
+        countDownTimer.start();
     }
 
     private ILoginListener getLoginListener() {
