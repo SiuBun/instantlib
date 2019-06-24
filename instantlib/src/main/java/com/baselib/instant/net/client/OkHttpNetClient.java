@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -55,40 +56,59 @@ public class OkHttpNetClient implements INetClient {
         final Request request = new Request.Builder()
                 .url(url)
                 .build();
-        enqueue(stateCallback, request);
+        enqueue(request,stateCallback);
     }
 
-    private void enqueue(final IHttpStateCallback stateCallback, Request request) {
+    private void enqueue(Request request,final IHttpStateCallback stateCallback) {
         mCallbackHandler.reqBefore(stateCallback,request.url().toString());
+
         mCallbackHandler.reqStart(stateCallback);
-        mClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                mCallbackHandler.reqError(stateCallback,e);
-                mCallbackHandler.reqFinish(stateCallback);
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.isSuccessful()) {
-                    ResponseBody body = response.body();
-                    if (null == body){
-                        mCallbackHandler.reqFail(stateCallback,"body is null");
-                    }else {
-                        mCallbackHandler.reqSuccess(stateCallback,body.toString());
-                    }
-                } else {
-                    mCallbackHandler.reqFail(stateCallback,"response fail");
-                }
-
-                mCallbackHandler.reqFinish(stateCallback);
-            }
-        });
+        Callback callback = getNetWorkCallback(stateCallback);
+        mClient.newCall(request).enqueue(callback);
     }
 
     @Override
     public void reqPost(String url, Map<String, Object> params, IHttpStateCallback stateCallback) {
-        
+        FormBody.Builder bodyBuilder = new FormBody.Builder();
+        if (params != null && params.size() > 0) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                String key = entry.getKey();
+                String entryValue = String.valueOf(entry.getValue());
+                bodyBuilder.add(key, entryValue);
+            }
+        }
+        Request request = new Request.Builder()
+                .url(url)
+                .post(bodyBuilder.build())
+                .build();
+
+        enqueue(request,stateCallback);
+    }
+
+    private Callback getNetWorkCallback(final IHttpStateCallback stateCallback) {
+        return new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    mCallbackHandler.reqError(stateCallback, e);
+                    mCallbackHandler.reqFinish(stateCallback);
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) {
+                    if (response.isSuccessful()) {
+                        ResponseBody body = response.body();
+                        if (null == body) {
+                            mCallbackHandler.reqFail(stateCallback, "body is null");
+                        } else {
+                            mCallbackHandler.reqSuccess(stateCallback, body.toString());
+                        }
+                    } else {
+                        mCallbackHandler.reqFail(stateCallback, "response fail");
+                    }
+
+                    mCallbackHandler.reqFinish(stateCallback);
+                }
+            };
     }
 
     @Override
