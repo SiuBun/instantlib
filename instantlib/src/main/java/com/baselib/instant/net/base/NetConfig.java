@@ -18,6 +18,7 @@ public class NetConfig {
     private int mRetryCount;
     private File mCacheFile;
     private int mTimeout;
+    private int mCacheAvailableTime;
 
     public NetConfig() {
         mTimeout = DEFAULT_TIMEOUT;
@@ -46,5 +47,13 @@ public class NetConfig {
 
     public int getRetryCount() {
         return mRetryCount;
+    }
+
+    public void setCacheAvailableTime(int time) {
+        mCacheAvailableTime = time;
+    }
+
+    public int getCacheAvailableTime() {
+        return mCacheAvailableTime;
     }
 }

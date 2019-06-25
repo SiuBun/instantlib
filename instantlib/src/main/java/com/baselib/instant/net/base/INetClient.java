@@ -37,7 +37,7 @@ public interface INetClient {
     void detach();
 
     /**
-     * 设置网络请求client相关配置
+     * 客户端设置网络请求client相关配置
      *
      * @param config 客户端对网络请求client的要求
      */
@@ -49,7 +49,7 @@ public interface INetClient {
      * @param url           请求链接
      * @param params        请求参数
      * @param stateCallback 网络状态回调
-     * @return
+     * @return 返回响应对象
      */
     Response executeGet(String url, HashMap<String, Object> params, IHttpStateCallback stateCallback);
 }

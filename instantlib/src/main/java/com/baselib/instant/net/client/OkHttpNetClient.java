@@ -6,6 +6,7 @@ import com.baselib.instant.net.base.CallbackHandler;
 import com.baselib.instant.net.base.IHttpStateCallback;
 import com.baselib.instant.net.base.INetClient;
 import com.baselib.instant.net.base.NetConfig;
+import com.baselib.instant.net.intercept.RedirectInterceptor;
 import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +37,7 @@ public class OkHttpNetClient implements INetClient {
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     /**
-     * 只取网络的缓存
+     * 默认策略 只取网络的缓存
      * <p>
      * CacheControl是针对Request的
      */
@@ -45,7 +46,7 @@ public class OkHttpNetClient implements INetClient {
             .build();
 
     /**
-     * 只取本地的缓存
+     * 默认策略 只取本地的缓存
      * <p>
      * CacheControl是针对Request的
      */
@@ -70,7 +71,7 @@ public class OkHttpNetClient implements INetClient {
 
     /**
      * 合适的资源作为响应体传回客户端
-     * */
+     */
     private static final int OK = 200;
 
 
@@ -94,12 +95,24 @@ public class OkHttpNetClient implements INetClient {
                 .readTimeout(timeout, TimeUnit.SECONDS)
                 .callTimeout(timeout, TimeUnit.SECONDS);
 
-        setLogInterceptor(clientBuilder);
-        setClientCache(config, clientBuilder);
-        setCacheInterceptor(clientBuilder);
-
+        setCustomInterceptor(config, clientBuilder);
         this.mClient = clientBuilder.build();
 
+    }
+
+    /**
+     * 设置自定义拦截器
+     * <p>
+     * 对okhttpclient进行拦截设置
+     *
+     * @param config        客户端对网络请求client的要求
+     * @param clientBuilder okhttpclient构造器
+     */
+    private void setCustomInterceptor(NetConfig config, OkHttpClient.Builder clientBuilder) {
+        setLogInterceptor(clientBuilder);
+        setClientCache(config, clientBuilder);
+        setCacheInterceptor(config, clientBuilder);
+        clientBuilder.addInterceptor(new RedirectInterceptor());
     }
 
     @Override
@@ -107,7 +120,7 @@ public class OkHttpNetClient implements INetClient {
         Response response = null;
         final Request request = new Request.Builder()
 //                使用缓存
-                .cacheControl(FORCE_CACHE)
+//                .cacheControl(FORCE_CACHE)
                 .url(url)
                 .build();
 
@@ -159,8 +172,8 @@ public class OkHttpNetClient implements INetClient {
      * <p>
      * 如果服务器支持缓存,请求返回的Response会带有这样的Header:Cache-Control,max-age=xxx,这种情况下我们只需要手动给okhttp设置缓存就可以让okhttp自动帮你缓存
      *
-     * @param config        客户端指定的网络配置
-     * @param clientBuilder okhttpclient构造器
+     * @param config        see {@link #setCustomInterceptor(NetConfig, OkHttpClient.Builder)}
+     * @param clientBuilder see {@link #setCustomInterceptor(NetConfig, OkHttpClient.Builder)}
      */
     private void setClientCache(NetConfig config, OkHttpClient.Builder clientBuilder) {
         if (config.getCacheFile() != null && config.getCacheFile().exists()) {
@@ -173,13 +186,18 @@ public class OkHttpNetClient implements INetClient {
      * 整体缓存策略
      * <p>
      * 如果服务器不支持缓存就可能没有指定max-age这个头部，就需要使用Interceptor来重写Respose的头部信息，从而让okhttp支持缓存
+     * <p>
      * 通过设置拦截器，对所有的请求都做缓存策略
      *
-     * @param clientBuilder okhttpclient构造器
+     * @param config        see {@link #setCustomInterceptor(NetConfig, OkHttpClient.Builder)}
+     * @param clientBuilder see {@link #setCustomInterceptor(NetConfig, OkHttpClient.Builder)}
      */
-    private void setCacheInterceptor(OkHttpClient.Builder clientBuilder) {
+    private void setCacheInterceptor(NetConfig config, OkHttpClient.Builder clientBuilder) {
         Interceptor interceptor = chain -> {
+
             Request request = chain.request();
+            request = request.newBuilder().cacheControl(getCacheControl(config)).build();
+
             Response response = chain.proceed(request);
             String cacheControl = request.cacheControl().toString();
             LogUtils.i("请求的缓存策略 " + cacheControl);
@@ -198,12 +216,27 @@ public class OkHttpNetClient implements INetClient {
         clientBuilder.addNetworkInterceptor(interceptor);
     }
 
+
+    /**
+     * 获取缓存控制器
+     * <p>
+     * 从客户端配置内容判断是否使用客户端还是默认的
+     *
+     * @param config 客户端对网络请求client的要求
+     * @return 缓存控制器对象
+     */
+    private CacheControl getCacheControl(NetConfig config) {
+        return config.getCacheAvailableTime() > 0 ? new CacheControl.Builder()
+                .maxAge(config.getCacheAvailableTime(), TimeUnit.SECONDS)
+                .build() : FORCE_CACHE;
+    }
+
     /**
      * 设置log拦截器
      * <p>
      * 对构造器增加拦截器,将请求前后信息获取并最后返回响应结果
      *
-     * @param clientBuilder okhttpclient构造器
+     * @param clientBuilder see {@link #setCustomInterceptor(NetConfig, OkHttpClient.Builder)}
      */
     private void setLogInterceptor(OkHttpClient.Builder clientBuilder) {
         Interceptor logInterceptor = chain -> {
@@ -233,10 +266,11 @@ public class OkHttpNetClient implements INetClient {
             LogUtils.d("资源已经缓存了，可以直接使用");
             if (code == NOT_MODIFIED) {
                 LogUtils.d("所请求的内容距离上次访问并没有变化，浏览器缓存有效");
-            } if (code == OK){
+            }
+            if (code == OK) {
                 LogUtils.d("合适的资源作为响应体传回客户端");
 
-            }else {
+            } else {
                 LogUtils.d("采取别的方式获取缓存");
             }
         }

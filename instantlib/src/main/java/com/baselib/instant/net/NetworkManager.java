@@ -132,6 +132,13 @@ public class NetworkManager implements IManager {
                     .setNetClient(mClient)
                     .setConfig(mNetConfig);
         }
+
+        public Builder setCacheAvailableTime(int time) {
+            if (time>0){
+                mNetConfig.setCacheAvailableTime(time);
+            }
+            return this;
+        }
     }
 
 
