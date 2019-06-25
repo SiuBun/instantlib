@@ -16,6 +16,7 @@ public class DemoApp extends Application {
                 new NetworkManager.Builder()
                         .setRetryCount(1)
                         .setTimeOut(10)
+                        .setCacheFile(getCacheDir())
                         .setClient(OkHttpNetClient.build())
                         .build()
         );

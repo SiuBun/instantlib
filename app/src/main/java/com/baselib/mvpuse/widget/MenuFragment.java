@@ -2,6 +2,7 @@ package com.baselib.mvpuse.widget;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.manager.GlobalManager;
@@ -12,15 +13,26 @@ import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Objects;
+
 import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.Response;
 
 public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     private Button mBtnRx;
     private Button mBtnOther;
     private FloatButtonController mFloatButtonController;
+    private Button mBtnNetData;
+    private Button mBtnRetrofit;
 
     @Override
     public int getFragmentLayout() {
@@ -51,7 +63,9 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     protected void initFragmentViews(View fragmentView) {
 
         mBtnRx = findViewById(R.id.btn_rx, Button.class);
-        mBtnOther = findViewById(R.id.btn_other, Button.class);
+        mBtnOther = findViewById(R.id.btn_get_apps, Button.class);
+        mBtnNetData = findViewById(R.id.btn_net_data, Button.class);
+        mBtnRetrofit = findViewById(R.id.btn_retrofit, Button.class);
     }
 
     @Override
@@ -69,7 +83,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
                 @Override
                 public void onNext(String s) {
-                    LogUtils.d( "Observer onNext:" + s);
+                    LogUtils.d("Observer onNext:" + s);
                     // 在RxJava 2.x 中，新增的Disposable可以做到切断的操作，让Observer观察者不再接收上游事件,事件仍然分发
                     if ("cut".equals(s)) {
                         mDisposable.dispose();
@@ -78,7 +92,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
                 @Override
                 public void onError(Throwable e) {
-                    LogUtils.d( "Observer onError:" + e);
+                    LogUtils.d("Observer onError:" + e);
                 }
 
                 @Override
@@ -104,10 +118,41 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         });
 
         mBtnOther.setOnClickListener(v ->
-                Observable.fromIterable(getPresenter().getInstallAppList(v.getContext()))
+                Observable.fromIterable(
+                        getPresenter().getInstallAppList(v.getContext())
+                )
                         .map(AppInstantItemBean::getAppName)
-                        .subscribe(str -> LogUtils.d("已经安装" + str)));
+                        .doOnError(Throwable::printStackTrace)
+                        .subscribe(str -> LogUtils.d("已经安装" + str))
+        );
 
+        mBtnNetData.setOnClickListener(v ->
+                Observable.create((ObservableOnSubscribe<Response>) e -> e.onNext(getPresenter().getJoke()))
+                        .subscribeOn(Schedulers.io())
+                        .flatMap(response -> new Observable<String>() {
+                            @Override
+                            protected void subscribeActual(Observer<? super String> observer) {
+                                try {
+                                    String string = Objects.requireNonNull(response.body()).string();
+                                    LogUtils.i("获取到的结果为 " + string);
+                                    JSONObject jsonObject = new JSONObject(string);
+                                    JSONArray jsonArray = jsonObject.optJSONArray("result");
+                                    for (int index = 0; index < jsonArray.length(); index++) {
+                                        observer.onNext(jsonArray.getJSONObject(index).optString("text"));
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).take(3)
+                        .doOnError(Throwable::printStackTrace)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(title -> Toast.makeText(getActivity(), "获取到的标题为" + title, Toast.LENGTH_SHORT).show())
+        );
+
+        mBtnRetrofit.setOnClickListener(v -> {
+
+        });
     }
 
     @Override

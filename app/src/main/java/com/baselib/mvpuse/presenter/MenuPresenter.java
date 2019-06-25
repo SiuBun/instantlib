@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.Response;
+
 public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> {
     @Override
     public MenuFragModel initModel() {
@@ -34,18 +36,12 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> {
             Collections.sort(systemAppList);
             Collections.sort(userAppList);
             ArrayList<AppInstantItemBean> result = new ArrayList<>();
-            result.add(AppInstantItemBean.getFalseBean());
             result.addAll(userAppList);
-            result.add(AppInstantItemBean.getFalseBean());
             result.addAll(systemAppList);
             return result;
     }
 
-    public ArrayList<String> getAllAppName(Context context) {
-        ArrayList<String> list = new ArrayList<>();
-        for (AppInstantItemBean appInstantItemBean:getInstallAppList(context)){
-            list.add(appInstantItemBean.getAppName());
-        }
-        return list;
+    public Response getJoke() {
+        return getModel().getJokeByOkhttp();
     }
 }

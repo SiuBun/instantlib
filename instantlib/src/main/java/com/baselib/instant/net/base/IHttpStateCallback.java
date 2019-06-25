@@ -2,6 +2,8 @@ package com.baselib.instant.net.base;
 
 import java.io.IOException;
 
+import okhttp3.Response;
+
 /**
  * 网络请求状态回调
  *
@@ -22,9 +24,9 @@ public interface IHttpStateCallback {
 
     /**
      * 请求成功
-     * @param s 从服务器返回的内容
+     * @param response 从服务器返回的内容
      * */
-    void reqSuccess(String s);
+    void reqSuccess(Response response);
 
     /**
      * 请求失败

@@ -1,6 +1,7 @@
 package com.baselib.instant.permission;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,11 +10,13 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.baselib.instant.Const;
 import com.baselib.instant.util.LogUtils;
+import com.baselib.instant.util.SystemUtil;
 import com.baselib.manager.IManager;
 
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ public class PermissionsManager implements IManager {
 
     /**
      * 提示重新授权所用请求码,项目中其他权限请求码避开使用
-     * */
+     */
     private final int NOTIFY_REQ_CODE = 1002;
 
 //    private PermissionsManager() {
@@ -119,7 +122,7 @@ public class PermissionsManager implements IManager {
             }
 
         } else {
-            LogUtils.d( "本次权限请求响应并非权限管理工具所发起的权限请求");
+            LogUtils.d("本次权限请求响应并非权限管理工具所发起的权限请求");
         }
     }
 
@@ -172,29 +175,29 @@ public class PermissionsManager implements IManager {
     private void showSystemPermissionsSettingDialog(final Activity activity, String[] permissionsBeDenied) {
         final String mPackName = activity.getPackageName();
 
-            new AlertDialog.Builder(activity)
-                    .setMessage("已禁用相关权限如下:\n \t " + Arrays.toString(permissionsBeDenied) + "\n 请进入应用权限页手动授予再打开应用")
-                    .setPositiveButton("设置", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+        new AlertDialog.Builder(activity)
+                .setMessage("已禁用相关权限如下:\n \t " + Arrays.toString(permissionsBeDenied) + "\n 请进入应用权限页手动授予再打开应用")
+                .setPositiveButton("设置", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
 
-                            Uri packageURI = Uri.parse("package:" + mPackName);
-                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            activity.startActivity(intent);
-                            activity.finish();
-                        }
-                    })
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //关闭页面或者做其他操作
-                            dialog.dismiss();
-                        }
-                    })
-                    .create().show();
-        }
+                        Uri packageURI = Uri.parse("package:" + mPackName);
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.startActivity(intent);
+                        activity.finish();
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //关闭页面或者做其他操作
+                        dialog.dismiss();
+                    }
+                })
+                .create().show();
+    }
 
     /**
      * 请求所有目标权限成功
@@ -237,5 +240,30 @@ public class PermissionsManager implements IManager {
          * @param permissionsBeDenied 被拒绝的权限内容
          */
         void onCheckedFinish(String[] permissionsBeDenied);
+    }
+
+    /**
+     * 判断是否拥有某项权限
+     * <p>
+     * For Android < Android M, self permissions are always granted.
+     *
+     * @param context 上下文
+     * @param permission 权限内容
+     * @return true代表网络可用
+     */
+    public boolean selfPermissionGranted(Context context, String permission) {
+        boolean result = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (SystemUtil.getTargetSdkVersion(context) >= Build.VERSION_CODES.M) {
+                // targetSdkVersion >= Android M, we can
+                // use Context#checkSelfPermission
+                result = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+            } else {
+                // targetSdkVersion < Android M, we have to use
+                // PermissionChecker
+                result = PermissionChecker.checkSelfPermission(context, permission) == PermissionChecker.PERMISSION_GRANTED;
+            }
+        }
+        return result;
     }
 }

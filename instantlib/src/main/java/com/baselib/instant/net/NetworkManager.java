@@ -6,7 +6,11 @@ import com.baselib.instant.net.base.NetConfig;
 import com.baselib.instant.net.client.OkHttpNetClient;
 import com.baselib.manager.IManager;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
+
+import okhttp3.Response;
 
 /**
  * 网络管理对象
@@ -63,6 +67,10 @@ public class NetworkManager implements IManager {
         mNetClient.detach();
     }
 
+    public Response executeGet(String url, HashMap<String, Object> map, IHttpStateCallback stateCallback) {
+        return mNetClient.executeGet(url,map,stateCallback);
+    }
+
     /**
      * 网络管理对象构造类
      * <p>
@@ -99,6 +107,13 @@ public class NetworkManager implements IManager {
                 mClient = client;
             } else {
                 mClient = getDefaultNetClient();
+            }
+            return this;
+        }
+
+        public Builder setCacheFile(File file) {
+            if (file!=null&&file.exists()) {
+                mNetConfig.setCacheFile(file);
             }
             return this;
         }

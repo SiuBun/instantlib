@@ -7,9 +7,10 @@
 
     <Button
         android:id="@+id/btn_rx"
-        android:text="rx_demo"
-        android:layout_width="@dimen/zo_80dp"
+        android:layout_width="@dimen/zo_120dp"
         android:layout_height="@dimen/zo_50dp"
+        android:text="rx_demo"
+        android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -17,12 +18,33 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btn_other"
-        android:text="other"
-        android:layout_width="@dimen/zo_80dp"
+        android:id="@+id/btn_get_apps"
+        android:layout_width="@dimen/zo_120dp"
         android:layout_height="@dimen/zo_50dp"
+        android:text="all_app"
+        android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_rx" />
+    <Button
+        android:id="@+id/btn_net_data"
+        android:layout_width="@dimen/zo_120dp"
+        android:layout_height="@dimen/zo_50dp"
+        android:text="net_dat"
+        android:textAllCaps="false"
+        android:textSize="@dimen/zo_14sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
+    <Button
+        android:id="@+id/btn_retrofit"
+        android:layout_width="@dimen/zo_120dp"
+        android:layout_height="@dimen/zo_50dp"
+        android:text="retrofit"
+        android:textAllCaps="false"
+        android:textSize="@dimen/zo_14sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_net_data" />
 </android.support.constraint.ConstraintLayout>

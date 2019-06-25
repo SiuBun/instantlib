@@ -5,6 +5,8 @@ import android.os.Looper;
 
 import java.io.IOException;
 
+import okhttp3.Response;
+
 /**
  * 主线程回调处理
  *
@@ -21,47 +23,22 @@ public class CallbackHandler extends Handler {
     }
 
     public void reqStart(final IHttpStateCallback stateCallback) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                stateCallback.reqStart();
-            }
-        });
+        post(() -> stateCallback.reqStart());
     }
 
     public void reqFinish(final IHttpStateCallback stateCallback) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                stateCallback.reqFinish();
-            }
-        });
+        post(() -> stateCallback.reqFinish());
     }
 
     public void reqError(final IHttpStateCallback stateCallback, final IOException e) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                stateCallback.reqError(e);
-            }
-        });
+        post(() -> stateCallback.reqError(e));
     }
 
     public void reqFail(final IHttpStateCallback stateCallback, final String failInfo) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                stateCallback.reqFail(failInfo);
-            }
-        });
+        post(() -> stateCallback.reqFail(failInfo));
     }
 
-    public void reqSuccess(final IHttpStateCallback stateCallback, final String bodyString) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                stateCallback.reqSuccess(bodyString);
-            }
-        });
+    public void reqSuccess(final IHttpStateCallback stateCallback, final Response response) {
+        post(() -> stateCallback.reqSuccess(response));
     }
 }
