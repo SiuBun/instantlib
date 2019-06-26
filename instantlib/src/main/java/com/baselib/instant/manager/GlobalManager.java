@@ -3,6 +3,7 @@ package com.baselib.instant.manager;
 import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.permission.PermissionsManager;
+import com.baselib.instant.thread.ThreadExecutorProxy;
 import com.baselib.manager.IManager;
 
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class GlobalManager implements IManager {
     public static final String PERMISSION_SERVICE = "permission_service";
     public static final String FLOAT_WINDOWS_SERVICE = "float_windows_service";
     public static final String NETWORK_SERVICE = "network_service";
+    public static final String EXECUTOR_POOL_SERVICE = "executor_pool_service";
 
     /**
      * 根据名称获取对应管理对象
@@ -92,6 +94,9 @@ public class GlobalManager implements IManager {
                 break;
             case FLOAT_WINDOWS_SERVICE:
                 baseManager = new FloatButtonController();
+                break;
+                case EXECUTOR_POOL_SERVICE:
+                baseManager = new ThreadExecutorProxy();
                 break;
             default:
                 baseManager = null;

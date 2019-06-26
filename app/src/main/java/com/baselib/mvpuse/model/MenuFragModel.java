@@ -3,6 +3,7 @@ package com.baselib.mvpuse.model;
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseModel;
 import com.baselib.instant.net.base.IHttpStateCallback;
+import com.baselib.instant.thread.ThreadExecutorProxy;
 import com.baselib.instant.util.LogUtils;
 
 import java.io.IOException;
@@ -11,6 +12,11 @@ import java.util.HashMap;
 import okhttp3.Response;
 
 public class MenuFragModel extends BaseModel {
+    public MenuFragModel() {
+        ThreadExecutorProxy threadExecutorProxy = (ThreadExecutorProxy) GlobalManager.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
+        threadExecutorProxy.runOnAsyncThread(() -> LogUtils.d("这是异步运行在的线程"+Thread.currentThread().getId()));
+    }
+
     public Response getJokeByOkhttp() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("page",1);

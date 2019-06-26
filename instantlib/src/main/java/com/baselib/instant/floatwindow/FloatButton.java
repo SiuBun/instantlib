@@ -203,13 +203,10 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
         // 定时每隔5秒检查一次，是否半隐藏悬浮按钮
         mTimerTask = createTimerTask();
 //        mTimer = new Timer();
-        mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5, new ThreadFactory() {
-            @Override
-            public Thread newThread(@NonNull Runnable r) {
-                Thread thread = new Thread(r);
-                thread.setPriority(Thread.NORM_PRIORITY);
-                return thread;
-            }
+        mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5, r -> {
+            Thread thread = new Thread(r);
+            thread.setPriority(Thread.NORM_PRIORITY);
+            return thread;
         });
 
         mScheduledThreadPoolExecutor.schedule(mTimerTask, TIMER_INTERVAL, TimeUnit.MILLISECONDS);
@@ -573,16 +570,13 @@ public class FloatButton extends FrameLayout implements View.OnTouchListener {
         ivLogo.setImageResource(R.drawable.zo_new_float3_1_5);
         // 设置拖放监听
         ivLogo.setOnTouchListener(this);
-        ivLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                    // 已展开，则收起
-                if (mIsExpand) {
-                    shrinkMenuIetms();
-                } else {
-                    // 已收起，则展开
-                    expandMenuItems();
-                }
+        ivLogo.setOnClickListener(v -> {
+                // 已展开，则收起
+            if (mIsExpand) {
+                shrinkMenuIetms();
+            } else {
+                // 已收起，则展开
+                expandMenuItems();
             }
         });
     }
