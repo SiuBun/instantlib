@@ -1,4 +1,4 @@
-package com.baselib.instant.observer;
+package com.baselib.instant.observer.state;
 
 
 import com.baselib.instant.util.LogUtils;
@@ -8,9 +8,9 @@ import com.baselib.instant.util.LogUtils;
  *
  * @author wsb
  */
-class RegisterState extends BaseRegisterState {
+public class RegisterState extends BaseRegisterState {
     @Override
-    boolean unregister(IRegisterStateOperate registerStateOperate) {
+    public boolean unregister(IRegisterStateOperate registerStateOperate) {
         LogUtils.i(this + "现进行广播解注");
         return registerStateOperate.realUnregister();
     }

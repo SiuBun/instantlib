@@ -7,5 +7,5 @@ package com.baselib.instant.observer;
  *
  * @author wsb
  */
-interface ISubscriber {
+public interface ISubscriber {
 }

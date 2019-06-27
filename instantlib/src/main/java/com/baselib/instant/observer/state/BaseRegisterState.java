@@ -1,4 +1,4 @@
-package com.baselib.instant.observer;
+package com.baselib.instant.observer.state;
 
 /**
  * 注册状态基类
@@ -7,12 +7,12 @@ package com.baselib.instant.observer;
  *
  * @author wsb
  */
-class BaseRegisterState {
-    boolean register(IRegisterStateOperate registerStateOperate) {
+public class BaseRegisterState {
+    public boolean register(IRegisterStateOperate registerStateOperate) {
         return false;
     }
 
-    boolean unregister(IRegisterStateOperate registerStateOperate) {
+    public boolean unregister(IRegisterStateOperate registerStateOperate) {
         return false;
     }
 
@@ -23,7 +23,7 @@ class BaseRegisterState {
      *
      * @author wsb
      * */
-    interface IRegisterStateOperate {
+    public interface IRegisterStateOperate {
         /**
          * 真正执行注册
          * @return true为注册成功

@@ -4,7 +4,7 @@ import com.baselib.instant.net.base.IHttpStateCallback;
 import com.baselib.instant.net.base.INetClient;
 import com.baselib.instant.net.base.NetConfig;
 import com.baselib.instant.net.client.OkHttpNetClient;
-import com.baselib.manager.IManager;
+import com.baselib.instant.manager.IManager;
 
 import java.io.File;
 import java.util.HashMap;

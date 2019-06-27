@@ -12,12 +12,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
-import com.baselib.instant.Const;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.instant.util.SystemUtil;
-import com.baselib.manager.IManager;
+import com.baselib.instant.manager.IManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;

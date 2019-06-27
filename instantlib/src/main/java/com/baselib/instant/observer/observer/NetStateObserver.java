@@ -1,4 +1,4 @@
-package com.baselib.instant.observer;
+package com.baselib.instant.observer.observer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 
+import com.baselib.instant.observer.ISubscriber;
+import com.baselib.instant.observer.receiver.NetStateReceiver;
 import com.baselib.instant.util.NetUtil;
 
 import java.util.List;
@@ -49,8 +51,8 @@ public class NetStateObserver extends BaseObserver<NetStateObserver.OnNetStateCh
     /**
      * 观察者接收到指定广播的响应
      *
-     * @param netAvailable  see{@link com.baselib.instant.observer.NetStateReceiver.INetStateRegister#onReceive(boolean, boolean)}
-     * @param wifiAvailable see{@link com.baselib.instant.observer.NetStateReceiver.INetStateRegister#onReceive(boolean, boolean)}
+     * @param netAvailable  see{@link NetStateReceiver.INetStateRegister#onReceive(boolean, boolean)}
+     * @param wifiAvailable see{@link NetStateReceiver.INetStateRegister#onReceive(boolean, boolean)}
      */
     private void onReceive(boolean netAvailable, boolean wifiAvailable) {
         setNetState(netAvailable);

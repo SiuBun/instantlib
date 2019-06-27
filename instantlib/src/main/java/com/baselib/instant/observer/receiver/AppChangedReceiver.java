@@ -1,8 +1,10 @@
-package com.baselib.instant.observer;
+package com.baselib.instant.observer.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.baselib.instant.observer.ISubscriber;
 
 /**
  * 系统应用事件监听

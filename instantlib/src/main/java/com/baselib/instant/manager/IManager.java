@@ -1,4 +1,4 @@
-package com.baselib.manager;
+package com.baselib.instant.manager;
 
 /**
  * 管理对象基类

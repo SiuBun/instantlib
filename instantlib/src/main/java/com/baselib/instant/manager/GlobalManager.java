@@ -5,7 +5,6 @@ import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.permission.PermissionsManager;
 import com.baselib.instant.thread.ThreadExecutorProxy;
 import com.baselib.instant.util.LogUtils;
-import com.baselib.manager.IManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +19,6 @@ import java.util.Map;
 public class GlobalManager implements IManager {
 
     private GlobalManager() {
-    }
-
-    public static void destroy() {
-        getInstance().detach();
     }
 
     @Override
@@ -46,9 +41,9 @@ public class GlobalManager implements IManager {
      * 静态内部类
      */
     private static class InnerProvider {
+
         private static GlobalManager single = new GlobalManager();
     }
-
     private static GlobalManager getInstance() {
         return InnerProvider.single;
     }
@@ -59,11 +54,11 @@ public class GlobalManager implements IManager {
     private Map<String, IManager> mManagerMap = new HashMap<>();
 
     public static final String PERMISSION_SERVICE = "permission_service";
+
     public static final String FLOAT_WINDOWS_SERVICE = "float_windows_service";
     public static final String NETWORK_SERVICE = "network_service";
     public static final String EXECUTOR_POOL_SERVICE = "executor_pool_service";
     public static final String OBSERVER_SERVICE = "observer_service";
-
     /**
      * 根据名称获取对应管理对象
      *
@@ -77,6 +72,10 @@ public class GlobalManager implements IManager {
             getInstance().mManagerMap.put(name, baseManager);
         }
         return baseManager;
+    }
+
+    public static void destroy() {
+        getInstance().detach();
     }
 
     public static NetworkManager getNetworkManager() {

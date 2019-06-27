@@ -2,7 +2,7 @@ package com.baselib.instant.floatwindow;
 
 import android.app.Activity;
 
-import com.baselib.manager.IManager;
+import com.baselib.instant.manager.IManager;
 
 /**
  * 悬浮窗管理对象

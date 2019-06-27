@@ -8,7 +8,7 @@ import android.os.MessageQueue.IdleHandler;
 
 import com.baselib.instant.util.LogUtils;
 import com.baselib.instant.util.ReflectUtil;
-import com.baselib.manager.IManager;
+import com.baselib.instant.manager.IManager;
 
 /**
  * 线程执行代理类，用于统一管理线程

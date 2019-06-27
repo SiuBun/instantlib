@@ -1,9 +1,12 @@
-package com.baselib.instant.observer;
+package com.baselib.instant.observer.observer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+
+import com.baselib.instant.observer.ISubscriber;
+import com.baselib.instant.observer.receiver.AppChangedReceiver;
 
 import java.util.List;
 
@@ -12,7 +15,7 @@ import java.util.List;
  *
  * @author wsb
  */
-public class AppChangeObserver extends BaseObserver<AppChangeObserver.OnAppChangedListener>{
+public class AppChangeObserver extends BaseObserver<AppChangeObserver.OnAppChangedListener> {
 
     public AppChangeObserver(Context context) {
         super(context);
@@ -65,8 +68,8 @@ public class AppChangeObserver extends BaseObserver<AppChangeObserver.OnAppChang
     /**
      * 观察者接收到指定广播的响应
      *
-     * @param action see{@link com.baselib.instant.observer.AppChangedReceiver.IAppChangedRegister#onReceiveChange(String, String)}
-     * @param pkgName see{@link com.baselib.instant.observer.AppChangedReceiver.IAppChangedRegister#onReceiveChange(String, String)}
+     * @param action see{@link AppChangedReceiver.IAppChangedRegister#onReceiveChange(String, String)}
+     * @param pkgName see{@link AppChangedReceiver.IAppChangedRegister#onReceiveChange(String, String)}
      */
     private void onReceive(String action, String pkgName) {
         if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {

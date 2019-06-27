@@ -1,9 +1,15 @@
-package com.baselib.instant.observer;
+package com.baselib.instant.observer.observer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 
+import com.baselib.instant.observer.IObserver;
+import com.baselib.instant.observer.ISubscriber;
+import com.baselib.instant.observer.receiver.AppChangedReceiver;
+import com.baselib.instant.observer.state.BaseRegisterState;
+import com.baselib.instant.observer.state.RegisterState;
+import com.baselib.instant.observer.state.UnregisterState;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.ArrayList;
