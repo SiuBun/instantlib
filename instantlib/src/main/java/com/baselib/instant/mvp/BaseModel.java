@@ -1,5 +1,7 @@
 package com.baselib.instant.mvp;
 
+import android.content.Context;
+
 /**
  * M层基类
  * <p>
@@ -7,4 +9,10 @@ package com.baselib.instant.mvp;
  * @author wsb
  */
 public class BaseModel {
+    /**
+     * 数据层销毁回调
+     * */
+    public void detach(Context context) {
+
+    }
 }

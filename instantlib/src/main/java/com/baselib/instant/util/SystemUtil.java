@@ -227,6 +227,28 @@ public class SystemUtil {
     }
 
     /**
+     * 判断应用是否存在(安装)
+     * @param context
+     * @param packageName 应用包名
+     * @return
+     */
+    public static boolean isAppExist(final Context context, final String packageName) {
+        if (context == null || TextUtils.isEmpty(packageName)) {
+            return false;
+        }
+        boolean result = false;
+        try {
+            context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_SHARED_LIBRARY_FILES);
+            result = true;
+        } catch (NameNotFoundException e) {
+            result = false;
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
+    }
+
+    /**
      * 使用 Map按key进行排序
      *
      * @param map

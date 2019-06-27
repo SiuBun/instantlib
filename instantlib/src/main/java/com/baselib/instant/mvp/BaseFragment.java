@@ -55,13 +55,13 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
         mFragmentView = inflater.inflate(getFragmentLayout(), container, false);
 
         initFragmentViews(mFragmentView);
-        initListener();
-        initHandler();
         fragmentSetting();
+        initHandler();
         mBasePresenter = initPresenter();
         if (mBasePresenter != null) {
             mBasePresenter.attach(getViewImpl());
         }
+        initListener();
         initData();
         return mFragmentView;
     }
@@ -220,7 +220,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public void onDestroyView() {
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroyView");
         widgetDestory();
-        mBasePresenter.detach();
+        mBasePresenter.detach(getActivity());
         mHandler.onDestroy();
         super.onDestroyView();
     }

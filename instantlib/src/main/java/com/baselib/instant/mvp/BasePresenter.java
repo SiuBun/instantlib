@@ -1,5 +1,7 @@
 package com.baselib.instant.mvp;
 
+import android.content.Context;
+
 /**
  * P层基类
  * <p>
@@ -37,10 +39,12 @@ public abstract class BasePresenter<V extends IBaseView, M extends BaseModel> {
 
 
     /**
-     * 同步V层生命周期onDestroy,创建时候进行view层对象挂载
+     * 同步V层生命周期onDestroy,销毁时候进行view层对象解除挂载
      */
-    public void detach() {
+    public void detach(Context context) {
         mView = null;
+        mModel.detach(context);
+        mModel = null;
     }
 
 

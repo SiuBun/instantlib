@@ -41,12 +41,12 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
 //        初始化控件和监听,及轮询处理等
         initView();
-        initListener();
-
         mPresenter = iniPresenter();
         if (mPresenter != null) {
             mPresenter.attach(getViewImpl());
         }
+        initListener();
+
 
         initData();
     }
@@ -130,7 +130,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     protected void onDestroy() {
         widgetDestory();
         mHandler.onDestroy();
-        mPresenter.detach();
+        mPresenter.detach(getActivity());
         super.onDestroy();
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
     }

@@ -1,5 +1,8 @@
 package com.baselib.mvpuse.model;
 
+import android.content.Context;
+
+import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseModel;
 /**
  * 示例代码
@@ -9,4 +12,10 @@ import com.baselib.instant.mvp.BaseModel;
  * @author wsb
  */
 public class MainModel extends BaseModel {
+
+    @Override
+    public void detach(Context context) {
+        super.detach(context);
+        GlobalManager.destroy();
+    }
 }

@@ -153,6 +153,9 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnRetrofit.setOnClickListener(v -> {
 
         });
+
+
+        getPresenter().observerAppChange();
     }
 
     @Override

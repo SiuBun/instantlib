@@ -4,6 +4,7 @@ import com.baselib.instant.floatwindow.FloatButtonController;
 import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.permission.PermissionsManager;
 import com.baselib.instant.thread.ThreadExecutorProxy;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.manager.IManager;
 
 import java.util.HashMap;
@@ -21,8 +22,13 @@ public class GlobalManager implements IManager {
     private GlobalManager() {
     }
 
+    public static void destroy() {
+        getInstance().detach();
+    }
+
     @Override
     public void detach() {
+        LogUtils.d("GlobalManager#detach阶段回收各管理对象");
         if (!mManagerMap.isEmpty()) {
             for (String name : mManagerMap.keySet()) {
                 IManager manager = mManagerMap.get(name);
@@ -56,6 +62,7 @@ public class GlobalManager implements IManager {
     public static final String FLOAT_WINDOWS_SERVICE = "float_windows_service";
     public static final String NETWORK_SERVICE = "network_service";
     public static final String EXECUTOR_POOL_SERVICE = "executor_pool_service";
+    public static final String OBSERVER_SERVICE = "observer_service";
 
     /**
      * 根据名称获取对应管理对象
@@ -77,7 +84,7 @@ public class GlobalManager implements IManager {
     }
 
     public static void initNetManager(NetworkManager networkManager) {
-        getInstance().mManagerMap.put(NETWORK_SERVICE,networkManager);
+        getInstance().mManagerMap.put(NETWORK_SERVICE, networkManager);
     }
 
     /**
@@ -95,8 +102,11 @@ public class GlobalManager implements IManager {
             case FLOAT_WINDOWS_SERVICE:
                 baseManager = new FloatButtonController();
                 break;
-                case EXECUTOR_POOL_SERVICE:
+            case EXECUTOR_POOL_SERVICE:
                 baseManager = new ThreadExecutorProxy();
+                break;
+            case OBSERVER_SERVICE:
+                baseManager = new ObserverManager();
                 break;
             default:
                 baseManager = null;
