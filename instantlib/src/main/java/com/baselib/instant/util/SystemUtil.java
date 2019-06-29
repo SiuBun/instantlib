@@ -1,5 +1,6 @@
 package com.baselib.instant.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -52,6 +53,7 @@ public class SystemUtil {
      *
      * @return 返回手机唯一标识，有可能返回空字符串
      */
+    @SuppressLint("MissingPermission")
     public static String getIMEI(Context context) {
         TelephonyManager tm = (TelephonyManager) context.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         if (tm == null) {

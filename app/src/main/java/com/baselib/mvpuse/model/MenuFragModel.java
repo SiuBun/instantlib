@@ -14,7 +14,7 @@ import okhttp3.Response;
 public class MenuFragModel extends BaseModel {
     public MenuFragModel() {
         ThreadExecutorProxy threadExecutorProxy = (ThreadExecutorProxy) GlobalManager.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
-        threadExecutorProxy.runOnAsyncThread(() -> LogUtils.d("这是异步运行在的线程"+Thread.currentThread().getId()));
+        threadExecutorProxy.runOnAsyncThread(() -> LogUtils.d("这是异步运行在的线程" + Thread.currentThread().getId()));
     }
 
     public Response getJokeByOkhttp() {
