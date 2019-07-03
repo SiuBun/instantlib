@@ -1,40 +1,28 @@
-package com.baselib.instant.observer.receiver;
+package com.baselib.instant.observer.receiver
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-
-import com.baselib.instant.util.NetUtil;
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import com.baselib.instant.util.NetUtil
 
 /**
  * 系统事件监听
  *
  * @author wsb
  */
-public class NetStateReceiver extends BroadcastReceiver {
-    private final INetStateRegister mINetStateRegister;
-
-    public NetStateReceiver(INetStateRegister netStateRegister) {
-        mINetStateRegister = netStateRegister;
-    }
-
-    public interface INetStateRegister {
+class NetStateReceiver constructor(private val netStateRegister: INetStateRegister?) : BroadcastReceiver() {
+    interface INetStateRegister {
         /**
          * 网络状态变化回调
          *
          * @param netWorkAvailable 网络是否可用
          * @param wifiEnable       wifi是否可用
          */
-        void onReceive(boolean netWorkAvailable, boolean wifiEnable);
+        fun onReceive(netWorkAvailable: Boolean, wifiEnable: Boolean)
     }
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (null == mINetStateRegister) {
-            return;
-        }
-        mINetStateRegister.onReceive(NetUtil.isNetWorkAvailable(context), NetUtil.isWifiEnable(context));
-
+    override fun onReceive(context: Context?, intent: Intent?) {
+        netStateRegister?.onReceive(NetUtil.isNetWorkAvailable(context), NetUtil.isWifiEnable(context))
 
 //			 Log.i("NetStateReceiver", "[NetStateReceiver#onReceive] net:" + NetUtil.isNetWorkAvailable(context) + ", wifi:" + NetUtil.isWifiEnable(context) + ", action:" + intent.getAction());
 //
@@ -55,4 +43,5 @@ public class NetStateReceiver extends BroadcastReceiver {
 //				 sInstance.setNetState(NetUtil.isNetWorkAvailable(context));
 //			 }
     }
+
 }

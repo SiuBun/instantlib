@@ -20,8 +20,7 @@ public class SysConfigChangedObserver extends BaseObserver<SysConfigChangedObser
 
     private SysConfigChangedObserver(Context context) {
         super(context);
-        Configuration config = context.getResources().getConfiguration();
-        mOrientation = config.orientation;
+        mOrientation = context.getResources().getConfiguration().orientation;
     }
 
     @Override
@@ -75,7 +74,7 @@ public class SysConfigChangedObserver extends BaseObserver<SysConfigChangedObser
         /**
          * 屏幕方向变化
          *
-         * @param newOrientation
+         * @param newOrientation 新屏幕方向
          * @see Configuration#ORIENTATION_PORTRAIT
          * @see Configuration#ORIENTATION_LANDSCAPE
          */

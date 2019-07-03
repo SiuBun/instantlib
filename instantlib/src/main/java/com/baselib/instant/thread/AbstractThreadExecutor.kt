@@ -34,8 +34,8 @@ abstract class AbstractThreadExecutor {
      * @param task 需要执行的任务
      */
     internal fun execute(task: Runnable) {
-        if(manager == null){
-            synchronized(bytesLock){
+        if (manager == null) {
+            synchronized(bytesLock) {
                 manager = initThreadPoolManager()
             }
         }
@@ -67,8 +67,8 @@ abstract class AbstractThreadExecutor {
     @JvmOverloads
     internal fun execute(task: Runnable, threadName: String?, priority: Int = Thread.currentThread().priority) {
         val namedTask = NamedTask(task)
-        if (threadName != null) {
-            namedTask.threadName = threadName
+        threadName?.let {
+            namedTask.threadName = it
         }
         namedTask.priority = priority
         execute(namedTask)
@@ -80,17 +80,15 @@ abstract class AbstractThreadExecutor {
      * @param task
      */
     internal fun cancel(task: Runnable) {
-            manager?.cancel(task)
+        manager?.cancel(task)
     }
 
     /**
      * 销毁对象
      */
     internal fun destroy() {
-        if (manager != null) {
-            manager!!.cleanUp()
-            manager = null
-        }
+        manager?.cleanUp()
+        manager = null
     }
 
 

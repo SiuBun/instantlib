@@ -143,9 +143,11 @@ class ThreadExecutorProxy :IManager{
      * @param r 目标任务
      */
     fun runOnIdleTime(r: Runnable) {
-        mMsgQueue!!.addIdleHandler {
-            r.run()
-            false
+        mMsgQueue?.let {
+            it.addIdleHandler {
+                r.run()
+                false
+            }
         }
     }
 

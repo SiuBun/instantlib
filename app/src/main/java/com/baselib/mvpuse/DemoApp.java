@@ -3,7 +3,7 @@ package com.baselib.mvpuse;
 import android.app.Application;
 
 import com.baselib.instant.manager.GlobalManager;
-import com.baselib.instant.manager.ObserverManager;
+import com.baselib.instant.observer.ObserverManager;
 import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.net.client.OkHttpNetClient;
 import com.baselib.instant.util.LogUtils;

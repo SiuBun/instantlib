@@ -1,9 +1,9 @@
-package com.baselib.instant.manager;
+package com.baselib.instant.observer;
 
 import android.content.Context;
 
+import com.baselib.instant.manager.IManager;
 import com.baselib.instant.observer.observer.AppChangeObserver;
-import com.baselib.instant.observer.IObserver;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.HashMap;

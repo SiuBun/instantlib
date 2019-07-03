@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 
 import com.baselib.instant.manager.GlobalManager;
-import com.baselib.instant.manager.ObserverManager;
+import com.baselib.instant.observer.ObserverManager;
 import com.baselib.instant.mvp.BasePresenter;
 import com.baselib.instant.observer.observer.AppChangeObserver;
 import com.baselib.instant.util.LogUtils;
