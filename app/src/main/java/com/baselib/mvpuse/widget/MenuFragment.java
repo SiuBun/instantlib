@@ -52,7 +52,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initData() {
-        mFloatButtonController = (FloatButtonController) GlobalManager.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
+        mFloatButtonController = (FloatButtonController) GlobalManager.INSTANCE.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
 
         mFloatButtonController
                 .setShowType(FloatButtonController.getShowType(false))

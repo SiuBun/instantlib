@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.telephony.TelephonyManager
+import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
@@ -263,6 +264,66 @@ class SystemUtil {
             }
 
             return null
+        }
+
+        /**
+         * 判断应用是否存在(安装)
+         * @param context
+         * @param packageName 应用包名
+         * @return
+         */
+        fun isAppExist(context: Context, packageName: String): Boolean {
+            return if (TextUtils.isEmpty(packageName)) {
+                false
+            } else {
+                try {
+                    context.packageManager.getPackageInfo(packageName, PackageManager.GET_SHARED_LIBRARY_FILES)
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+            }
+        }
+
+        /**
+         * 获取App版本名
+         *
+         * @param context     上下文
+         * @param packageName 包名
+         * @return App版本名
+         */
+        fun getAppVersionName(context: Context, packageName: String): String {
+            var appVersionName = ""
+            if (!TextUtils.isEmpty(packageName)) {
+                try {
+                    val pi = context.packageManager.getPackageInfo(packageName, 0)
+                    appVersionName = pi.versionName
+                } catch (e: PackageManager.NameNotFoundException) {
+                    e.printStackTrace()
+                }
+
+            }
+            return appVersionName
+        }
+
+        /**
+         * 获取App版本号
+         *
+         * @param context     上下文
+         * @param packageName 包名
+         * @return App版本号
+         */
+        fun getAppVersionCode(context: Context, packageName: String): Int {
+            return if (TextUtils.isEmpty(packageName)) {
+                -1
+            } else {
+                try {
+                    context.packageManager.getPackageInfo(packageName, 0)!!.versionCode
+                } catch (e: PackageManager.NameNotFoundException) {
+                    e.printStackTrace()
+                    -1
+                }
+            }
         }
     }
 }

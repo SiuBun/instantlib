@@ -30,7 +30,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     protected void initData() {
         SplashModel model = getPresenter().getModel();
 
-        final PermissionsManager manager = (PermissionsManager) GlobalManager.getManager(GlobalManager.PERMISSION_SERVICE);
+        final PermissionsManager manager = (PermissionsManager) GlobalManager.INSTANCE.getManager(GlobalManager.PERMISSION_SERVICE);
 
         PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
 
@@ -124,7 +124,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        final PermissionsManager manager = (PermissionsManager)GlobalManager.getManager(GlobalManager.PERMISSION_SERVICE);
+        final PermissionsManager manager = (PermissionsManager)GlobalManager.INSTANCE.getManager(GlobalManager.PERMISSION_SERVICE);
         manager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

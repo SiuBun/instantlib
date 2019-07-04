@@ -13,7 +13,7 @@ import okhttp3.Response;
 
 public class MenuFragModel extends BaseModel {
     public MenuFragModel() {
-        ThreadExecutorProxy threadExecutorProxy = (ThreadExecutorProxy) GlobalManager.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
+        ThreadExecutorProxy threadExecutorProxy = (ThreadExecutorProxy) GlobalManager.INSTANCE.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
         threadExecutorProxy.runOnAsyncThread(() -> LogUtils.d("这是异步运行在的线程" + Thread.currentThread().getId()));
     }
 
@@ -54,6 +54,6 @@ public class MenuFragModel extends BaseModel {
                 LogUtils.d("请求结束");
             }
         };
-        return GlobalManager.getNetworkManager().executeGet("https://api.apiopen.top/getJoke", map, stateCallback);
+        return GlobalManager.INSTANCE.getNetworkManager().executeGet("https://api.apiopen.top/getJoke", map, stateCallback);
     }
 }

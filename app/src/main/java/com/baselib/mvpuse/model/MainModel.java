@@ -16,6 +16,6 @@ public class MainModel extends BaseModel {
     @Override
     public void detach(Context context) {
         super.detach(context);
-        GlobalManager.destroy();
+        GlobalManager.INSTANCE.detach();
     }
 }

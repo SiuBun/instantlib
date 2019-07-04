@@ -431,7 +431,7 @@ public class Machine {
         // 全部的国外用户 + 有电子市场的国内用户
         if (isCnUser) {
             // 是国内用户，则进一步判断是否有电子市场
-            result = GoogleMarketUtils.isMarketExist(context);
+            result = GoogleMarketUtils.Companion.isMarketExist(context);
         } else {
             // 是国外用户
             result = true;
@@ -524,7 +524,7 @@ public class Machine {
      * 设置硬件加速
      *
      * @param view
-     * @param mdoe
+     * @param mode
      */
     public static void setHardwareAccelerated(View view, int mode) {
         if (sLevelUnder3) {
@@ -874,7 +874,7 @@ public class Machine {
             String appVersion = "\nVersion=";
             String density = "\nDensity=";
             if (context != null) {
-                appVersion += SystemUtil.getAppVersionName(context, context.getPackageName());
+                appVersion += SystemUtil.Companion.getAppVersionName(context, context.getPackageName());
                 density += String.valueOf(context.getResources().getDisplayMetrics().density);
             }
             String androidVersion = "\nAndroidVersion="

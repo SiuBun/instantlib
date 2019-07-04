@@ -55,7 +55,7 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> im
     public void observerAppChange() {
         LogUtils.i("客户端界面进行应用变化监听");
 
-        ObserverManager observerManager = (ObserverManager) GlobalManager.getManager(GlobalManager.OBSERVER_SERVICE);
+        ObserverManager observerManager = (ObserverManager) GlobalManager.INSTANCE.getManager(GlobalManager.OBSERVER_SERVICE);
         mAppChangeObserver = observerManager.getAppChangeObserver();
         mAppChangeObserver.addSubscriber(this);
     }
