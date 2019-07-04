@@ -30,7 +30,7 @@ object GlobalManager : IManager {
      * @param name 目标名称
      * @return 各功能管理对象
      */
-    fun createManagerByName(name: String): IManager {
+    private fun createManagerByName(name: String): IManager {
         val baseManager: IManager?
         when (name) {
             PERMISSION_SERVICE -> baseManager = PermissionsManager()

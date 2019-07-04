@@ -10,18 +10,18 @@ import java.lang.Exception
 
 class GoogleMarketUtils {
     companion object {
-        const val NEW_MARKET_VERSION_CODE = 8006027
-        val MARKET_PACKAGE = "com.android.vending"
+        private const val NEW_MARKET_VERSION_CODE = 8006027
+        private const val MARKET_PACKAGE = "com.android.vending"
         // 用包名搜索market上的软件
-        val SEARCH_BY_PKGNAME = "market://search?q=pname:"
+        const val SEARCH_BY_PKGNAME = "market://search?q=pname:"
         // 直接使用关键字搜索market上的软件
-        val SEARCH_BY_KEYWORD = "market://search?q="
+        const val SEARCH_BY_KEYWORD = "market://search?q="
         // 进入软件详细页面
-        val MARKET_APP_DETAIL = "market://details?id="
+        private const val MARKET_APP_DETAIL = "market://details?id="
         //浏览器版本的电子市场详情地址
-        val BROWSER_APP_DETAIL_HTTP = "http://play.google.com/store/apps/details"
+        private const val BROWSER_APP_DETAIL_HTTP = "http://play.google.com/store/apps/details"
 
-        val BROWSER_APP_DETAIL_HTTPS = "https://play.google.com/store/apps/details"
+        private const val BROWSER_APP_DETAIL_HTTPS = "https://play.google.com/store/apps/details"
 
         /**
          * 手机上是否有电子市场
