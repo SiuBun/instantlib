@@ -136,7 +136,7 @@ class SystemUtil {
                 val crunchifyBuffer = CharArray(2048)
                 try {
                     val crunchifyReader = BufferedReader(InputStreamReader(crunchifyStream, "UTF-8"))
-                    var counter = 0
+                    var counter = 1
                     while (counter != -1) {
                         crunchifyWriter.write(crunchifyBuffer, 0, counter)
                         counter = crunchifyReader.read(crunchifyBuffer)
