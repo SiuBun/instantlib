@@ -13,7 +13,7 @@ public class DemoApp extends Application {
     public void onCreate() {
         super.onCreate();
         LogUtils.setLogSwitch(BuildConfig.DEBUG);
-        GlobalManager.INSTANCE.initNetManager(
+        GlobalManager.Companion.initNetManager(
                 new NetworkManager.Builder()
                         .setRetryCount(1)
                         .setTimeOut(10)
@@ -23,6 +23,6 @@ public class DemoApp extends Application {
                         .build()
         );
 
-        ((ObserverManager)GlobalManager.INSTANCE.getManager(GlobalManager.OBSERVER_SERVICE)).attach(this);
+        ((ObserverManager)GlobalManager.Companion.getManager(GlobalManager.OBSERVER_SERVICE)).attach(this);
     }
 }

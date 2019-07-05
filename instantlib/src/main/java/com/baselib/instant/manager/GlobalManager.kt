@@ -9,21 +9,60 @@ import com.baselib.instant.util.LogUtils
 
 /**
  * 全局功能管理对象
- * <p>
+ *
  * 权限,网络等管理对象在该对象创建时候进行实例化并存入列表,通过该对象获取
  *
- * 以kotlin的object形式,依赖类的初始化锁机制实现线程安全的单例
+ * 1.外部类加载时并不需要立即加载内部类，就不会去初始化 instance。
+ *
+ * 2.确保了线程安全，也能保证单例的唯一性，同时也延迟了单例的实例化
+ *
+ * 3.致命缺点，无法传递参数
  *
  * @author wsb
  */
-object GlobalManager : IManager {
-    private var mManagerMap: HashMap<String, IManager> = HashMap()
+class GlobalManager : IManager {
+    companion object {
+        const val PERMISSION_SERVICE = "permission_service"
+        const val FLOAT_WINDOWS_SERVICE = "float_windows_service"
+        const val NETWORK_SERVICE = "network_service"
+        const val EXECUTOR_POOL_SERVICE = "executor_pool_service"
+        const val OBSERVER_SERVICE = "observer_service"
 
-    const val PERMISSION_SERVICE = "permission_service"
-    const val FLOAT_WINDOWS_SERVICE = "float_windows_service"
-    const val NETWORK_SERVICE = "network_service"
-    const val EXECUTOR_POOL_SERVICE = "executor_pool_service"
-    const val OBSERVER_SERVICE = "observer_service"
+        /**
+         * 依赖静态内部类[GlobalManagerHolder]实现[GlobalManager]的单例
+         * */
+        private var instance = GlobalManagerHolder.holder
+
+        fun initNetManager(networkManager: NetworkManager) {
+            instance.managerMap[NETWORK_SERVICE] = networkManager
+        }
+
+        fun getNetworkManager(): NetworkManager {
+            return getManager(NETWORK_SERVICE) as NetworkManager
+        }
+
+        /**
+         * 根据名称获取对应管理对象
+         *
+         * @param name 目标名称
+         * @return 各功能管理对象
+         */
+        fun getManager(name: String): IManager? {
+            var baseManager: IManager? = instance.managerMap[name]
+            if (baseManager == null) {
+                baseManager = instance.createManagerByName(name)
+                instance.managerMap[name] = baseManager
+            }
+            return baseManager
+        }
+
+        fun onDestroy(){
+            instance.detach()
+        }
+    }
+
+    private var managerMap: HashMap<String, IManager> = HashMap()
+
     /**
      * 创建不同的管理对象
      *
@@ -45,39 +84,32 @@ object GlobalManager : IManager {
         return baseManager
     }
 
+
+
+
+
     override fun detach() {
         LogUtils.d("GlobalManager#detach阶段回收各管理对象")
-        if (!mManagerMap.isNullOrEmpty()) {
-            for (name in mManagerMap.keys) {
-                val manager = mManagerMap[name]
+        if (!managerMap.isNullOrEmpty()) {
+            for (name in managerMap.keys) {
+                val manager = managerMap[name]
                 manager?.detach()
             }
-            mManagerMap.clear()
+            managerMap.clear()
         }
     }
+
 
     /**
-     * 根据名称获取对应管理对象
+     * object关键字实现[GlobalManagerHolder]的饿汉式单例
      *
-     * @param name 目标名称
-     * @return 各功能管理对象
-     */
-    fun getManager(name: String): IManager? {
-        var baseManager: IManager? = mManagerMap[name]
-        if (baseManager == null) {
-            baseManager = createManagerByName(name)
-            mManagerMap[name] = baseManager
-        }
-        return baseManager
+     * 1.以kotlin的object形式,依赖类的初始化锁机制,不存在线程安全问题
+     *
+     * 2.但是会使类加载变慢
+     *
+     * */
+    object GlobalManagerHolder {
+        val holder= GlobalManager()
     }
-
-    fun initNetManager(networkManager: NetworkManager) {
-        mManagerMap[NETWORK_SERVICE] = networkManager
-    }
-
-    fun getNetworkManager(): NetworkManager {
-        return getManager(NETWORK_SERVICE) as NetworkManager
-    }
-
-
 }
+

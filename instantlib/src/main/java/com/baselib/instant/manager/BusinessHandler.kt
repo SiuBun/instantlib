@@ -13,18 +13,18 @@ import android.os.Message
  *
  * @author wsb
  */
-class BusinessHandler(looper: Looper, private var mListener: IHandlerMsgListener?) : Handler(looper) {
+class BusinessHandler(looper: Looper, private var listener: IHandlerMsgListener?) : Handler(looper) {
 
     override fun handleMessage(msg: Message) {
-        mListener?.handleMessage(msg)
+        listener?.handleMessage(msg)
     }
 
     /**
      * 销毁阶段回调
      */
     fun onDestroy() {
-        if (mListener != null) {
-            mListener = null
+        if (listener != null) {
+            listener = null
         }
         removeCallbacksAndMessages(null)
     }
