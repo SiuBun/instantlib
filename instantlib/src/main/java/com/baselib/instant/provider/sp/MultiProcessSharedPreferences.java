@@ -81,71 +81,68 @@ import java.util.Set;
  * @author zhangguojun
  * @version 1.0
  * @since JDK1.6
- *  https://github.com/seven456/MultiProcessSharedPreferences
+ * https://github.com/seven456/MultiProcessSharedPreferences
  */
-public class MultiProcessSharedPreferences extends ContentProvider implements SharedPreferences {
+public class MultiProcessSharedPreferences extends ContentProvider implements SharedPreferences, EditorImpl.EditImplCallback {
     private static final String TAG = "MultiProcessSP";
     public static boolean DEBUG = false;
-    private Context mContext;
+    private Context mAppContext;
     private String mName;
     private int mMode;
     private boolean mIsSafeMode;
     private static final Object CONTENT = new Object();
     private HashMap<OnSharedPreferenceChangeListener, Object> mListeners;
     private BroadcastReceiver mReceiver;
-
+    /**
+     * 写在清单列表中的provider的authorities值
+     * */
     private static String sAuthoriry;
-    private static volatile Uri sAuthorityUrl;
-    private UriMatcher mUriMatcher;
-    private static final String KEY = "value";
-    private static final String KEY_NAME = "name";
-    private static final String PATH_WILDCARD = "*/";
-    private static final String PATH_GET_ALL = "getAll";
-    private static final String PATH_GET_STRING = "getString";
-    private static final String PATH_GET_INT = "getInt";
-    private static final String PATH_GET_LONG = "getLong";
-    private static final String PATH_GET_FLOAT = "getFloat";
-    private static final String PATH_GET_BOOLEAN = "getBoolean";
-    private static final String PATH_CONTAINS = "contains";
-    public static final String PATH_APPLY = "apply";
-    public static final String PATH_COMMIT = "commit";
-    private static final String PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER = "registerOnSharedPreferenceChangeListener";
-    private static final String PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER = "unregisterOnSharedPreferenceChangeListener";
-    private static final int GET_ALL = 1;
-    private static final int GET_STRING = 2;
-    private static final int GET_INT = 3;
-    private static final int GET_LONG = 4;
-    private static final int GET_FLOAT = 5;
-    private static final int GET_BOOLEAN = 6;
-    private static final int CONTAINS = 7;
-    private static final int APPLY = 8;
-    private static final int COMMIT = 9;
-    private static final int REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER = 10;
-    private static final int UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER = 11;
-    private HashMap<String, Integer> mListenersCount;
-
 
     /**
-     * 如果设备处在“安全模式”下，只有系统自带的ContentProvider才能被正常解析使用；
+     * 拼接清单列表中的provider的authorities值后的uri地址
+     * */
+    private static volatile Uri sAuthorityUrl;
+
+    private UriMatcher mUriMatcher;
+
+    private HashMap<String, Integer> mListenersCount;
+
+    /**
+     * mode不使用{@link Context#MODE_MULTI_PROCESS} 也可以支持多进程了；
+     *
+     * @param mode sp模式，参考如下
+     * @see Context#MODE_PRIVATE
+     * @see Context#MODE_WORLD_READABLE
+     * @see Context#MODE_WORLD_WRITEABLE
      */
-    private boolean isSafeMode(Context context) {
-        boolean isSafeMode;
-        try {
-            isSafeMode = context.getPackageManager().isSafeMode();
-        } catch (RuntimeException e) {
-            // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.isSafeMode(ApplicationPackageManager.java:820)
-            isSafeMode = processPmhdException(e, false);
-        }
-        return isSafeMode;
+    public static SharedPreferences getSharedPreferences(Context context, String name, int mode) {
+        return new MultiProcessSharedPreferences(context, name, mode);
     }
 
-    private void checkInitAuthority(Context context) {
+    /**
+     * @deprecated 此默认构造函数只用于父类ContentProvider在初始化时使用；
+     */
+    @Deprecated
+    public MultiProcessSharedPreferences() {
+    }
+
+    private MultiProcessSharedPreferences(Context context, String name, int mode) {
+        mAppContext = context.getApplicationContext();
+        mName = name;
+        mMode = mode;
+        mIsSafeMode = MpspUtils.isSafeMode(mAppContext);
+    }
+
+    /**
+     * 检查并防止{@link #sAuthorityUrl}为null的情况
+     */
+    public void checkInitAuthority(Context context) {
         if (sAuthorityUrl == null) {
             synchronized (MultiProcessSharedPreferences.this) {
                 if (sAuthorityUrl == null) {
                     PackageInfo packageInfos = null;
                     try {
-                        /** {@link #isPkgManagerDied } 需要额外处理的异常：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77) */
+                        // MpspUtils#isPkgManagerDied需要额外处理的异常：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
                         packageInfos = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
                     } catch (PackageManager.NameNotFoundException e) {
                         if (DEBUG) {
@@ -172,65 +169,48 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
         }
     }
 
+    @Override
+    public int getEditMode() {
+        return this.mMode;
+    }
+
+    @Override
+    public String getEditName() {
+        return mName;
+    }
+
+    @Override
+    public Uri getAuthorityUrl() {
+        return sAuthorityUrl;
+    }
+
+    @Override
+    public boolean editSafeMode() {
+        return mIsSafeMode;
+    }
+
+    @Override
+    public void editCheckInitAuthority(Context context) {
+        checkInitAuthority(context);
+    }
     // java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:80) ... Caused by: android.os.DeadObjectException at android.os.BinderProxy.transact(Native Method) at android.content.pm.IPackageManager$Stub$Proxy.getPackageInfo(IPackageManager.java:1374)
-
-    /**
-     * 判断异常属不属于DeadSystemException或携带Package manager has died内容，如果是可以进行相关处理
-     * <p>
-     * android.os.DeadSystemException
-     * at android.app.ApplicationPackageManager.getPackageInfoAsUser(ApplicationPackageManager.java:149)
-     * at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:137)
-     * at com.jb.ga0.commerce.util.io.MultiProcessSharedPreferences.checkInitAuthority(MultiProcessSharedPreferences.java:207)
-     * at com.jb.ga0.commerce.util.io.MultiProcessSharedPreferences.getValue(MultiProcessSharedPreferences.java:492)
-     * at com.jb.ga0.commerce.util.io.MultiProcessSharedPreferences.getString(MultiProcessSharedPreferences.java:279)
-     */
-    private boolean isPkgManagerDied(Exception e) {
-        return e instanceof RuntimeException
-                && e.getMessage() != null
-                && e.getCause() != null
-                && (
-                (e.getMessage().contains("Package manager has died") && e.getCause() instanceof DeadObjectException)
-                        || (e.getMessage().contains("android.os.DeadSystemException"))
-        );
+    @Override
+    public <T> T editProcessPmhdException(RuntimeException e, T result) {
+        return MpspUtils.processPmhdException(e, result);
     }
 
-    /**
-     * mode不使用{@link Context#MODE_MULTI_PROCESS}特可以支持多进程了；
-     *
-     * @param mode
-     * @see Context#MODE_PRIVATE
-     * @see Context#MODE_WORLD_READABLE
-     * @see Context#MODE_WORLD_WRITEABLE
-     */
-    public static SharedPreferences getSharedPreferences(Context context, String name, int mode) {
-        return new MultiProcessSharedPreferences(context, name, mode);
-    }
 
-    /**
-     * @deprecated 此默认构造函数只用于父类ContentProvider在初始化时使用；
-     */
-    @Deprecated
-    public MultiProcessSharedPreferences() {
-
-    }
-
-    private MultiProcessSharedPreferences(Context context, String name, int mode) {
-        mContext = context.getApplicationContext();
-        mName = name;
-        mMode = mode;
-        mIsSafeMode = isSafeMode(mContext);
-    }
 
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, ?> getAll() {
-        Map<String, ?> v = (Map<String, ?>) getValue(mContext,PATH_GET_ALL, null, null);
+        Map<String, ?> v = (Map<String, ?>) getValue(mAppContext, MpSpCons.PATH_GET_ALL, null, null);
         return v != null ? v : new HashMap<>();
     }
 
     @Override
     public String getString(String key, String defValue) {
-        return (String) getValue(mContext,PATH_GET_STRING, key, defValue);
+        return (String) getValue(mAppContext, MpSpCons.PATH_GET_STRING, key, defValue);
     }
 
     /**
@@ -238,33 +218,33 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
      */
     @Override
     public Set<String> getStringSet(String key, Set<String> defValues) {
-        return (Set<String>) getValue(mContext,PATH_GET_STRING, key, defValues);
+        return (Set<String>) getValue(mAppContext, MpSpCons.PATH_GET_STRING, key, defValues);
     }
 
     @Override
     public int getInt(String key, int defValue) {
-        return (Integer) getValue(mContext,PATH_GET_INT, key, defValue);
+        return (Integer) getValue(mAppContext, MpSpCons.PATH_GET_INT, key, defValue);
     }
 
     @Override
     public long getLong(String key, long defValue) {
-        return (Long) getValue(mContext,PATH_GET_LONG, key, defValue);
+        return (Long) getValue(mAppContext, MpSpCons.PATH_GET_LONG, key, defValue);
     }
 
     @Override
     public float getFloat(String key, float defValue) {
-        return (Float) getValue(mContext,PATH_GET_FLOAT, key, defValue);
+        return (Float) getValue(mAppContext, MpSpCons.PATH_GET_FLOAT, key, defValue);
     }
 
     @Override
     public boolean getBoolean(String key, boolean defValue) {
-        return (Boolean) getValue(mContext,PATH_GET_BOOLEAN, key, defValue);
+        return (Boolean) getValue(mAppContext, MpSpCons.PATH_GET_BOOLEAN, key, defValue);
     }
 
     @Override
     public boolean contains(String key) {
         try {
-            Object result = getValue(mContext,PATH_CONTAINS, key, null);
+            Object result = getValue(mAppContext, MpSpCons.PATH_CONTAINS, key, null);
             return Boolean.TRUE.equals(result);
         } catch (Throwable e) {
             //IGNORED
@@ -274,7 +254,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
 
     @Override
     public Editor edit() {
-        return new EditorImpl();
+        return new EditorImpl(MultiProcessSharedPreferences.this);
     }
 
     @Override
@@ -283,16 +263,16 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
             if (mListeners == null) {
                 mListeners = new HashMap<>();
             }
-            Boolean result = (Boolean) getValue(mContext,PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, null, false);
+            Boolean result = (Boolean) getValue(mAppContext, MpSpCons.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, null, false);
             if (result != null && result) {
                 mListeners.put(listener, CONTENT);
                 if (mReceiver == null) {
                     mReceiver = new BroadcastReceiver() {
                         @Override
                         public void onReceive(Context context, Intent intent) {
-                            String name = intent.getStringExtra(KEY_NAME);
+                            String name = intent.getStringExtra(MpSpCons.KEY_NAME);
                             @SuppressWarnings("unchecked")
-                            List<String> keysModified = (List<String>) intent.getSerializableExtra(KEY);
+                            List<String> keysModified = (List<String>) intent.getSerializableExtra(MpSpCons.KEY);
                             if (mName.equals(name) && keysModified != null) {
                                 Set<OnSharedPreferenceChangeListener> listeners = new HashSet<>(mListeners.keySet());
                                 for (int i = keysModified.size() - 1; i >= 0; i--) {
@@ -306,7 +286,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                             }
                         }
                     };
-                    mContext.registerReceiver(mReceiver, new IntentFilter(makeAction(mName)));
+                    mAppContext.registerReceiver(mReceiver, new IntentFilter(makeAction(mName)));
                 }
             }
         }
@@ -316,149 +296,19 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
         synchronized (this) {
             // WeakHashMap
-            getValue(mContext,PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, null, false);
+            getValue(mAppContext, MpSpCons.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, null, false);
             if (mListeners != null) {
                 mListeners.remove(listener);
                 if (mListeners.isEmpty() && mReceiver != null) {
-                    mContext.unregisterReceiver(mReceiver);
+                    mAppContext.unregisterReceiver(mReceiver);
                 }
             }
         }
     }
 
-    /**
-     * 编辑器实现
-     *
-     * @author chenchongji
-     * 2016年3月21日
-     */
-    public final class EditorImpl implements Editor {
-        private final HashMap<String, Object> mModified = new HashMap<>();
-        private boolean mClear = false;
 
-        @Override
-        public Editor putString(String key, String value) {
-            synchronized (this) {
-                mModified.put(key, value);
-                return this;
-            }
-        }
 
-        /**
-         * Android 3.0
-         */
-        @Override
-        public Editor putStringSet(String key, Set<String> values) {
-            synchronized (this) {
-                mModified.put(key, (values == null) ? null : new HashSet<>(values));
-                return this;
-            }
-        }
-
-        @Override
-        public Editor putInt(String key, int value) {
-            synchronized (this) {
-                mModified.put(key, value);
-                return this;
-            }
-        }
-
-        @Override
-        public Editor putLong(String key, long value) {
-            synchronized (this) {
-                mModified.put(key, value);
-                return this;
-            }
-        }
-
-        @Override
-        public Editor putFloat(String key, float value) {
-            synchronized (this) {
-                mModified.put(key, value);
-                return this;
-            }
-        }
-
-        @Override
-        public Editor putBoolean(String key, boolean value) {
-            synchronized (this) {
-                mModified.put(key, value);
-                return this;
-            }
-        }
-
-        @Override
-        public Editor remove(String key) {
-            synchronized (this) {
-                mModified.put(key, null);
-                return this;
-            }
-        }
-
-        @Override
-        public Editor clear() {
-            synchronized (this) {
-                mClear = true;
-                return this;
-            }
-        }
-
-        @Override
-        public void apply() {
-            setValue(mContext,PATH_APPLY);
-        }
-
-        @Override
-        public boolean commit() {
-            return setValue(mContext,PATH_COMMIT);
-        }
-
-        private boolean setValue(Context context,String pathSegment) {
-            boolean result = false;
-            // 如果设备处在“安全模式”，返回false；
-            if (!mIsSafeMode) {
-                try {
-                    checkInitAuthority(context);
-                } catch (RuntimeException e) {
-                    // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
-                    result = processPmhdException(e, false);
-                }
-                String[] selectionArgs = new String[]{String.valueOf(mMode), String.valueOf(mClear)};
-                synchronized (this) {
-                    Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(sAuthorityUrl, mName), pathSegment);
-                    ContentValues values = ReflectionUtil.contentValuesNewInstance(mModified);
-                    try {
-                        result = context.getContentResolver().update(uri, values, null, selectionArgs) > 0;
-                    } catch (IllegalArgumentException e) {
-                        // 解决ContentProvider所在进程被杀时的抛出的异常：java.lang.IllegalArgumentException: Unknown URI content://xxx.xxx.xxx/xxx/xxx at android.content.ContentResolver.update(ContentResolver.java:1312)
-                        if (DEBUG) {
-                            e.printStackTrace();
-                        }
-                    } catch (RuntimeException e) {
-                        // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.resolveContentProvider(ApplicationPackageManager.java:609) ... at android.content.ContentResolver.update(ContentResolver.java:1310)
-                        result =  processPmhdException(e, false);
-                    }
-                }
-            }
-            return result;
-        }
-    }
-
-    /**
-     * 处理Package manager has died异常
-     *
-     * @param e      异常
-     * @param result 期望返回内容
-     */
-    private <T> T processPmhdException(RuntimeException e, T result) {
-        if (isPkgManagerDied(e)) {
-            return result;
-        } else {
-            throw e;
-        }
-    }
-
-    private Object getValue(Context context,String pathSegment, String key, Object defValue) {
+    private Object getValue(Context context, String pathSegment, String key, Object defValue) {
         Object v = null;
         // 如果设备处在“安全模式”，返回defValue；
         if (mIsSafeMode) {
@@ -468,7 +318,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
             checkInitAuthority(context);
         } catch (RuntimeException e) {
             // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
-            processPmhdException(e, defValue);
+            MpspUtils.processPmhdException(e, defValue);
         }
         Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(sAuthorityUrl, mName), pathSegment);
         String[] selectionArgs = new String[]{String.valueOf(mMode), key, defValue == null ? null : String.valueOf(defValue)};
@@ -482,7 +332,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
             }
         } catch (RuntimeException e) {
             // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.resolveContentProvider(ApplicationPackageManager.java:609) ... at android.content.ContentResolver.query(ContentResolver.java:404)
-            processPmhdException(e, defValue);
+            MpspUtils.processPmhdException(e, defValue);
         }
         if (cursor != null) {
             Bundle bundle = null;
@@ -495,7 +345,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                 }
             }
             if (bundle != null) {
-                v = bundle.get(KEY);
+                v = bundle.get(MpSpCons.KEY);
                 bundle.clear();
             }
             cursor.close();
@@ -509,8 +359,8 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
 
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
-        if (mContext == null) {
-            mContext = context.getApplicationContext();
+        if (mAppContext == null) {
+            mAppContext = context.getApplicationContext();
         }
         super.attachInfo(context, info);
     }
@@ -518,82 +368,57 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     @Override
     public boolean onCreate() {
         try {
-            checkInitAuthority(mContext);
+            checkInitAuthority(mAppContext);
         } catch (RuntimeException e) {
             // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
-            sAuthoriry = processPmhdException(e, "");
+            sAuthoriry = MpspUtils.processPmhdException(e, "");
         }
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_GET_ALL, GET_ALL);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_GET_STRING, GET_STRING);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_GET_INT, GET_INT);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_GET_LONG, GET_LONG);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_GET_FLOAT, GET_FLOAT);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_GET_BOOLEAN, GET_BOOLEAN);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_CONTAINS, CONTAINS);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_APPLY, APPLY);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_COMMIT, COMMIT);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
-        mUriMatcher.addURI(sAuthoriry, PATH_WILDCARD + PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_ALL, MpSpCons.GET_ALL);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_STRING, MpSpCons.GET_STRING);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_INT, MpSpCons.GET_INT);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_LONG, MpSpCons.GET_LONG);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_FLOAT, MpSpCons.GET_FLOAT);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_BOOLEAN, MpSpCons.GET_BOOLEAN);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_CONTAINS, MpSpCons.CONTAINS);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_APPLY, MpSpCons.APPLY);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_COMMIT, MpSpCons.COMMIT);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
+        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
         return true;
     }
 
     @Override
     public Cursor query(@NotNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        String name = uri.getPathSegments().get(0);
-        int mode = Integer.parseInt(selectionArgs[0]);
-        String key = selectionArgs[1];
-        String defValue = selectionArgs[2];
-        Bundle bundle = new Bundle();
-        switch (mUriMatcher.match(uri)) {
-            case GET_ALL:
-                bundle.putSerializable(KEY, (HashMap<String, ?>) mContext.getSharedPreferences(name, mode).getAll());
-                break;
-            case GET_STRING:
-                bundle.putString(KEY, mContext.getSharedPreferences(name, mode).getString(key, defValue));
-                break;
-            case GET_INT:
-                bundle.putInt(KEY, mContext.getSharedPreferences(name, mode).getInt(key, Integer.parseInt(defValue)));
-                break;
-            case GET_LONG:
-                bundle.putLong(KEY, mContext.getSharedPreferences(name, mode).getLong(key, Long.parseLong(defValue)));
-                break;
-            case GET_FLOAT:
-                bundle.putFloat(KEY, mContext.getSharedPreferences(name, mode).getFloat(key, Float.parseFloat(defValue)));
-                break;
-            case GET_BOOLEAN:
-                bundle.putBoolean(KEY, mContext.getSharedPreferences(name, mode).getBoolean(key, Boolean.parseBoolean(defValue)));
-                break;
-            case CONTAINS:
-                bundle.putBoolean(KEY, mContext.getSharedPreferences(name, mode).contains(key));
-                break;
-            case REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER: {
-                checkInitListenersCount();
-                Integer countInteger = mListenersCount.get(name);
-                int count = (countInteger == null ? 0 : countInteger) + 1;
-                mListenersCount.put(name, count);
-                countInteger = mListenersCount.get(name);
-                bundle.putBoolean(KEY, count == (countInteger == null ? 0 : countInteger));
+        UriDispatcher.UriDispatcherCallback dispatcherCallback = new UriDispatcher.UriDispatcherCallback() {
+
+            @Override
+            public Context getContext() {
+                return mAppContext;
             }
-            break;
-            case UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER: {
-                checkInitListenersCount();
-                Integer countInteger = mListenersCount.get(name);
-                int count = (countInteger == null ? 0 : countInteger) - 1;
-                if (count <= 0) {
-                    mListenersCount.remove(name);
-                    bundle.putBoolean(KEY, !mListenersCount.containsKey(name));
-                } else {
-                    mListenersCount.put(name, count);
-                    countInteger = mListenersCount.get(name);
-                    bundle.putBoolean(KEY, count == (countInteger == null ? 0 : countInteger));
-                }
+
+            @Override
+            public UriMatcher getUriMatcher() {
+                return mUriMatcher;
             }
-            break;
-            default:
-                throw new IllegalArgumentException("This is Unknown Uri：" + uri);
-        }
-        return new BundleCursor(bundle);
+
+            @Override
+            public Uri getUri() {
+                return uri;
+            }
+
+            @Override
+            public String[] getSelectionArgs() {
+                return selectionArgs;
+            }
+
+            @Override
+            public HashMap<String, Integer> getListenersCountNoNull() {
+                checkInitListenersCount();
+                return mListenersCount;
+            }
+        };
+        return new BundleCursor(UriDispatcher.getBundleByUri(dispatcherCallback));
     }
 
     @Override
@@ -616,11 +441,11 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
         int result = 0;
         String name = uri.getPathSegments().get(0);
         int mode = Integer.parseInt(selectionArgs[0]);
-        SharedPreferences preferences = mContext.getSharedPreferences(name, mode);
+        SharedPreferences preferences = mAppContext.getSharedPreferences(name, mode);
         int match = mUriMatcher.match(uri);
         switch (match) {
-            case APPLY:
-            case COMMIT:
+            case MpSpCons.APPLY:
+            case MpSpCons.COMMIT:
                 boolean hasListeners = mListenersCount != null && mListenersCount.get(name) != null && mListenersCount.get(name) > 0;
                 ArrayList<String> keysModified = null;
                 Map<String, Object> map = null;
@@ -674,7 +499,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                     result = 1;
                 } else {
                     switch (match) {
-                        case APPLY:
+                        case MpSpCons.APPLY:
                             // Android 2.3
                             ReflectionUtil.editorApply(editor);
                             result = 1;
@@ -684,7 +509,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                             // changes reflected in memory.
                             notifyListeners(name, keysModified);
                             break;
-                        case COMMIT:
+                        case MpSpCons.COMMIT:
                             if (editor.commit()) {
                                 result = 1;
                                 notifyListeners(name, keysModified);
@@ -712,10 +537,10 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
         if (keysModified != null && !keysModified.isEmpty()) {
             Intent intent = new Intent();
             intent.setAction(makeAction(name));
-            intent.setPackage(mContext.getPackageName());
-            intent.putExtra(KEY_NAME, name);
-            intent.putExtra(KEY, keysModified);
-            mContext.sendBroadcast(intent);
+            intent.setPackage(mAppContext.getPackageName());
+            intent.putExtra(MpSpCons.KEY_NAME, name);
+            intent.putExtra(MpSpCons.KEY, keysModified);
+            mAppContext.sendBroadcast(intent);
         }
     }
 

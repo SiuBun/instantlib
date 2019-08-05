@@ -154,7 +154,7 @@ class CustomAlarm(context: Context,
      * 取消闹钟
      * @param alarmId 闹钟ID， 外部自己定义，要保证不重复且>0
      */
-    fun cancelAarm(alarmId: Int) {
+    fun cancelAlarm(alarmId: Int) {
         val alarmInfo = mPendingArray.get(alarmId) ?: return
         mAlarmManager.cancel(alarmInfo.pendingIntent)
         mPendingArray.remove(alarmId)
@@ -164,7 +164,7 @@ class CustomAlarm(context: Context,
         return alarmAction.hashCode().toString() + "_" + alarmId
     }
 
-    fun isAlarmActive(alarmId: Int): Boolean {
+    fun alarmActive(alarmId: Int): Boolean {
         return mPendingArray.get(alarmId) != null
     }
 
