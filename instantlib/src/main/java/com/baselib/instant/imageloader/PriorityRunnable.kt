@@ -6,8 +6,9 @@ package com.baselib.instant.imageloader
  * @author matt
  * @date: 2015年5月5日
  */
-abstract class PriorityRunnable internal constructor(//请求信息
-        protected var mRequest: ImageLoadRequest) : Runnable, Comparable<PriorityRunnable> {
+abstract class PriorityRunnable internal constructor(
+        /** 请求信息 */
+        private var request: ImageLoadRequest) : Runnable, Comparable<PriorityRunnable> {
 
     abstract val priority: Int
 
@@ -15,19 +16,16 @@ abstract class PriorityRunnable internal constructor(//请求信息
         val priority1 = priority
         val priority2 = another.priority
         //			return priority1 < priority2 ? 1 : (priority1 == priority2 ? 0 : -1);
-        return if (priority1 < priority2) {
+
+        return when {
             //this优先级低，排在后边
-            1
-        } else if (priority1 > priority2) {
+            priority1 < priority2 -> 1
             //this优先级高，排在前边
-            -1
-        } else if (mRequest.requestTime < another.mRequest.requestTime) {
+            priority1 > priority2 -> -1
             //this请求时间早，排在前边
-            -1
-        } else if (mRequest.requestTime > another.mRequest.requestTime) {
-            1
-        } else {
-            0
+            request.requestTime < another.request.requestTime -> -1
+            request.requestTime > another.request.requestTime -> 1
+            else -> 0
         }
     }
 

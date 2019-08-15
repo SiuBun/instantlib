@@ -21,7 +21,7 @@ class CustomAlarm(context: Context,
     override fun onReceiveTask(action: String?, alarmIdByReceive: Int) {
         if (alarmAction == action) {
             val alarmInfo = mPendingArray.get(alarmIdByReceive)
-            alarmInfo?.let {
+            alarmInfo?.also {
                 //非重复闹钟，只使用一次
                 if (alarmInfo.isRepeat) {
                     mAlarmManager.set(alarmInfo.alarmType, System.currentTimeMillis() + alarmInfo.repeatInterval, alarmInfo.pendingIntent)

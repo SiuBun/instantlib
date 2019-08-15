@@ -90,7 +90,15 @@ class GlobalManager : IManager {
 
     override fun detach() {
         LogUtils.d("GlobalManager#detach阶段回收各管理对象")
-        if (!managerMap.isNullOrEmpty()) {
+        /*if (!managerMap.isNullOrEmpty()) {
+            for (name in managerMap.keys) {
+                val manager = managerMap[name]
+                manager?.detach()
+            }
+            managerMap.clear()
+        }*/
+
+        managerMap.takeUnless { map->map.isNullOrEmpty() }.also {
             for (name in managerMap.keys) {
                 val manager = managerMap[name]
                 manager?.detach()

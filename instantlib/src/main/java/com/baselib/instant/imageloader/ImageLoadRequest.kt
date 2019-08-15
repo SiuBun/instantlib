@@ -33,7 +33,7 @@ class ImageLoadRequest(groupLabel: String?, imageUrl: String,
     /**
      * 图片加载结果回调, 回调在UI线程上执行
      */
-    private var callBack: AsyncImageLoadResultCallBack? = null
+    internal var callBack: AsyncImageLoadResultCallBack? = null
     /**
      * 图片分组标签，用于优先加载当前急需显示图片
      */
