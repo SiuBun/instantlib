@@ -8,9 +8,9 @@ import android.content.Intent
  * 任务广播接受者
  * @author wsb
  */
-class TaskReceiver constructor(val taskListener: TaskListener) : BroadcastReceiver() {
+class TaskReceiver constructor(private val taskListener: TaskListener) : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        intent?.let {
+        intent?.also {
             val alarmId = it.getIntExtra(CustomAlarm.KEY_ALARMID, CustomAlarm.ALARMID_INVALID)
             taskListener.onReceiveTask(it.action, alarmId)
         }

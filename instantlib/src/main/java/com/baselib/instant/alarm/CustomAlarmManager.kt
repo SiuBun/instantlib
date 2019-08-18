@@ -34,12 +34,22 @@ class CustomAlarmManager(context: Context) {
      */
     fun getAlarm(moduleName: String?): CustomAlarm? {
         var customAlarm: CustomAlarm? = null
-        if (!moduleName.isNullOrEmpty()) {
+        /*if (!moduleName.isNullOrEmpty()) {
             customAlarm ?: synchronized(mAlarms) {
                 customAlarm
                         ?: CustomAlarm(mApplicationContext, mApplicationContext.packageName + ALARM_ACTION_MIDDLE + moduleName).also {
                             customAlarm = it
                             mAlarms[moduleName] = it
+                        }
+            }
+        }*/
+
+        customAlarm = moduleName.takeUnless { it.isNullOrEmpty() }?.let { name ->
+            customAlarm ?: synchronized(mAlarms) {
+                customAlarm
+                        ?: CustomAlarm(mApplicationContext, mApplicationContext.packageName + ALARM_ACTION_MIDDLE + name).also { alarm ->
+                            customAlarm = alarm
+                            mAlarms[name] = alarm
                         }
             }
         }

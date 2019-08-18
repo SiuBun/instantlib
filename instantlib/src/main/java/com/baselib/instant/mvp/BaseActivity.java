@@ -6,9 +6,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
-import com.baselib.instant.Const;
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
 
@@ -25,9 +23,9 @@ import com.baselib.instant.util.LogUtils;
  * @author wsb
  */
 public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends FragmentActivity {
-    private P mPresenter;
-    private AlertDialog mProgressBar;
-    private BusinessHandler mHandler;
+    private P presenter;
+    private AlertDialog progressBar;
+    private BusinessHandler businessHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +39,9 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
 //        初始化控件和监听,及轮询处理等
         initView();
-        mPresenter = iniPresenter();
-        if (mPresenter != null) {
-            mPresenter.attach(getViewImpl());
+        presenter = iniPresenter();
+        if (presenter != null) {
+            presenter.attach(getViewImpl());
         }
         initListener();
 
@@ -52,7 +50,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     }
 
     private void initHandler() {
-        mHandler = new BusinessHandler(Looper.getMainLooper(), getHandlerListener());
+        businessHandler = new BusinessHandler(Looper.getMainLooper(), getHandlerListener());
     }
 
     /**
@@ -75,7 +73,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      * 基类中所内置控件的初始化等操作
      */
     private void supportView() {
-        mProgressBar = buildProgressBar();
+        progressBar = buildProgressBar();
     }
 
     /**
@@ -102,13 +100,13 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
             @Override
             public void run() {
                 if (show) {
-                    if (!mProgressBar.isShowing()) {
-                        mProgressBar.show();
+                    if (!progressBar.isShowing()) {
+                        progressBar.show();
                         LogUtils.d("弹窗展示");
                     }
                 } else {
-                    if (mProgressBar.isShowing()) {
-                        mProgressBar.dismiss();
+                    if (progressBar.isShowing()) {
+                        progressBar.dismiss();
                         LogUtils.d("弹窗关闭");
                     }
                 }
@@ -129,8 +127,8 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     @Override
     protected void onDestroy() {
         widgetDestory();
-        mHandler.onDestroy();
-        mPresenter.detach(getActivity());
+        businessHandler.onDestroy();
+        presenter.detach(getActivity());
         super.onDestroy();
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
     }
@@ -142,7 +140,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      */
     public void widgetDestory() {
         controlProgressBar(false);
-        mProgressBar = null;
+        progressBar = null;
     }
 
     /**
@@ -158,11 +156,11 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
      * @return 界面对应的P层对象
      */
     public P getPresenter() {
-        return mPresenter;
+        return presenter;
     }
 
     public BusinessHandler getHandler() {
-        return mHandler;
+        return businessHandler;
     }
 
     /**
