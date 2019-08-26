@@ -16,6 +16,7 @@ public interface MpSpCons {
 
     String PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER = "registerOnSharedPreferenceChangeListener";
     String PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER = "unregisterOnSharedPreferenceChangeListener";
+    String SP_CHANGE_LISTENER_KEY = null;
 
     int GET_ALL = 1;
     int GET_STRING = 2;

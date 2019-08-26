@@ -18,7 +18,6 @@ import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.DeadObjectException;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -87,20 +86,36 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     private static final String TAG = "MultiProcessSP";
     public static boolean DEBUG = false;
     private Context mAppContext;
+    /**
+     * sp名
+     */
     private String mName;
+
+    /**
+     * sp访问模式
+     */
     private int mMode;
+    /**
+     * 当前设备是否在安全模式
+     * <p>
+     * true代表安全模式
+     */
     private boolean mIsSafeMode;
     private static final Object CONTENT = new Object();
-    private HashMap<OnSharedPreferenceChangeListener, Object> mListeners;
+
+    /**
+     * sp改变监听对象
+     */
+    private HashMap<OnSharedPreferenceChangeListener, Object> mSpChangeListeners;
     private BroadcastReceiver mReceiver;
     /**
      * 写在清单列表中的provider的authorities值
-     * */
+     */
     private static String sAuthoriry;
 
     /**
      * 拼接清单列表中的provider的authorities值后的uri地址
-     * */
+     */
     private static volatile Uri sAuthorityUrl;
 
     private UriMatcher mUriMatcher;
@@ -193,12 +208,12 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     public void editCheckInitAuthority(Context context) {
         checkInitAuthority(context);
     }
-    // java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:80) ... Caused by: android.os.DeadObjectException at android.os.BinderProxy.transact(Native Method) at android.content.pm.IPackageManager$Stub$Proxy.getPackageInfo(IPackageManager.java:1374)
+
     @Override
     public <T> T editProcessPmhdException(RuntimeException e, T result) {
+        // java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:80) ... Caused by: android.os.DeadObjectException at android.os.BinderProxy.transact(Native Method) at android.content.pm.IPackageManager$Stub$Proxy.getPackageInfo(IPackageManager.java:1374)
         return MpspUtils.processPmhdException(e, result);
     }
-
 
 
     @SuppressWarnings("unchecked")
@@ -260,12 +275,12 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     @Override
     public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
         synchronized (this) {
-            if (mListeners == null) {
-                mListeners = new HashMap<>();
+            if (mSpChangeListeners == null) {
+                mSpChangeListeners = new HashMap<>();
             }
-            Boolean result = (Boolean) getValue(mAppContext, MpSpCons.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, null, false);
-            if (result != null && result) {
-                mListeners.put(listener, CONTENT);
+            Boolean result = (Boolean) getValue(mAppContext, MpSpCons.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.SP_CHANGE_LISTENER_KEY, false);
+            if (Boolean.TRUE.equals(result)) {
+                mSpChangeListeners.put(listener, CONTENT);
                 if (mReceiver == null) {
                     mReceiver = new BroadcastReceiver() {
                         @Override
@@ -274,7 +289,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                             @SuppressWarnings("unchecked")
                             List<String> keysModified = (List<String>) intent.getSerializableExtra(MpSpCons.KEY);
                             if (mName.equals(name) && keysModified != null) {
-                                Set<OnSharedPreferenceChangeListener> listeners = new HashSet<>(mListeners.keySet());
+                                Set<OnSharedPreferenceChangeListener> listeners = new HashSet<>(mSpChangeListeners.keySet());
                                 for (int i = keysModified.size() - 1; i >= 0; i--) {
                                     final String key = keysModified.get(i);
                                     for (OnSharedPreferenceChangeListener listener : listeners) {
@@ -296,10 +311,10 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
         synchronized (this) {
             // WeakHashMap
-            getValue(mAppContext, MpSpCons.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, null, false);
-            if (mListeners != null) {
-                mListeners.remove(listener);
-                if (mListeners.isEmpty() && mReceiver != null) {
+            getValue(mAppContext, MpSpCons.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.SP_CHANGE_LISTENER_KEY, false);
+            if (mSpChangeListeners != null) {
+                mSpChangeListeners.remove(listener);
+                if (mSpChangeListeners.isEmpty() && mReceiver != null) {
                     mAppContext.unregisterReceiver(mReceiver);
                 }
             }
@@ -307,50 +322,51 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     }
 
 
-
     private Object getValue(Context context, String pathSegment, String key, Object defValue) {
         Object v = null;
         // 如果设备处在“安全模式”，返回defValue；
         if (mIsSafeMode) {
-            return defValue;
-        }
-        try {
-            checkInitAuthority(context);
-        } catch (RuntimeException e) {
-            // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
-            MpspUtils.processPmhdException(e, defValue);
-        }
-        Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(sAuthorityUrl, mName), pathSegment);
-        String[] selectionArgs = new String[]{String.valueOf(mMode), key, defValue == null ? null : String.valueOf(defValue)};
-        Cursor cursor = null;
-        try {
-            cursor = context.getContentResolver().query(uri, null, null, selectionArgs, null);
-        } catch (SecurityException e) {
-            // 解决崩溃：java.lang.SecurityException: Permission Denial: reading com.qihoo.storager.MultiProcessSharedPreferences uri content://com.qihoo.appstore.MultiProcessSharedPreferences/LogUtils/getBoolean from pid=2446, uid=10116 requires the provider be exported, or grantUriPermission() at android.content.ContentProvider$Transport.enforceReadPermission(ContentProvider.java:332) ... at android.content.ContentResolver.query(ContentResolver.java:317)
-            if (DEBUG) {
-                e.printStackTrace();
-            }
-        } catch (RuntimeException e) {
-            // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.resolveContentProvider(ApplicationPackageManager.java:609) ... at android.content.ContentResolver.query(ContentResolver.java:404)
-            MpspUtils.processPmhdException(e, defValue);
-        }
-        if (cursor != null) {
-            Bundle bundle = null;
+            v = defValue;
+        } else {
             try {
-                bundle = cursor.getExtras();
+                checkInitAuthority(context);
             } catch (RuntimeException e) {
-                // 解决ContentProvider所在进程被杀时的抛出的异常：java.lang.RuntimeException: android.os.DeadObjectException at android.database.BulkCursorToCursorAdaptor.getExtras(BulkCursorToCursorAdaptor.java:173) at android.database.CursorWrapper.getExtras(CursorWrapper.java:94)
+                // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
+                MpspUtils.processPmhdException(e, defValue);
+            }
+            Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(sAuthorityUrl, mName), pathSegment);
+            String[] selectionArgs = new String[]{String.valueOf(mMode), key, defValue == null ? null : String.valueOf(defValue)};
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(uri, null, null, selectionArgs, null);
+            } catch (SecurityException e) {
+                // 解决崩溃：java.lang.SecurityException: Permission Denial: reading com.qihoo.storager.MultiProcessSharedPreferences uri content://com.qihoo.appstore.MultiProcessSharedPreferences/LogUtils/getBoolean from pid=2446, uid=10116 requires the provider be exported, or grantUriPermission() at android.content.ContentProvider$Transport.enforceReadPermission(ContentProvider.java:332) ... at android.content.ContentResolver.query(ContentResolver.java:317)
                 if (DEBUG) {
                     e.printStackTrace();
                 }
+            } catch (RuntimeException e) {
+                // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.resolveContentProvider(ApplicationPackageManager.java:609) ... at android.content.ContentResolver.query(ContentResolver.java:404)
+                MpspUtils.processPmhdException(e, defValue);
             }
-            if (bundle != null) {
-                v = bundle.get(MpSpCons.KEY);
-                bundle.clear();
+            if (cursor != null) {
+                Bundle bundle = null;
+                try {
+                    bundle = cursor.getExtras();
+                } catch (RuntimeException e) {
+                    // 解决ContentProvider所在进程被杀时的抛出的异常：java.lang.RuntimeException: android.os.DeadObjectException at android.database.BulkCursorToCursorAdaptor.getExtras(BulkCursorToCursorAdaptor.java:173) at android.database.CursorWrapper.getExtras(CursorWrapper.java:94)
+                    if (DEBUG) {
+                        e.printStackTrace();
+                    }
+                }
+                if (bundle != null) {
+                    v = bundle.get(MpSpCons.KEY);
+                    bundle.clear();
+                }
+                cursor.close();
             }
-            cursor.close();
+            v = v != null ? v : defValue;
         }
-        return v != null ? v : defValue;
+        return v;
     }
 
     private String makeAction(String name) {
