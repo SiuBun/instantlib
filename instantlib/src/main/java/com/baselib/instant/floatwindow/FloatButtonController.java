@@ -105,7 +105,7 @@ public class FloatButtonController implements IManager {
     }
 
     @Override
-    public void detach() {
+    public void onManagerDetach() {
         mShowType = null;
     }
 }

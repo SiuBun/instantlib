@@ -41,9 +41,9 @@ public abstract class BasePresenter<V extends IBaseView, M extends BaseModel> {
     /**
      * 同步V层生命周期onDestroy,销毁时候进行view层对象解除挂载
      */
-    public void detach(Context context) {
+    public void onPresenterDetach(Context context) {
         mView = null;
-        mModel.detach(context);
+        mModel.onModelDetach(context);
         mModel = null;
     }
 

@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.baselib.instant.R;
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
 
@@ -220,7 +219,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public void onDestroyView() {
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroyView");
         widgetDestory();
-        mBasePresenter.detach(getActivity());
+        mBasePresenter.onPresenterDetach(getActivity());
         mHandler.onDestroy();
         super.onDestroyView();
     }
@@ -273,26 +272,26 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
 
     @Override
     public void onPause() {
-        super.onPause();
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onPause");
+        super.onPause();
     }
 
     @Override
     public void onStop() {
-        super.onStop();
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onStop");
+        super.onStop();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
+        super.onDestroy();
     }
 
     @Override
     public void onDetach() {
-        super.onDetach();
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDetach");
+        super.onDetach();
     }
 
 }

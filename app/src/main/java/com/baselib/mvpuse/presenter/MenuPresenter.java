@@ -77,8 +77,9 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> im
     }
 
     @Override
-    public void detach(Context context) {
+    public void onPresenterDetach(Context context) {
         mAppChangeObserver.removeSubscriber(this);
-        super.detach(context);
+
+        super.onPresenterDetach(context);
     }
 }

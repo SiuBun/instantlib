@@ -14,8 +14,7 @@ import com.baselib.instant.mvp.BaseModel;
 public class MainModel extends BaseModel {
 
     @Override
-    public void detach(Context context) {
-        super.detach(context);
-        GlobalManager.Companion.onDestroy();
+    public void onModelDetach(Context context) {
+        super.onModelDetach(context);
     }
 }

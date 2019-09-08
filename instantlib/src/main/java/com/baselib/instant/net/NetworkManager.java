@@ -63,7 +63,7 @@ public class NetworkManager implements IManager {
 
 
     @Override
-    public void detach() {
+    public void onManagerDetach() {
         mNetClient.detach();
     }
 

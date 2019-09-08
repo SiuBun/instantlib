@@ -19,9 +19,9 @@ class ObserverManager : IManager {
     val appChangeObserver: AppChangeObserver?
         get() = getObserver(APP_CHANGE_OBSERVER_NAME, AppChangeObserver::class.java)
 
-    override fun detach() {
+    override fun onManagerDetach() {
         for (name in mObserverMap.keys) {
-            mObserverMap[name]?.onDestroy()
+            mObserverMap[name]?.onObserverDetach()
         }
     }
 

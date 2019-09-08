@@ -56,8 +56,13 @@ class GlobalManager : IManager {
             return baseManager
         }
 
-        fun onDestroy(){
-            instance.detach()
+        /**
+         * 全局管理对象所调用的回收方法
+         *
+         * 对当前各管理对象进行回收
+         * */
+        fun onDestroy() {
+            instance.onManagerDetach()
         }
     }
 
@@ -77,7 +82,7 @@ class GlobalManager : IManager {
             EXECUTOR_POOL_SERVICE -> baseManager = ThreadExecutorProxy()
             OBSERVER_SERVICE -> baseManager = ObserverManager()
             else -> baseManager = object : IManager {
-                override fun detach() {
+                override fun onManagerDetach() {
                 }
             }
         }
@@ -85,23 +90,12 @@ class GlobalManager : IManager {
     }
 
 
-
-
-
-    override fun detach() {
-        LogUtils.d("GlobalManager#detach阶段回收各管理对象")
-        /*if (!managerMap.isNullOrEmpty()) {
+    override fun onManagerDetach() {
+        LogUtils.d("GlobalManager#onManagerDetach阶段回收各管理对象")
+        managerMap.takeUnless { map -> map.isNullOrEmpty() }.also {
             for (name in managerMap.keys) {
                 val manager = managerMap[name]
-                manager?.detach()
-            }
-            managerMap.clear()
-        }*/
-
-        managerMap.takeUnless { map->map.isNullOrEmpty() }.also {
-            for (name in managerMap.keys) {
-                val manager = managerMap[name]
-                manager?.detach()
+                manager?.onManagerDetach()
             }
             managerMap.clear()
         }
@@ -117,7 +111,7 @@ class GlobalManager : IManager {
      *
      * */
     object GlobalManagerHolder {
-        val holder= GlobalManager()
+        val holder = GlobalManager()
     }
 }
 

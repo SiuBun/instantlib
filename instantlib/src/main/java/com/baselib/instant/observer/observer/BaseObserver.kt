@@ -138,9 +138,9 @@ abstract class BaseObserver<T : ISubscriber>(context: Context) : IObserver<T>, B
         return unregisterResult
     }
 
-    override fun onDestroy() {
-        clearUpSubscriber()
+    override fun onObserverDetach() {
         unregister()
+        clearUpSubscriber()
         registerState = null
         unregisterState = null
     }

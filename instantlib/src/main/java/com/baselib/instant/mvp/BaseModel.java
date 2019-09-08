@@ -12,7 +12,7 @@ public class BaseModel {
     /**
      * 数据层销毁回调
      * */
-    public void detach(Context context) {
+    public void onModelDetach(Context context) {
 
     }
 }

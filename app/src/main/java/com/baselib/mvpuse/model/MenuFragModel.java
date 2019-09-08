@@ -1,5 +1,7 @@
 package com.baselib.mvpuse.model;
 
+import android.content.Context;
+
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseModel;
 import com.baselib.instant.net.base.IHttpStateCallback;
@@ -55,5 +57,11 @@ public class MenuFragModel extends BaseModel {
             }
         };
         return GlobalManager.Companion.getNetworkManager().executeGet("https://api.apiopen.top/getJoke", map, stateCallback);
+    }
+
+    @Override
+    public void onModelDetach(Context context) {
+        super.onModelDetach(context);
+        GlobalManager.Companion.onDestroy();
     }
 }

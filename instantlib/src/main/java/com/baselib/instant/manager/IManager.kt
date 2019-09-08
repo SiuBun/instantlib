@@ -4,5 +4,5 @@ interface IManager {
     /**
      * 销毁阶段回收
      */
-    fun detach()
+    fun onManagerDetach()
 }

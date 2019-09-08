@@ -15,7 +15,7 @@ public class MainPresenter extends BasePresenter<MainView, MainModel> {
 
 
     @Override
-    public void detach(Context context) {
-        super.detach(context);
+    public void onPresenterDetach(Context context) {
+        super.onPresenterDetach(context);
     }
 }

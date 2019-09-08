@@ -183,7 +183,7 @@ class PermissionsManager : IManager {
         }
     }
 
-    override fun detach() {
+    override fun onManagerDetach() {
         mCallbackMap.clear()
 
     }

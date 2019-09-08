@@ -102,12 +102,12 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
                 if (show) {
                     if (!progressBar.isShowing()) {
                         progressBar.show();
-                        LogUtils.d("弹窗展示");
+                        LogUtils.d("项目弹窗展示");
                     }
                 } else {
                     if (progressBar.isShowing()) {
                         progressBar.dismiss();
-                        LogUtils.d("弹窗关闭");
+                        LogUtils.d("项目弹窗关闭");
                     }
                 }
             }
@@ -126,11 +126,11 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
     @Override
     protected void onDestroy() {
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
         widgetDestory();
         businessHandler.onDestroy();
-        presenter.detach(getActivity());
+        presenter.onPresenterDetach(getActivity());
         super.onDestroy();
-        LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
     }
 
     /**

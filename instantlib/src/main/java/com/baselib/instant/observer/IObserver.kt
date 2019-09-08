@@ -52,5 +52,5 @@ interface IObserver<T : ISubscriber> {
     /**
      * 观察者资源销毁
      */
-    fun onDestroy()
+    fun onObserverDetach()
 }

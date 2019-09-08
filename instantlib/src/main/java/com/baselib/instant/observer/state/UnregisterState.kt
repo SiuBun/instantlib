@@ -13,7 +13,9 @@ import com.baselib.instant.util.LogUtils
 class UnregisterState : BaseRegisterState() {
     override fun register(registerStateOperate: IRegisterStateOperate): Boolean {
         LogUtils.i(this.toString() + "现进行广播注册")
-        return registerStateOperate.realRegister()
+        return registerStateOperate.realRegister().also {
+            LogUtils.i(this.toString() + "注册成功：$it")
+        }
     }
 
 }

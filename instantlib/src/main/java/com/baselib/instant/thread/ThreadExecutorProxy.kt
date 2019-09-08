@@ -160,7 +160,7 @@ class ThreadExecutorProxy :IManager{
         mainHandler.removeCallbacksAndMessages(null)
     }
 
-    override fun detach() {
+    override fun onManagerDetach() {
         destroy()
     }
 }
