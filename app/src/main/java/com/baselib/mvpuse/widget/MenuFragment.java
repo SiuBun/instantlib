@@ -30,7 +30,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     private Button mBtnRx;
     private Button mBtnOther;
-    private FloatButtonController mFloatButtonController;
+//    private FloatButtonController mFloatButtonController;
     private Button mBtnNetData;
     private Button mBtnRetrofit;
 
@@ -52,11 +52,11 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initData() {
-        mFloatButtonController = (FloatButtonController) GlobalManager.Companion.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
+//        mFloatButtonController = (FloatButtonController) GlobalManager.Companion.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
 
-        mFloatButtonController
-                .setShowType(FloatButtonController.getShowType(false))
-                .showFloatButton(getActivity());
+//        mFloatButtonController
+//                .setShowType(FloatButtonController.getShowType(false))
+//                .showFloatButton(getActivity());
     }
 
     @Override
@@ -160,7 +160,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     public void widgetDestory() {
-        mFloatButtonController.closeFloatButton();
+//        mFloatButtonController.closeFloatButton();
         super.widgetDestory();
     }
 }
