@@ -4,6 +4,7 @@ import android.content.Context
 
 import com.baselib.instant.manager.IManager
 import com.baselib.instant.observer.observer.AppChangeObserver
+import com.baselib.instant.observer.observer.NetStateObserver
 import com.baselib.instant.util.LogUtils
 
 import java.util.HashMap
@@ -18,6 +19,8 @@ class ObserverManager : IManager {
 
     val appChangeObserver: AppChangeObserver?
         get() = getObserver(APP_CHANGE_OBSERVER_NAME, AppChangeObserver::class.java)
+    val netStateObserver: NetStateObserver?
+        get() = getObserver(NET_STATE_OBSERVER_NAME, NetStateObserver::class.java)
 
     override fun onManagerDetach() {
         for (name in mObserverMap.keys) {
@@ -35,6 +38,7 @@ class ObserverManager : IManager {
      */
     fun attach(context: Context) {
         mObserverMap[APP_CHANGE_OBSERVER_NAME] = AppChangeObserver(context)
+        mObserverMap[NET_STATE_OBSERVER_NAME] = NetStateObserver(context)
     }
 
     private fun <T : IObserver<*>> getObserver(name: String, clz: Class<T>): T? {
@@ -48,5 +52,6 @@ class ObserverManager : IManager {
 
     companion object {
         private const val APP_CHANGE_OBSERVER_NAME = "AppChangeObserver"
+        private const val NET_STATE_OBSERVER_NAME = "NetStateObserver"
     }
 }

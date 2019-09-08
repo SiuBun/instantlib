@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
     protected void initView() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.flt_main_root, new LoginFragment())
+                .add(R.id.flt_main_root, new MenuFragment())
                 .commit();
     }
 

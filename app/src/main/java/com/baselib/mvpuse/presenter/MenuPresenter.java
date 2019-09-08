@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 
 import com.baselib.instant.manager.GlobalManager;
-import com.baselib.instant.observer.ObserverManager;
 import com.baselib.instant.mvp.BasePresenter;
-import com.baselib.instant.observer.observer.AppChangeObserver;
+import com.baselib.instant.observer.ObserverManager;
+import com.baselib.instant.observer.observer.NetStateObserver;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.model.MenuFragModel;
@@ -18,9 +18,20 @@ import java.util.List;
 
 import okhttp3.Response;
 
-public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> implements AppChangeObserver.OnAppChangedListener {
+public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
 
-    private AppChangeObserver mAppChangeObserver;
+    private NetStateObserver mNetStateObserver;
+    private NetStateObserver.OnNetStateChangeListener onNetStateChangeListener = new NetStateObserver.OnNetStateChangeListener() {
+        @Override
+        public void onNetStateChanged(boolean isAvailable) {
+            LogUtils.i("当前网络状态可用：" + isAvailable);
+        }
+
+        @Override
+        public void onWifiStateChanged(boolean isConnected) {
+            LogUtils.i("当前wifi状态发生变化，是否为连接状态：" + isConnected);
+        }
+    };;
 
     @Override
     public MenuFragModel initModel() {
@@ -56,29 +67,16 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> im
         LogUtils.i("客户端界面进行应用变化监听");
 
         ObserverManager observerManager = (ObserverManager) GlobalManager.Companion.getManager(GlobalManager.OBSERVER_SERVICE);
-        mAppChangeObserver = observerManager.getAppChangeObserver();
-        mAppChangeObserver.addSubscriber(this);
+        mNetStateObserver = observerManager.getNetStateObserver();
+        mNetStateObserver.addSubscriber(onNetStateChangeListener);
     }
 
-    @Override
-    public void onAppInstalled(String pkgName) {
-        LogUtils.i("客户端收到onAppInstalled " + pkgName);
-    }
 
-    @Override
-    public void onAppUninstalled(String pkgName) {
-        LogUtils.i("客户端收到onAppUninstalled " + pkgName);
-    }
 
-    @Override
-    public void onAppReplaced(String pkgName) {
-        LogUtils.i("客户端收到onAppReplaced " + pkgName);
-
-    }
 
     @Override
     public void onPresenterDetach(Context context) {
-        mAppChangeObserver.removeSubscriber(this);
+        mNetStateObserver.removeSubscriber(onNetStateChangeListener);
 
         super.onPresenterDetach(context);
     }

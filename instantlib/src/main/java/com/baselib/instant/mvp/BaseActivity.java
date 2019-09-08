@@ -13,7 +13,7 @@ import com.baselib.instant.util.LogUtils;
 /**
  * activity基类
  * <p>
- * 项目中activity相关类都要继承自该类.可以通过实现
+ * 项目中mvp架构的activity相关类都要继承自该类.可以通过实现
  * <Li>{@link #getContentId()},
  * <Li>{@link #buildProgressBar()}
  * 等抽象方法来实现界面快速构建.
@@ -201,4 +201,29 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     public Activity getActivity() {
         return this;
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onPause");
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onStop");
+        super.onStop();
+    }
+
 }

@@ -22,7 +22,7 @@ import com.baselib.instant.util.LogUtils;
 
 
 /**
- * Fragment基类
+ * 项目中mvp架构的Fragment基类
  * <p>
  * 定义时候指定P层对象并要求实现对应的{@link IBaseView}子类接口
  * <p>
