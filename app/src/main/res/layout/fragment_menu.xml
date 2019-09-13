@@ -12,10 +12,11 @@
         android:text="rx_demo"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <Button
         android:id="@+id/btn_get_apps"
@@ -47,4 +48,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_net_data" />
+    <Button
+        android:id="@+id/btn_mvvm"
+        android:layout_width="@dimen/zo_120dp"
+        android:layout_height="@dimen/zo_50dp"
+        android:text="mvvm"
+        android:textAllCaps="false"
+        android:textSize="@dimen/zo_14sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_retrofit" />
 </android.support.constraint.ConstraintLayout>

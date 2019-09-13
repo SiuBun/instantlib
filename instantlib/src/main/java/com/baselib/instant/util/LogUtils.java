@@ -56,6 +56,6 @@ public class LogUtils {
      * @param content    方法名
      */
     public static void lifeLog(String simpleName, String content) {
-        i(simpleName + content);
+        i(simpleName , content);
     }
 }

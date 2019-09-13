@@ -12,6 +12,7 @@ import com.baselib.mvpuse.R;
 import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
+import com.baselib.mvvmuse.view.MvvmTestActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,6 +34,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 //    private FloatButtonController mFloatButtonController;
     private Button mBtnNetData;
     private Button mBtnRetrofit;
+    private Button mBtnMvvm;
 
     @Override
     public int getFragmentLayout() {
@@ -66,6 +68,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnOther = findViewById(R.id.btn_get_apps, Button.class);
         mBtnNetData = findViewById(R.id.btn_net_data, Button.class);
         mBtnRetrofit = findViewById(R.id.btn_retrofit, Button.class);
+        mBtnMvvm = findViewById(R.id.btn_mvvm, Button.class);
     }
 
     @Override
@@ -154,6 +157,9 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
         });
 
+        mBtnMvvm.setOnClickListener(v->{
+            startActivity(MvvmTestActivity.class);
+        });
 
         getPresenter().observerAppChange();
     }
