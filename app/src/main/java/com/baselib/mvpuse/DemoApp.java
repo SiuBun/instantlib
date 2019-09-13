@@ -24,7 +24,7 @@ public class DemoApp extends Application {
                         .build()
         );
 
-        ((ObserverManager)GlobalManager.Companion.getManager(GlobalManager.OBSERVER_SERVICE)).attach(this);
+        ((ObserverManager)GlobalManager.Companion.getManager(GlobalManager.OBSERVER_SERVICE)).onManagerAttach(this);
     }
 
     private void setDebugMode(boolean debug) {

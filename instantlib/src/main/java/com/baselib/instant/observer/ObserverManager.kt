@@ -36,7 +36,7 @@ class ObserverManager : IManager {
      *
      * @param context 上下文
      */
-    fun attach(context: Context) {
+    fun onManagerAttach(context: Context) {
         mObserverMap[APP_CHANGE_OBSERVER_NAME] = AppChangeObserver(context)
         mObserverMap[NET_STATE_OBSERVER_NAME] = NetStateObserver(context)
     }
