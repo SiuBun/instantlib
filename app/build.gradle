@@ -38,10 +38,21 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':instantlib')
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.0.0-alpha02'
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.7'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
+    //    retrofit
+    implementation rootProject.ext.dependence["logging-interceptor"]
+    implementation rootProject.ext.dependence["okhttp"]
+    implementation rootProject.ext.dependence["okio"]
+    implementation rootProject.ext.dependence["retrofit"]
+    implementation rootProject.ext.dependence["converter-gson"]
+
+    implementation rootProject.ext.dependence["gson"]
+
+//    rxjava
+    implementation rootProject.ext.dependence["rxjava"]
+    implementation rootProject.ext.dependence["rxandroid"]
+    implementation rootProject.ext.dependence["rxadapter"]
 
     implementation rootProject.ext.dependence["lifecycle-runtime"]
     implementation rootProject.ext.dependence["lifecycle-extensions"]

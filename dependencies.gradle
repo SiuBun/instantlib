@@ -1,13 +1,31 @@
 ext {
     version = [
             androidArchSdkVersion: "1.1.0",
+            retrofit             : "2.4.0",
+            okhttp               : "4.2.0",
     ]
 
     dependence = [
-            //mvvm( Lifecycles, LiveData, and ViewModel, Room)
+
             "lifecycle-runtime"     : "android.arch.lifecycle:runtime:${version["androidArchSdkVersion"]}",
             "lifecycle-extensions"  : "android.arch.lifecycle:extensions:${version["androidArchSdkVersion"]}",
             "lifecycle-compiler"    : "android.arch.lifecycle:compiler:${version["androidArchSdkVersion"]}",
-            "lifecycle-common-java8": "android.arch.lifecycle:common-java8:${version["androidArchSdkVersion"]}"
+            "lifecycle-common-java8": "android.arch.lifecycle:common-java8:${version["androidArchSdkVersion"]}",
+
+/*rxjava*/
+            "rxjava"                : 'io.reactivex.rxjava2:rxjava:2.2.7',
+            "rxandroid"             : 'io.reactivex.rxjava2:rxandroid:2.1.1',
+            "rxadapter"             : "com.squareup.retrofit2:adapter-rxjava2:${version["retrofit"]}",
+
+//            gson
+            "gson"                  : "com.google.code.gson:gson:${version["retrofit"]}",
+
+//            retrofit2
+            "retrofit"              : "com.squareup.retrofit2:retrofit:${version["retrofit"]}",
+            "converter-gson"        : "com.squareup.retrofit2:converter-gson:${version["retrofit"]}",
+            "okio"                  : "com.squareup.okio:okio:${version["retrofit"]}",
+            "okhttp"                : "com.squareup.okhttp3:okhttp:${version["okhttp"]}",
+            "logging-interceptor"   : "com.squareup.okhttp3:logging-interceptor:${version["okhttp"]}",
+
     ]
 }
