@@ -7,6 +7,8 @@ import com.baselib.instant.mvvm.view.BaseMvvmActivity
 import com.baselib.mvpuse.R
 import com.baselib.mvpuse.databinding.ActivityMvvmTestBinding
 import com.baselib.mvvmuse.viewmodel.MvvmTestViewModel
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MvvmTestActivity : BaseMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewModel>() {
     override fun initObserveAndData(savedInstanceState: Bundle?) {
@@ -15,6 +17,12 @@ class MvvmTestActivity : BaseMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewM
 
             it.text.observe(this, Observer<String> { s -> dataBinding.tvTest.text = s })
         }
+
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                showContentView()
+            }
+        },TimeUnit.SECONDS.toMillis(2))
     }
     override fun initViewModel(): MvvmTestViewModel {
         return ViewModelProviders.of(this, MvvmTestViewModel.getFactory(application)).get(MvvmTestViewModel::class.java)

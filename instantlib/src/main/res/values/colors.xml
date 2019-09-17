@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorTheme">#a4b6c4</color>
+
+    <!--tab标签栏文字的颜色-->
+    <color name="colorTabText">#585858</color>
+</resources>

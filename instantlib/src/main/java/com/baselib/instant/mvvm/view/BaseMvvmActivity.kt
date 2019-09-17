@@ -2,13 +2,24 @@ package com.baselib.instant.mvvm.view
 
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
+import android.graphics.drawable.AnimationDrawable
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewStub
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import com.baselib.instant.R
+import com.baselib.instant.databinding.LayoutBaseCommonBinding
 import com.baselib.instant.mvvm.viewmodel.IViewModel
+import com.baselib.instant.util.LogUtils
+import com.baselib.instant.util.StatusBarUtil
 
 /**
  * mvvm架构基类
@@ -17,35 +28,225 @@ import com.baselib.instant.mvvm.viewmodel.IViewModel
  * */
 abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity() {
     /**
-     * ViewDataBinding
+     * 准备添加的界面
      */
     protected lateinit var dataBinding: DB
+
+    /**
+     * 根布局
+     * */
+    private lateinit var rootDataBinding: LayoutBaseCommonBinding
+
+    /**
+     * 加载动画
+     * */
+    private var animationDrawable: AnimationDrawable? = null
 
     /**
      * viewModel
      */
     protected var viewModel: VM? = null
 
-    protected var mViewModelFactory: ViewModelProvider.Factory? = null
+    private var errorView: View? = null
+    private var loadingView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        初始化vm层
-        viewModel = initViewModel()
+        setContentView(getActivityLayoutId())
+        onCreateOperation(savedInstanceState)
 
-//        尝试恢复原先界面
+    }
+
+    override fun setContentView(layoutResID: Int) {
+//        获取根部布局对象
+        rootDataBinding = DataBindingUtil.inflate(LayoutInflater.from(this), getBaseLayout(), null, false)
+
+//        获取页面布局对象,并准备将页面布局对象装入容器内部
+        dataBinding = DataBindingUtil.inflate<DB>(layoutInflater, layoutResID, null, false).also {
+            it.root.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        }
+
+        rootDataBinding.root.findViewById<RelativeLayout>(R.id.rlt_container)?.also {
+            it.addView(dataBinding.root)
+        }
+//        填充根部布局对象
+        window.setContentView(rootDataBinding.root)
+
+        if (defineStatusBar()) {
+            // 设置透明状态栏，兼容4.4
+            StatusBarUtil.setColor(this, resources.getColor(R.color.colorTheme), 0)
+        }
+
+        loadingView = initLoadingView()?.apply {
+            animationDrawable = findViewById<ImageView>(R.id.img_progress).drawable as AnimationDrawable
+        }
+        errorView = initErrorView()?.apply {
+            isClickable = true
+            setOnClickListener {
+                showLoading()
+                onRefresh()
+            }
+        }
+
+
+        if(useToolBar()){
+            setToolBar()
+        }else{
+            rootDataBinding.toolBar.visibility = View.GONE
+        }
+        dataBinding.root.visibility = View.GONE
+
+    }
+
+    open fun useToolBar(): Boolean = false
+
+    /**
+     * 失败后点击刷新
+     */
+    open fun onRefresh() {
+        LogUtils.d("点击进行页面重新刷新")
+    }
+
+    protected fun showLoading() = runOnUiThread {
+        dataBinding.root.apply {
+            if (visibility != View.GONE) {
+                visibility = View.GONE
+            }
+        }
+
+        errorView?.apply {
+            visibility = View.GONE
+        }
+
+        loadingView?.apply {
+            if (visibility != View.VISIBLE) {
+                visibility = View.VISIBLE
+            }
+        }
+        animationDrawable?.apply {
+            if (!isRunning) {
+                start()
+            }
+        }
+
+
+    }
+
+    protected fun showContentView() = runOnUiThread {
+        loadingView?.apply {
+            if (visibility != View.GONE) {
+                visibility = View.GONE
+            }
+        }
+
+        errorView?.apply {
+            visibility = View.GONE
+        }
+
+        dataBinding.root.apply {
+            if (visibility != View.VISIBLE) {
+                visibility = View.VISIBLE
+            }
+        }
+        animationDrawable?.apply {
+            if (isRunning) {
+                stop()
+            }
+        }
+
+    }
+
+    protected fun showError() = runOnUiThread {
+        loadingView?.apply {
+            if (visibility != View.GONE) {
+                visibility = View.GONE
+            }
+        }
+
+        dataBinding.root.apply {
+            if (visibility != View.GONE) {
+                visibility = View.GONE
+            }
+        }
+
+        animationDrawable?.apply {
+            if (isRunning) {
+                stop()
+            }
+        }
+
+        errorView?.apply {
+            if (visibility != View.VISIBLE) {
+                visibility = View.VISIBLE
+            }
+        }
+    }
+
+
+    private fun initLoadingView(): View? =
+            findViewById<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
+                getDefaultLoadingLayout().takeIf { it > 0 }?.run {
+                    vs.layoutResource = getDefaultLoadingLayout()
+                }
+                vs.inflate()
+            }
+
+    open fun getDefaultLoadingLayout(): Int = R.layout.layout_loading_view
+    open fun getDefaultErrorLayout(): Int = R.layout.layout_loading_error
+
+    private fun initErrorView(): View? =
+            findViewById<ViewStub>(R.id.vs_error_refresh).takeIf { it != null }?.let { vs ->
+                getDefaultErrorLayout().takeIf { it > 0 }?.run {
+                    vs.layoutResource = getDefaultErrorLayout()
+                }
+                vs.inflate()
+            }
+
+    /**
+     * 设置titlebar
+     */
+    private fun setToolBar() {
+        setSupportActionBar(rootDataBinding.toolBar)
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.icon_back)
+        }
+
+        rootDataBinding.toolBar.setNavigationOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                finishAfterTransition()
+            } else {
+                onBackPressed()
+            }
+        }
+    }
+
+    override fun setTitle(text: CharSequence) {
+        this.rootDataBinding.toolBar.title = text
+    }
+
+    open fun defineStatusBar(): Boolean = false
+
+    /**
+     * 用于获取通用布局
+     * */
+    open fun getBaseLayout(): Int = R.layout.layout_base_common
+
+    private fun onCreateOperation(savedInstanceState: Bundle?) {
+        //        初始化vm层
+        viewModel = initViewModel().also {
+            lifecycle.addObserver(it as LifecycleObserver)
+        }
+
+        //        尝试恢复原先界面
         savedInstanceState?.also {
             getDataFromStateBundle(savedInstanceState)
         }
 
-//        绑定数据并
-        dataBinding = DataBindingUtil.setContentView(this, getActivityLayoutId())
+        showLoading()
         initObserveAndData(savedInstanceState)
 
-//        vm层关联生命周期
-        viewModel?.also {
-            lifecycle.addObserver(it as LifecycleObserver)
-        }
     }
 
     /**
@@ -82,6 +283,11 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
 
     fun <T : ViewModel> initViewModelByClz(clazz: Class<T>): ViewModel = ViewModelProviders.of(this).get(clazz)
 
+    protected fun <T : View> getView(id: Int): T = findViewById<View>(id) as T
+
+    /**
+     * 界面本身的布局id
+     * */
     abstract fun getActivityLayoutId(): Int
 
     override fun onDestroy() {
