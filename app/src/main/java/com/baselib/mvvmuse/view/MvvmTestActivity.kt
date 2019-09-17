@@ -3,14 +3,14 @@ package com.baselib.mvvmuse.view
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import com.baselib.instant.mvvm.view.BaseMvvmActivity
+import com.baselib.instant.mvvm.view.AbsMvvmActivity
 import com.baselib.mvpuse.R
 import com.baselib.mvpuse.databinding.ActivityMvvmTestBinding
 import com.baselib.mvvmuse.viewmodel.MvvmTestViewModel
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class MvvmTestActivity : BaseMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewModel>() {
+class MvvmTestActivity : AbsMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewModel>() {
     override fun initObserveAndData(savedInstanceState: Bundle?) {
         viewModel?.also {
             dataBinding.viewModelInLayout = it

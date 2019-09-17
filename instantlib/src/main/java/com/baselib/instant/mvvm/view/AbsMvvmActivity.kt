@@ -26,7 +26,7 @@ import com.baselib.instant.util.StatusBarUtil
  *
  * V层只关注DB对象和VM对象，业务交由VM对象处理，界面交给DB对象进行操作
  * */
-abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity() {
+abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(),IBaseView {
     /**
      * 准备添加的界面
      */
@@ -47,7 +47,14 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
      */
     protected var viewModel: VM? = null
 
+    /**
+     * 错误阶段的view
+     * */
     private var errorView: View? = null
+
+    /**
+     * 加载阶段的view
+     * */
     private var loadingView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,15 +96,18 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
         }
 
 
+//        关联toolbar控件
         if(useToolBar()){
             setToolBar()
         }else{
             rootDataBinding.toolBar.visibility = View.GONE
         }
-        dataBinding.root.visibility = View.GONE
 
     }
 
+    /**
+     * 是否需要使用toolbar
+     * */
     open fun useToolBar(): Boolean = false
 
     /**
@@ -107,7 +117,7 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
         LogUtils.d("点击进行页面重新刷新")
     }
 
-    protected fun showLoading() = runOnUiThread {
+    override fun showLoading() = runOnUiThread {
         dataBinding.root.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -132,7 +142,7 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
 
     }
 
-    protected fun showContentView() = runOnUiThread {
+    override fun showContentView() = runOnUiThread {
         loadingView?.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -156,7 +166,7 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
 
     }
 
-    protected fun showError() = runOnUiThread {
+    override fun showError() = runOnUiThread {
         loadingView?.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -185,22 +195,34 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
 
     private fun initLoadingView(): View? =
             findViewById<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
-                getDefaultLoadingLayout().takeIf { it > 0 }?.run {
-                    vs.layoutResource = getDefaultLoadingLayout()
+                getLoadingLayout().takeIf { it > 0 }?.run {
+                    vs.layoutResource = this
                 }
                 vs.inflate()
             }
 
-    open fun getDefaultLoadingLayout(): Int = R.layout.layout_loading_view
-    open fun getDefaultErrorLayout(): Int = R.layout.layout_loading_error
+    /**
+     * 获取指定的加载阶段布局
+     *
+     * 子类可以重写定义该界面的加载阶段展示
+     * */
+    open fun getLoadingLayout(): Int = R.layout.layout_loading_view
 
     private fun initErrorView(): View? =
             findViewById<ViewStub>(R.id.vs_error_refresh).takeIf { it != null }?.let { vs ->
-                getDefaultErrorLayout().takeIf { it > 0 }?.run {
-                    vs.layoutResource = getDefaultErrorLayout()
+                getErrorLayout().takeIf { it > 0 }?.run {
+                    vs.layoutResource = this
                 }
                 vs.inflate()
             }
+
+
+    /**
+     * 获取指定的加载错误布局
+     *
+     * 子类可以重写定义该界面的加载错误展示
+     * */
+    open fun getErrorLayout(): Int = R.layout.layout_loading_error
 
     /**
      * 设置titlebar
@@ -226,6 +248,11 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
         this.rootDataBinding.toolBar.title = text
     }
 
+    /**
+     * 是否定义状态栏
+     *
+     * @return true说明沉浸式状态栏
+     * */
     open fun defineStatusBar(): Boolean = false
 
     /**
@@ -291,6 +318,11 @@ abstract class BaseMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppComp
     abstract fun getActivityLayoutId(): Int
 
     override fun onDestroy() {
+        animationDrawable?.run{
+            if(isRunning){
+                stop()
+            }
+        }
 //        生命周期关联解除
         viewModel?.let {
             lifecycle.removeObserver(it as LifecycleObserver)
