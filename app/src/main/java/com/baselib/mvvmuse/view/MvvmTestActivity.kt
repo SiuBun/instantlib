@@ -28,6 +28,6 @@ class MvvmTestActivity : AbsMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewMo
         return ViewModelProviders.of(this, MvvmTestViewModel.getFactory(application)).get(MvvmTestViewModel::class.java)
     }
 
-    override fun getActivityLayoutId(): Int = R.layout.activity_mvvm_test
+    override fun getContentLayout(): Int = R.layout.activity_mvvm_test
 
 }

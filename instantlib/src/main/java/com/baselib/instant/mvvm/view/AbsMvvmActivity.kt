@@ -88,7 +88,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
         loadingView = initLoadingView()
 
-        animationDrawable = initLoadingAnimate()
+        animationDrawable = initLoadAnimate()
 
         errorView = initErrorView()?.apply {
             isClickable = true
@@ -111,7 +111,9 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     /**
      * 初始化加载阶段的动画
      * */
-    open fun initLoadingAnimate(): AnimationDrawable? = findViewById<ViewStub>(R.id.vs_loading).findViewById<ImageView>(R.id.img_progress).drawable as AnimationDrawable
+    override fun initLoadAnimate(): AnimationDrawable? = loadingView?.let {
+        findViewById<ImageView>(R.id.img_progress).drawable as AnimationDrawable
+    }
 
     /**
      * 是否需要使用toolbar
@@ -234,6 +236,10 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      * 子类可以重写定义该界面的加载错误展示
      * */
     override fun getErrorLayout(): Int = R.layout.layout_loading_error
+
+    override fun initEmptyView(): View? = null
+
+    override fun getEmptyLayout(): Int = 0
 
     /**
      * 设置titlebar
