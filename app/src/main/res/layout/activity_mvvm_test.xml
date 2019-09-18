@@ -8,7 +8,7 @@
             type="MvvmTestViewModel" />
     </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -20,10 +20,11 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/zo_14sp"
             android:textColor="@android:color/black"
-            android:text="{viewModelInLayout.text}"
+            android:text="@{viewModelInLayout.text}"
+            android:layout_gravity="center"
             android:clickable="true"
             android:focusable="true"
             android:onClick="@{()->viewModelInLayout.onTvClick()}"
             />
-    </LinearLayout>
+    </FrameLayout>
 </layout>

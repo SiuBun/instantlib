@@ -16,17 +16,19 @@ import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.baselib.instant.R
-import com.baselib.instant.databinding.LayoutBaseCommonBinding
+import com.baselib.instant.databinding.LayoutBaseActivityBinding
 import com.baselib.instant.mvvm.viewmodel.IViewModel
 import com.baselib.instant.util.LogUtils
 import com.baselib.instant.util.StatusBarUtil
 
 /**
- * mvvm架构基类
+ * mvvm架构V层activity基类
  *
  * V层只关注DB对象和VM对象，业务交由VM对象处理，界面交给DB对象进行操作
+ *
+ * @author wsb
  * */
-abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(),IBaseView {
+abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(),IViewOperate,IViewBuilder {
     /**
      * 准备添加的界面
      */
@@ -35,7 +37,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     /**
      * 根布局
      * */
-    private lateinit var rootDataBinding: LayoutBaseCommonBinding
+    private lateinit var rootDataBinding: LayoutBaseActivityBinding
 
     /**
      * 加载动画
@@ -59,7 +61,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(getActivityLayoutId())
+        setContentView(getContentLayout())
         onCreateOperation(savedInstanceState)
 
     }
@@ -84,9 +86,10 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
             StatusBarUtil.setColor(this, resources.getColor(R.color.colorTheme), 0)
         }
 
-        loadingView = initLoadingView()?.apply {
-            animationDrawable = findViewById<ImageView>(R.id.img_progress).drawable as AnimationDrawable
-        }
+        loadingView = initLoadingView()
+
+        animationDrawable = initLoadingAnimate()
+
         errorView = initErrorView()?.apply {
             isClickable = true
             setOnClickListener {
@@ -106,6 +109,11 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     }
 
     /**
+     * 初始化加载阶段的动画
+     * */
+    open fun initLoadingAnimate(): AnimationDrawable? = findViewById<ViewStub>(R.id.vs_loading).findViewById<ImageView>(R.id.img_progress).drawable as AnimationDrawable
+
+    /**
      * 是否需要使用toolbar
      * */
     open fun useToolBar(): Boolean = false
@@ -113,7 +121,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     /**
      * 失败后点击刷新
      */
-    open fun onRefresh() {
+    override fun onRefresh() {
         LogUtils.d("点击进行页面重新刷新")
     }
 
@@ -192,8 +200,11 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
         }
     }
 
+    override fun showEmpty() {
+    }
 
-    private fun initLoadingView(): View? =
+
+    override fun initLoadingView(): View? =
             findViewById<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
                 getLoadingLayout().takeIf { it > 0 }?.run {
                     vs.layoutResource = this
@@ -208,7 +219,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      * */
     open fun getLoadingLayout(): Int = R.layout.layout_loading_view
 
-    private fun initErrorView(): View? =
+    override fun initErrorView(): View? =
             findViewById<ViewStub>(R.id.vs_error_refresh).takeIf { it != null }?.let { vs ->
                 getErrorLayout().takeIf { it > 0 }?.run {
                     vs.layoutResource = this
@@ -222,7 +233,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      *
      * 子类可以重写定义该界面的加载错误展示
      * */
-    open fun getErrorLayout(): Int = R.layout.layout_loading_error
+    override fun getErrorLayout(): Int = R.layout.layout_loading_error
 
     /**
      * 设置titlebar
@@ -258,7 +269,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     /**
      * 用于获取通用布局
      * */
-    open fun getBaseLayout(): Int = R.layout.layout_base_common
+    override fun getBaseLayout(): Int = R.layout.layout_base_activity
 
     private fun onCreateOperation(savedInstanceState: Bundle?) {
         //        初始化vm层
@@ -312,11 +323,6 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
     protected fun <T : View> getView(id: Int): T = findViewById<View>(id) as T
 
-    /**
-     * 界面本身的布局id
-     * */
-    abstract fun getActivityLayoutId(): Int
-
     override fun onDestroy() {
         animationDrawable?.run{
             if(isRunning){
@@ -324,8 +330,8 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
             }
         }
 //        生命周期关联解除
-        viewModel?.let {
-            lifecycle.removeObserver(it as LifecycleObserver)
+        viewModel?.run {
+            lifecycle.removeObserver(this as LifecycleObserver)
         }
 
         super.onDestroy()

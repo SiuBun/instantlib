@@ -5,19 +5,29 @@ package com.baselib.instant.mvvm.view
  *
  * @author wsb
  * */
-interface IBaseView {
+interface IViewOperate {
     /**
      * 展示加载过程状态
      * */
-    fun showLoading()
+    fun showLoading() :Unit?
 
     /**
      * 展示加载完成状态
      * */
-    fun showContentView()
+    fun showContentView():Unit?
 
     /**
      * 展示加载错误状态
      * */
-    fun showError()
+    fun showError():Unit?
+
+    /**
+     * 展示加载空状态
+     * */
+    fun showEmpty():Unit?
+
+    /**
+     * 刷新界面
+     * */
+    fun onRefresh()
 }
