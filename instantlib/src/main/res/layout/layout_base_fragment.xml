@@ -11,7 +11,7 @@
             android:id="@+id/vs_error_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
             />
 
         <!--加载中..-->
@@ -19,7 +19,7 @@
             android:id="@+id/vs_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
             />
 
         <!--数据为空-->
@@ -27,7 +27,7 @@
             android:id="@+id/vs_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
             />
 
     </RelativeLayout>

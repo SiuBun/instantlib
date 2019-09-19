@@ -14,7 +14,6 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseFragmentBinding
-import com.baselib.instant.mvvm.viewmodel.BaseViewModel
 import com.baselib.instant.mvvm.viewmodel.IViewModel
 import com.baselib.instant.util.LogUtils
 
@@ -54,7 +53,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     /**
      * viewModel
      */
-    protected lateinit var viewModel: VM
+    protected var viewModel: VM? = null
 
     /**
      * 根布局对象
@@ -67,6 +66,10 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     override fun onRefresh() {
         LogUtils.d("点击进行页面重新刷新")
     }
+
+    protected var prepared: Boolean = false
+    protected var loadedOnce: Boolean = false
+    protected var visible: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -84,9 +87,6 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = this.initViewModel().also {
-            lifecycle.addObserver(it as LifecycleObserver)
-        }
 
         loadingView = initLoadingView()
 
@@ -102,9 +102,12 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             }
         }
 
-        viewModel.changePreparedState(true)
+        viewModel = this.initViewModel().also {
+            lifecycle.addObserver(it as LifecycleObserver)
+        }
+        prepared = true
 
-        showError()
+
     }
 
     override fun initEmptyView(): View? = getView<ViewStub>(R.id.vs_empty).takeIf { it != null }?.let { vs ->
@@ -168,6 +171,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     }
 
     override fun showLoading() = activity?.runOnUiThread {
+        LogUtils.i("${this::class.java.simpleName} showLoading")
         errorView?.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -200,6 +204,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     }
 
     override fun showContentView() = activity?.runOnUiThread {
+        LogUtils.i("${this::class.java.simpleName} showContentView")
         errorView?.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -232,6 +237,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     }
 
     override fun showError() = activity?.runOnUiThread {
+        LogUtils.i("${this::class.java.simpleName} showError")
         loadingView?.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -264,6 +270,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     }
 
     override fun showEmpty() = activity?.runOnUiThread {
+        LogUtils.i("${this::class.java.simpleName} showEmpty")
         loadingView?.apply {
             if (visibility != View.GONE) {
                 visibility = View.GONE
@@ -298,10 +305,11 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (userVisibleHint) {
+            visible = true
             onVisible()
         } else {
+            visible = false
             onInvisible()
-
         }
     }
 
@@ -318,9 +326,16 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     }
 
     open fun onVisible() {
-        takeIf { userVisibleHint && !viewModel.getLoadedOnceState() && viewModel.getPreparedState() }?.run {
-            viewModel.changeLoadedOnceState(true)
-            lazyLoadData()
+//        viewModel?.takeIf {
+//            visible && !it.getLoadedOnceState() && it.getPreparedState()
+//        }?.apply {
+        if (prepared&&visible && !loadedOnce) {
+            loadedOnce=true
+//            dataBinding?.root.postDelayed({
+                showLoading()
+                lazyLoadData()
+//            }, 100)
+//        }
         }
     }
 
