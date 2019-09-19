@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseFragmentBinding
+import com.baselib.instant.mvvm.viewmodel.BaseViewModel
 import com.baselib.instant.mvvm.viewmodel.IViewModel
 import com.baselib.instant.util.LogUtils
 
@@ -53,23 +54,12 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     /**
      * viewModel
      */
-    protected var viewModel: VM? = null
+    protected lateinit var viewModel: VM
 
     /**
      * 根布局对象
      * */
     private lateinit var rootDataBinding: LayoutBaseFragmentBinding
-
-    /**
-     * 是否已被加载过一次，第二次就不再去请求数据了
-     */
-    private var loadedOnce: Boolean = false
-
-
-    /**
-     * 标志位，标志已经初始化完成
-     */
-    private var prepared: Boolean = false
 
     /**
      * 失败后点击刷新
@@ -112,9 +102,9 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             }
         }
 
-        prepared = true
+        viewModel.changePreparedState(true)
 
-        showLoading()
+        showError()
     }
 
     override fun initEmptyView(): View? = getView<ViewStub>(R.id.vs_empty).takeIf { it != null }?.let { vs ->
@@ -174,9 +164,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
 
     protected fun <T : View> getView(id: Int): T? {
-        return view.takeIf { it != null }?.let {
-            it.findViewById<View>(id) as T
-        }
+        return view.takeIf { it != null }?.findViewById(id)
     }
 
     override fun showLoading() = activity?.runOnUiThread {
@@ -325,13 +313,13 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
      * 生命周期会先执行 setUserVisibleHint 再执行onActivityCreated
      * 在 onActivityCreated 之后第一次显示加载数据，只加载一次
      */
-    open fun lazyLoadData(){
-        LogUtils.d(this::class.java.simpleName+" 首次被显示,加载数据")
+    open fun lazyLoadData() {
+        LogUtils.d(this::class.java.simpleName + " 首次被显示,加载数据")
     }
 
     open fun onVisible() {
-        takeIf { userVisibleHint && !loadedOnce && prepared}?.run {
-            loadedOnce = true
+        takeIf { userVisibleHint && !viewModel.getLoadedOnceState() && viewModel.getPreparedState() }?.run {
+            viewModel.changeLoadedOnceState(true)
             lazyLoadData()
         }
     }
@@ -343,7 +331,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             }
         }
 
-        viewModel?.run {
+        viewModel.run {
             lifecycle.removeObserver(this as LifecycleObserver)
         }
 

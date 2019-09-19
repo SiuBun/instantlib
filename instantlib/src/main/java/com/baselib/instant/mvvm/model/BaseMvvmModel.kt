@@ -10,6 +10,6 @@ import com.baselib.instant.util.LogUtils
  * */
 abstract class BaseMvvmModel :IModel{
     override fun onModelDestroy() {
-        LogUtils.i("$this onModelDestroy")
+        LogUtils.i("${this::class.java.simpleName} onModelDestroy")
     }
 }
