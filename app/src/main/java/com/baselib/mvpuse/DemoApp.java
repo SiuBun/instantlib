@@ -1,6 +1,8 @@
 package com.baselib.mvpuse;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.observer.ObserverManager;
@@ -10,6 +12,13 @@ import com.baselib.instant.provider.sp.MultiProcessSharedPreferences;
 import com.baselib.instant.util.LogUtils;
 
 public class DemoApp extends Application {
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

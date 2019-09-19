@@ -4,6 +4,7 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
+import android.support.annotation.CallSuper
 import com.baselib.instant.mvvm.model.IModel
 import com.baselib.instant.util.LogUtils
 
@@ -23,12 +24,14 @@ abstract class BaseViewModel<M : IModel>@JvmOverloads constructor(application: A
         }
     }
 
-    override fun onStart() {
-        LogUtils.lifeLog(this::class.simpleName, "IViewModel-onStart")
+    override fun onViewModelStart() {
+        LogUtils.lifeLog(this.toString(), "IViewModel-onStart")
     }
 
+    @CallSuper
     override fun onCreate(owner: LifecycleOwner) {
         LogUtils.lifeLog(owner.toString(), "onCreate")
+        onViewModelStart()
     }
 
     override fun onResume(owner: LifecycleOwner) {

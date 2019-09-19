@@ -24,7 +24,7 @@ import com.baselib.instant.util.LogUtils
  *
  * @author wsb
  * */
-abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment(), IViewOperate,IViewBuilder {
+abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment(), IViewOperate, IViewBuilder {
     /**
      * 加载中
      * */
@@ -61,18 +61,22 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     private lateinit var rootDataBinding: LayoutBaseFragmentBinding
 
     /**
+     * 是否已被加载过一次，第二次就不再去请求数据了
+     */
+    private var loadedOnce: Boolean = false
+
+
+    /**
+     * 标志位，标志已经初始化完成
+     */
+    private var prepared: Boolean = false
+
+    /**
      * 失败后点击刷新
      */
     override fun onRefresh() {
         LogUtils.d("点击进行页面重新刷新")
     }
-
-    init {
-        viewModel = this.initViewModel().also {
-            lifecycle.addObserver(it as LifecycleObserver)
-        }
-    }
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -90,6 +94,10 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        viewModel = this.initViewModel().also {
+            lifecycle.addObserver(it as LifecycleObserver)
+        }
+
         loadingView = initLoadingView()
 
         animationDrawable = initLoadAnimate()
@@ -104,11 +112,13 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             }
         }
 
+        prepared = true
+
         showLoading()
     }
 
-    override fun initEmptyView(): View? = getView<ViewStub>(R.id.vs_empty).takeIf { it!=null }?.let {vs->
-        getEmptyLayout().takeIf { it>0 }?.run {
+    override fun initEmptyView(): View? = getView<ViewStub>(R.id.vs_empty).takeIf { it != null }?.let { vs ->
+        getEmptyLayout().takeIf { it > 0 }?.run {
             vs.layoutResource = this
         }
         vs.inflate()
@@ -119,7 +129,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
      *
      * 子类可以重写定义该界面的加载空结果展示
      * */
-    override fun getEmptyLayout() :Int = R.layout.layout_loading_empty
+    override fun getEmptyLayout(): Int = R.layout.layout_loading_empty
 
     /**
      * 获取加载阶段的动画
@@ -128,7 +138,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
         it.findViewById<ImageView>(R.id.img_progress).drawable as AnimationDrawable
     }
 
-    abstract fun initViewModel():VM
+    abstract fun initViewModel(): VM
 
 
     override fun initLoadingView(): View? = getView<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
@@ -139,7 +149,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
         vs.inflate()
     }
 
-    override fun initErrorView(): View? = getView<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
+    override fun initErrorView(): View? = getView<ViewStub>(R.id.vs_error_refresh).takeIf { it != null }?.let { vs ->
         getErrorLayout().takeIf { it > 0 }?.run {
             vs.layoutResource = this
         }
@@ -162,39 +172,40 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
      * */
     open fun getLoadingLayout(): Int = R.layout.layout_loading_view
 
+
     protected fun <T : View> getView(id: Int): T? {
-        return view.takeIf { it!=null }?.let {
+        return view.takeIf { it != null }?.let {
             it.findViewById<View>(id) as T
         }
     }
 
-    override fun showLoading()= activity?.runOnUiThread {
+    override fun showLoading() = activity?.runOnUiThread {
         errorView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         emptyView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         dataBinding.root.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         loadingView?.apply {
-            if (visibility!=View.VISIBLE){
+            if (visibility != View.VISIBLE) {
                 visibility = View.VISIBLE
             }
         }
 
         animationDrawable?.apply {
-            if (!isRunning){
+            if (!isRunning) {
                 start()
             }
         }
@@ -202,31 +213,31 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun showContentView() = activity?.runOnUiThread {
         errorView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         emptyView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         loadingView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         dataBinding.root.apply {
-            if (visibility!=View.VISIBLE){
+            if (visibility != View.VISIBLE) {
                 visibility = View.VISIBLE
             }
         }
 
         animationDrawable?.apply {
-            if (isRunning){
+            if (isRunning) {
                 stop()
             }
         }
@@ -234,31 +245,31 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun showError() = activity?.runOnUiThread {
         loadingView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         emptyView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         dataBinding.root.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         errorView?.apply {
-            if (visibility!=View.VISIBLE){
+            if (visibility != View.VISIBLE) {
                 visibility = View.VISIBLE
             }
         }
 
         animationDrawable?.apply {
-            if (isRunning){
+            if (isRunning) {
                 stop()
             }
         }
@@ -266,39 +277,68 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun showEmpty() = activity?.runOnUiThread {
         loadingView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         errorView?.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         dataBinding.root.apply {
-            if (visibility!=View.GONE){
+            if (visibility != View.GONE) {
                 visibility = View.GONE
             }
         }
 
         emptyView?.apply {
-            if (visibility!=View.VISIBLE){
+            if (visibility != View.VISIBLE) {
                 visibility = View.VISIBLE
             }
         }
 
         animationDrawable?.apply {
-            if (isRunning){
+            if (isRunning) {
                 stop()
             }
         }
     }
 
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (userVisibleHint) {
+            onVisible()
+        } else {
+            onInvisible()
+
+        }
+    }
+
+    open fun onInvisible() {}
+
+    /**
+     * 显示时加载数据,需要这样的使用
+     * 注意声明 isPrepared，先初始化
+     * 生命周期会先执行 setUserVisibleHint 再执行onActivityCreated
+     * 在 onActivityCreated 之后第一次显示加载数据，只加载一次
+     */
+    open fun lazyLoadData(){
+        LogUtils.d(this::class.java.simpleName+" 首次被显示,加载数据")
+    }
+
+    open fun onVisible() {
+        takeIf { userVisibleHint && !loadedOnce && prepared}?.run {
+            loadedOnce = true
+            lazyLoadData()
+        }
+    }
+
     override fun onDestroy() {
-        animationDrawable?.run{
-            if(isRunning){
+        animationDrawable?.run {
+            if (isRunning) {
                 stop()
             }
         }

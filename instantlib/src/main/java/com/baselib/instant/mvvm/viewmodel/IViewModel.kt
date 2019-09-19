@@ -9,5 +9,5 @@ interface IViewModel {
     /**
      * 初始化操作
      */
-    fun onStart()
+    fun onViewModelStart()
 }

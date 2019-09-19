@@ -28,7 +28,7 @@ import com.baselib.instant.util.StatusBarUtil
  *
  * @author wsb
  * */
-abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(),IViewOperate,IViewBuilder {
+abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(), IViewOperate, IViewBuilder {
     /**
      * 准备添加的界面
      */
@@ -66,6 +66,19 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
     }
 
+    /**
+     * 重写父类方法,具体操作如下
+     *
+     * 1.获取根部布局对象
+     *
+     * 2.获取页面布局对象,并准备将页面布局对象装入根部容器内部
+     *
+     * 3.window对象填充根部布局对象
+     *
+     * 4.实例化各状态布局
+     *
+     * 5.设置标题栏
+     * */
     override fun setContentView(layoutResID: Int) {
 //        获取根部布局对象
         rootDataBinding = DataBindingUtil.inflate(LayoutInflater.from(this), getBaseLayout(), null, false)
@@ -100,9 +113,9 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
 
 //        关联toolbar控件
-        if(useToolBar()){
+        if (useToolBar()) {
             setToolBar()
-        }else{
+        } else {
             rootDataBinding.toolBar.visibility = View.GONE
         }
 
@@ -294,7 +307,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     }
 
     /**
-     * 数据及观察对象初始化
+     * 加载数据及观察对象初始化
      *
      * @param savedInstanceState Bundle
      */
@@ -330,8 +343,8 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     protected fun <T : View> getView(id: Int): T = findViewById<View>(id) as T
 
     override fun onDestroy() {
-        animationDrawable?.run{
-            if(isRunning){
+        animationDrawable?.run {
+            if (isRunning) {
                 stop()
             }
         }

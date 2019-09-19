@@ -9,14 +9,14 @@ import com.baselib.mvvmuse.model.MvvmTestModel
 
 class MvvmTestViewModel @JvmOverloads constructor(application: Application, model: MvvmTestModel?=null) : BaseViewModel<MvvmTestModel>(application, model) {
     val text : MutableLiveData<String> = MutableLiveData()
+    val jump : MutableLiveData<String> = MutableLiveData()
 
     init {
         text.value  = "hello"
+        jump.value  = "jump"
     }
 
-    fun onTvClick(){
-        text.postValue(model?.getTvStr()?:"default")
-    }
+    fun onTvClick() = text.postValue(model?.getTvStr()?:"default")
 
     companion object{
         fun getFactory(application:Application): ViewModelProvider.Factory {

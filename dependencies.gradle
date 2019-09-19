@@ -3,6 +3,7 @@ ext {
             androidArchSdkVersion: "1.1.0",
             retrofit             : "2.4.0",
             okhttp               : "4.2.0",
+            support              : "28.0.0",
     ]
 
     dependence = [
@@ -26,6 +27,9 @@ ext {
             "okio"                  : "com.squareup.okio:okio:${version["retrofit"]}",
             "okhttp"                : "com.squareup.okhttp3:okhttp:${version["okhttp"]}",
             "logging-interceptor"   : "com.squareup.okhttp3:logging-interceptor:${version["okhttp"]}",
+
+            "design"                : "com.android.support:design:${version["support"]}",
+            "appcompat"                : "com.android.support:appcompat-v7:${version["support"]}",
 
     ]
 }

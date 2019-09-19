@@ -4,15 +4,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.baselib.instant.floatwindow.FloatButtonController;
-import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.R;
 import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
-import com.baselib.mvvmuse.view.MvvmTestActivity;
+import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

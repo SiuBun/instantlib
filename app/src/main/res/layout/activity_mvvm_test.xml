@@ -11,20 +11,42 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/flt_contrainer"
+        >
 
-        <TextView
-            android:id="@+id/tv_test"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/zo_14sp"
-            android:textColor="@android:color/black"
-            android:text="@{viewModelInLayout.text}"
+            android:orientation="vertical"
             android:layout_gravity="center"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="@{()->viewModelInLayout.onTvClick()}"
-            />
+            >
+            <Button
+                android:id="@+id/tv_test"
+                android:layout_width="wrap_content"
+                android:paddingLeft="@dimen/zo_5dp"
+                android:paddingRight="@dimen/zo_5dp"
+                android:layout_height="@dimen/zo_40dp"
+                android:textSize="@dimen/zo_14sp"
+                android:textColor="@android:color/black"
+                android:text="@{viewModelInLayout.text}"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="@{()->viewModelInLayout.onTvClick()}"
+                />
+            <Button
+                android:id="@+id/tv_jump"
+                android:layout_width="wrap_content"
+                android:paddingLeft="@dimen/zo_5dp"
+                android:paddingRight="@dimen/zo_5dp"
+                android:layout_height="@dimen/zo_40dp"
+                android:textSize="@dimen/zo_14sp"
+                android:textColor="@android:color/black"
+                android:text="@{viewModelInLayout.jump}"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="onJump"
+                />
+        </LinearLayout>
     </FrameLayout>
 </layout>
