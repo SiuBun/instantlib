@@ -18,6 +18,6 @@ class ThreeFragment : AbsMvvmFragment<LayoutFragmentThreeBinding, ThreeFragmentV
 
     override fun lazyLoadData() {
         super.lazyLoadData()
-        showEmpty()
+        showContentView()
     }
 }

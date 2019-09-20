@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
+import android.support.annotation.CallSuper
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -64,7 +65,8 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
      * 失败后点击刷新
      */
     override fun onRefresh() {
-        LogUtils.d("点击进行页面重新刷新")
+        LogUtils.d("${this::class.java.simpleName} 点击进行页面重新刷新")
+        lazyLoadData()
     }
 
     protected var prepared: Boolean = false
@@ -102,11 +104,19 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             }
         }
 
-        viewModel = this.initViewModel().also {
-            lifecycle.addObserver(it as LifecycleObserver)
+        viewModel = this.initViewModel().apply {
+            lifecycle.addObserver(this as LifecycleObserver)
+            changePreparedState(true)
         }
-        prepared = true
 
+        initObserver()
+
+    }
+
+    /**
+     * 此处可完成vm层对象内持有的livedata和v层界面的绑定
+     * */
+    open fun initObserver() {
 
     }
 
@@ -317,25 +327,25 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     /**
      * 显示时加载数据,需要这样的使用
-     * 注意声明 isPrepared，先初始化
+     *
      * 生命周期会先执行 setUserVisibleHint 再执行onActivityCreated
-     * 在 onActivityCreated 之后第一次显示加载数据，只加载一次
+     *
+     * 如果是放在需要第一页的fragment可在 onActivityCreated 中完成第一次显示加载数据以触发懒加载机制，只加载一次
      */
+    @CallSuper
     open fun lazyLoadData() {
-        LogUtils.d(this::class.java.simpleName + " 首次被显示,加载数据")
+        LogUtils.d(this::class.java.simpleName + " 首次被显示或刷新,触发懒加载数据")
+        showLoading()
+        viewModel?.changeLoadedOnceState(true)
     }
 
     open fun onVisible() {
-//        viewModel?.takeIf {
-//            visible && !it.getLoadedOnceState() && it.getPreparedState()
-//        }?.apply {
-        if (prepared&&visible && !loadedOnce) {
-            loadedOnce=true
-//            dataBinding?.root.postDelayed({
-                showLoading()
+        viewModel?.takeIf {
+            visible && !it.getLoadedOnceState() && it.getPreparedState()
+        }?.apply {
+            dataBinding.root.postDelayed({
                 lazyLoadData()
-//            }, 100)
-//        }
+            }, 100)
         }
     }
 

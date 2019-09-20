@@ -26,7 +26,7 @@ class MvvmTestActivity : AbsMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewMo
             override fun run() {
                 showContentView()
             }
-        },TimeUnit.SECONDS.toMillis(2))
+        },TimeUnit.SECONDS.toMillis(1))
     }
     override fun initViewModel(): MvvmTestViewModel = ViewModelProviders.of(this, MvvmTestViewModel.getFactory(application)).get(MvvmTestViewModel::class.java)
 

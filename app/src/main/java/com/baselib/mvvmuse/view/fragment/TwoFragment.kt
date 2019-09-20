@@ -6,6 +6,8 @@ import com.baselib.mvpuse.R
 import com.baselib.mvpuse.databinding.LayoutFragmentTwoBinding
 import com.baselib.mvvmuse.viewmodel.OneFragmentViewModel
 import com.baselib.mvvmuse.viewmodel.TwoFragmentViewModel
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class TwoFragment : AbsMvvmFragment<LayoutFragmentTwoBinding, TwoFragmentViewModel>() {
@@ -18,6 +20,11 @@ class TwoFragment : AbsMvvmFragment<LayoutFragmentTwoBinding, TwoFragmentViewMod
 
     override fun lazyLoadData() {
         super.lazyLoadData()
-        showError()
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                showError()
+            }
+        }, TimeUnit.SECONDS.toMillis(2))
     }
+
 }
