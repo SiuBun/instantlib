@@ -168,6 +168,10 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
                 }
             }
         })
+
+        (viewModel as BaseViewModel<*>).apply {
+            pageState.observe(this@AbsMvvmFragment,observerStatus())
+        }
     }
 
     override fun initEmptyView(): View? = getView<ViewStub>(R.id.vs_empty).takeIf { it != null }?.let { vs ->
@@ -232,34 +236,22 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun showLoading() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showLoading")
-        (viewModel as BaseViewModel<*>).loadingState.postValue(true)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
-        (viewModel as BaseViewModel<*>).emptyState.postValue(false)
-        (viewModel as BaseViewModel<*>).errorState.postValue(false)
+        (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.LOADING)
     }
 
     override fun showContentView() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showContentView")
-        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(true)
-        (viewModel as BaseViewModel<*>).emptyState.postValue(false)
-        (viewModel as BaseViewModel<*>).errorState.postValue(false)
+        (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.LOADED)
     }
 
     override fun showError() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showError")
-        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
-        (viewModel as BaseViewModel<*>).emptyState.postValue(false)
-        (viewModel as BaseViewModel<*>).errorState.postValue(true)
+        (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.ERROR)
     }
 
     override fun showEmpty() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showEmpty")
-        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
-        (viewModel as BaseViewModel<*>).emptyState.postValue(true)
-        (viewModel as BaseViewModel<*>).errorState.postValue(false)
+        (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.EMPTY)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {

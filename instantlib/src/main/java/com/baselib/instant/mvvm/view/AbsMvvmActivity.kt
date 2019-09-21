@@ -143,26 +143,13 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
         LogUtils.d("点击进行页面重新刷新")
     }
 
-    override fun showLoading() = runOnUiThread {
-        (viewModel as BaseViewModel<*>).loadingState.postValue(true)
-        (viewModel as BaseViewModel<*>).errorState.postValue(false)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
-    }
+    override fun showLoading() = (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.LOADING)
 
-    override fun showContentView() = runOnUiThread {
-        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
-        (viewModel as BaseViewModel<*>).errorState.postValue(false)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(true)
-    }
+    override fun showContentView() = (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.LOADED)
 
-    override fun showError() = runOnUiThread {
-        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
-        (viewModel as BaseViewModel<*>).errorState.postValue(true)
-        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
-    }
+    override fun showError() = (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.ERROR)
 
-    override fun showEmpty() {
-    }
+    override fun showEmpty() = (viewModel as BaseViewModel<*>).pageState.postValue(BaseViewModel.EMPTY)
 
 
     override fun initLoadingView(): View? =
@@ -298,7 +285,13 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
                 }
             }
         })
+
+        (viewModel as BaseViewModel<*>).apply {
+            pageState.observe(this@AbsMvvmActivity,observerStatus())
+        }
     }
+
+
 
     /**
      * 从状态保存的数据中获取以便恢复数据
