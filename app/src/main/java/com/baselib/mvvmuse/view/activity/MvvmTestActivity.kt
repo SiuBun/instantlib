@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit
 
 class MvvmTestActivity : AbsMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewModel>() {
 
-    override fun initObserveAndData(savedInstanceState: Bundle?) {
+    override fun initObserverAndData() {
+        super.initObserverAndData()
         viewModel?.also {
             dataBinding.viewModelInLayout = it
 
@@ -36,7 +37,7 @@ class MvvmTestActivity : AbsMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewMo
         dataBinding.fltContrainer.removeAllViews()
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.flt_contrainer, HostFragment())
+                .replace(R.id.flt_contrainer, HostFragment.getInstance())
                 .commit()
     }
 

@@ -1,6 +1,7 @@
 package com.baselib.instant.mvvm.view
 
 import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.Observer
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.graphics.drawable.AnimationDrawable
@@ -15,6 +16,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseFragmentBinding
+import com.baselib.instant.mvvm.viewmodel.BaseViewModel
 import com.baselib.instant.mvvm.viewmodel.IViewModel
 import com.baselib.instant.util.LogUtils
 
@@ -69,10 +71,6 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
         lazyLoadData()
     }
 
-    protected var prepared: Boolean = false
-    protected var loadedOnce: Boolean = false
-    protected var visible: Boolean = false
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         return DataBindingUtil.inflate<LayoutBaseFragmentBinding>(inflater, getBaseLayout(), container, false)?.let { rootBinding ->
@@ -109,15 +107,67 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             changePreparedState(true)
         }
 
-        initObserver()
-
+        initObserverAndData()
+        showLoading()
     }
 
     /**
      * 此处可完成vm层对象内持有的livedata和v层界面的绑定
      * */
-    open fun initObserver() {
 
+    @CallSuper
+    override fun initObserverAndData() {
+        (viewModel as BaseViewModel<*>).loadingState.observe(this, Observer {
+            it?.run {
+                activity?.runOnUiThread {
+                    loadingView?.apply {
+                        visibility = if (it) View.VISIBLE else View.GONE
+                    }
+
+                    animationDrawable?.apply {
+                        if (it) {
+                            if (!isRunning) {
+                                start()
+                            }
+                        } else {
+                            if (isRunning) {
+                                stop()
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        (viewModel as BaseViewModel<*>).loadedState.observe(this, Observer {
+            it?.run {
+                activity?.runOnUiThread {
+                    dataBinding.root.apply {
+                        visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        })
+
+        (viewModel as BaseViewModel<*>).emptyState.observe(this, Observer {
+            it?.run {
+                activity?.runOnUiThread {
+                    emptyView?.apply {
+                        visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        })
+
+        (viewModel as BaseViewModel<*>).errorState.observe(this, Observer {
+            it?.run {
+                activity?.runOnUiThread {
+                    errorView?.apply {
+                        visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        })
     }
 
     override fun initEmptyView(): View? = getView<ViewStub>(R.id.vs_empty).takeIf { it != null }?.let { vs ->
@@ -182,143 +232,41 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun showLoading() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showLoading")
-        errorView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        emptyView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        dataBinding.root.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        loadingView?.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
-
-        animationDrawable?.apply {
-            if (!isRunning) {
-                start()
-            }
-        }
+        (viewModel as BaseViewModel<*>).loadingState.postValue(true)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
+        (viewModel as BaseViewModel<*>).emptyState.postValue(false)
+        (viewModel as BaseViewModel<*>).errorState.postValue(false)
     }
 
     override fun showContentView() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showContentView")
-        errorView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        emptyView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        loadingView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        dataBinding.root.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
-
-        animationDrawable?.apply {
-            if (isRunning) {
-                stop()
-            }
-        }
+        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(true)
+        (viewModel as BaseViewModel<*>).emptyState.postValue(false)
+        (viewModel as BaseViewModel<*>).errorState.postValue(false)
     }
 
     override fun showError() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showError")
-        loadingView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        emptyView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        dataBinding.root.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        errorView?.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
-
-        animationDrawable?.apply {
-            if (isRunning) {
-                stop()
-            }
-        }
+        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
+        (viewModel as BaseViewModel<*>).emptyState.postValue(false)
+        (viewModel as BaseViewModel<*>).errorState.postValue(true)
     }
 
     override fun showEmpty() = activity?.runOnUiThread {
         LogUtils.i("${this::class.java.simpleName} showEmpty")
-        loadingView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        errorView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        dataBinding.root.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        emptyView?.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
-
-        animationDrawable?.apply {
-            if (isRunning) {
-                stop()
-            }
-        }
+        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
+        (viewModel as BaseViewModel<*>).emptyState.postValue(true)
+        (viewModel as BaseViewModel<*>).errorState.postValue(false)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (userVisibleHint) {
-            visible = true
             onVisible()
         } else {
-            visible = false
             onInvisible()
         }
     }
@@ -341,7 +289,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     open fun onVisible() {
         viewModel?.takeIf {
-            visible && !it.getLoadedOnceState() && it.getPreparedState()
+            userVisibleHint && !it.getLoadedOnceState() && it.getPreparedState()
         }?.apply {
             dataBinding.root.postDelayed({
                 lazyLoadData()

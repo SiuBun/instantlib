@@ -30,4 +30,6 @@ interface IViewOperate {
      * 刷新界面
      * */
     fun onRefresh()
+
+    fun initObserverAndData()
 }

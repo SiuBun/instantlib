@@ -11,6 +11,7 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/tv_three"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/zo_14sp"

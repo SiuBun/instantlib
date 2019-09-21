@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
+import android.text.TextUtils
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
 import com.baselib.mvpuse.R
 import com.baselib.mvpuse.databinding.LayoutFragmentHostBinding
@@ -12,6 +13,17 @@ import com.baselib.mvvmuse.viewmodel.HostFragmentViewModel
 class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentViewModel>() {
     private lateinit var pageList: MutableList<Fragment>
     private lateinit var titleList: MutableList<String>
+
+    companion object {
+        @JvmOverloads
+        fun getInstance(type: String? = null): HostFragment = HostFragment().apply {
+            if (!TextUtils.isEmpty(type)) {
+                arguments = Bundle().apply {
+                    putString("type", type)
+                }
+            }
+        }
+    }
 
     override fun initViewModel(): HostFragmentViewModel = ViewModelProviders.of(this).get(HostFragmentViewModel::class.java)
 

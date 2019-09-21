@@ -1,6 +1,7 @@
 package com.baselib.instant.mvvm.view
 
 import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
@@ -8,6 +9,7 @@ import android.databinding.ViewDataBinding
 import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
+import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +19,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseActivityBinding
+import com.baselib.instant.mvvm.viewmodel.BaseViewModel
 import com.baselib.instant.mvvm.viewmodel.IViewModel
 import com.baselib.instant.util.LogUtils
 import com.baselib.instant.util.StatusBarUtil
@@ -141,78 +144,21 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     }
 
     override fun showLoading() = runOnUiThread {
-        dataBinding.root.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        errorView?.apply {
-            visibility = View.GONE
-        }
-
-        loadingView?.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
-        animationDrawable?.apply {
-            if (!isRunning) {
-                start()
-            }
-        }
-
-
+        (viewModel as BaseViewModel<*>).loadingState.postValue(true)
+        (viewModel as BaseViewModel<*>).errorState.postValue(false)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
     }
 
     override fun showContentView() = runOnUiThread {
-        loadingView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        errorView?.apply {
-            visibility = View.GONE
-        }
-
-        dataBinding.root.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
-        animationDrawable?.apply {
-            if (isRunning) {
-                stop()
-            }
-        }
-
+        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
+        (viewModel as BaseViewModel<*>).errorState.postValue(false)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(true)
     }
 
     override fun showError() = runOnUiThread {
-        loadingView?.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        dataBinding.root.apply {
-            if (visibility != View.GONE) {
-                visibility = View.GONE
-            }
-        }
-
-        animationDrawable?.apply {
-            if (isRunning) {
-                stop()
-            }
-        }
-
-        errorView?.apply {
-            if (visibility != View.VISIBLE) {
-                visibility = View.VISIBLE
-            }
-        }
+        (viewModel as BaseViewModel<*>).loadingState.postValue(false)
+        (viewModel as BaseViewModel<*>).errorState.postValue(true)
+        (viewModel as BaseViewModel<*>).loadedState.postValue(false)
     }
 
     override fun showEmpty() {
@@ -301,17 +247,58 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
             getDataFromStateBundle(savedInstanceState)
         }
 
+        initObserverAndData()
         showLoading()
-        initObserveAndData(savedInstanceState)
 
     }
 
     /**
      * 加载数据及观察对象初始化
      *
-     * @param savedInstanceState Bundle
      */
-    abstract fun initObserveAndData(savedInstanceState: Bundle?)
+    @CallSuper
+    override fun initObserverAndData() {
+        (viewModel as BaseViewModel<*>).loadingState.observe(this, Observer<Boolean> { loading ->
+            loading?.run {
+                runOnUiThread {
+                    loadingView?.apply {
+                        visibility = if (loading) View.VISIBLE else View.GONE
+                    }
+                    animationDrawable?.apply {
+                        if (loading) {
+                            if (!isRunning) {
+                                start()
+                            }
+                        } else {
+                            if (isRunning) {
+                                stop()
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        (viewModel as BaseViewModel<*>).errorState.observe(this, Observer<Boolean> {
+            it?.run {
+                runOnUiThread {
+                    errorView?.apply {
+                        visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        })
+
+        (viewModel as BaseViewModel<*>).loadedState.observe(this, Observer<Boolean> {
+            it?.run {
+                runOnUiThread {
+                    dataBinding.root.apply {
+                        visibility = if (it) View.VISIBLE else View.GONE
+                    }
+                }
+            }
+        })
+    }
 
     /**
      * 从状态保存的数据中获取以便恢复数据
