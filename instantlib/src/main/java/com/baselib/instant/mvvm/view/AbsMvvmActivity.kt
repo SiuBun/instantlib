@@ -245,52 +245,50 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      */
     @CallSuper
     override fun initObserverAndData() {
-        (viewModel as BaseViewModel<*>).loadingState.observe(this, Observer<Boolean> { loading ->
-            loading?.run {
-                runOnUiThread {
-                    loadingView?.apply {
-                        visibility = if (loading) View.VISIBLE else View.GONE
-                    }
-                    animationDrawable?.apply {
-                        if (loading) {
-                            if (!isRunning) {
-                                start()
-                            }
-                        } else {
-                            if (isRunning) {
-                                stop()
+        (viewModel as BaseViewModel<*>)?.apply {
+            loadingState.observe(this@AbsMvvmActivity, Observer<Boolean> { loading ->
+                loading?.run {
+                    showOrHide(loadingView,loading)
+                    runOnUiThread {
+                        animationDrawable?.apply {
+                            if (loading) {
+                                if (!isRunning) {
+                                    start()
+                                }
+                            } else {
+                                if (isRunning) {
+                                    stop()
+                                }
                             }
                         }
                     }
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).errorState.observe(this, Observer<Boolean> {
-            it?.run {
-                runOnUiThread {
-                    errorView?.apply {
-                        visibility = if (it) View.VISIBLE else View.GONE
-                    }
+            errorState.observe(this@AbsMvvmActivity, Observer<Boolean> {
+                it?.run {
+                    showOrHide(errorView,it)
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).loadedState.observe(this, Observer<Boolean> {
-            it?.run {
-                runOnUiThread {
-                    dataBinding.root.apply {
-                        visibility = if (it) View.VISIBLE else View.GONE
-                    }
+            loadedState.observe(this@AbsMvvmActivity, Observer<Boolean> {
+                it?.run {
+                    showOrHide(dataBinding.root,it)
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).apply {
             pageState.observe(this@AbsMvvmActivity,observerStatus())
         }
+
     }
 
+    private fun showOrHide(view: View?, show: Boolean) {
+        runOnUiThread {
+            view?.apply {
+                visibility = if (show) View.VISIBLE else View.GONE
+            }
+        }
+    }
 
 
     /**

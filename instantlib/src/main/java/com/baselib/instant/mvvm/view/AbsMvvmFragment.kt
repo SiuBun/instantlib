@@ -117,59 +117,46 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     @CallSuper
     override fun initObserverAndData() {
-        (viewModel as BaseViewModel<*>).loadingState.observe(this, Observer {
-            it?.run {
-                activity?.runOnUiThread {
-                    loadingView?.apply {
-                        visibility = if (it) View.VISIBLE else View.GONE
-                    }
+        (viewModel as BaseViewModel<*>).apply {
+            loadingState.observe(this@AbsMvvmFragment, Observer {
+                it?.run {
+                    showOrHide(loadingView,this)
+                    activity?.runOnUiThread {
 
-                    animationDrawable?.apply {
-                        if (it) {
-                            if (!isRunning) {
-                                start()
-                            }
-                        } else {
-                            if (isRunning) {
-                                stop()
+                        animationDrawable?.apply {
+                            if (it) {
+                                if (!isRunning) {
+                                    start()
+                                }
+                            } else {
+                                if (isRunning) {
+                                    stop()
+                                }
                             }
                         }
                     }
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).loadedState.observe(this, Observer {
-            it?.run {
-                activity?.runOnUiThread {
-                    dataBinding.root.apply {
-                        visibility = if (it) View.VISIBLE else View.GONE
-                    }
+            loadedState.observe(this@AbsMvvmFragment, Observer {
+                it?.run {
+                    showOrHide(dataBinding.root,this)
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).emptyState.observe(this, Observer {
-            it?.run {
-                activity?.runOnUiThread {
-                    emptyView?.apply {
-                        visibility = if (it) View.VISIBLE else View.GONE
-                    }
+
+            emptyState.observe(this@AbsMvvmFragment, Observer {
+                it?.run {
+                    showOrHide(emptyView,this)
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).errorState.observe(this, Observer {
-            it?.run {
-                activity?.runOnUiThread {
-                    errorView?.apply {
-                        visibility = if (it) View.VISIBLE else View.GONE
-                    }
+            errorState.observe(this@AbsMvvmFragment, Observer {
+                it?.run {
+                    showOrHide(errorView,this)
                 }
-            }
-        })
+            })
 
-        (viewModel as BaseViewModel<*>).apply {
             pageState.observe(this@AbsMvvmFragment,observerStatus())
         }
     }
@@ -179,6 +166,14 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
             vs.layoutResource = this
         }
         vs.inflate()
+    }
+
+    private fun showOrHide(view: View?, show: Boolean) {
+        activity?.runOnUiThread {
+            view?.apply {
+                visibility = if (show) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     /**
