@@ -2,14 +2,12 @@ package com.baselib.mvvmuse.view.activity
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.View
 import com.baselib.instant.mvvm.view.AbsMvvmActivity
-import com.baselib.mvpuse.R
-import com.baselib.mvpuse.databinding.ActivityMvvmTestBinding
+import com.baselib.use.R
 import com.baselib.mvvmuse.view.fragment.HostFragment
 import com.baselib.mvvmuse.viewmodel.MvvmTestViewModel
+import com.baselib.use.databinding.ActivityMvvmTestBinding
 import java.util.*
 import java.util.concurrent.TimeUnit
 

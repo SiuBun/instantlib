@@ -2,9 +2,8 @@ package com.baselib.mvvmuse.view.fragment
 
 import android.arch.lifecycle.ViewModelProviders
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
-import com.baselib.mvpuse.R
-import com.baselib.mvpuse.databinding.LayoutFragmentTwoBinding
-import com.baselib.mvvmuse.viewmodel.OneFragmentViewModel
+import com.baselib.use.databinding.LayoutFragmentTwoBinding
+import com.baselib.use.R
 import com.baselib.mvvmuse.viewmodel.TwoFragmentViewModel
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -13,6 +12,8 @@ import java.util.concurrent.TimeUnit
 class TwoFragment : AbsMvvmFragment<LayoutFragmentTwoBinding, TwoFragmentViewModel>() {
     override fun initViewModel() = ViewModelProviders.of(this).get(TwoFragmentViewModel::class.java)
     override fun getContentLayout(): Int = R.layout.layout_fragment_two
+
+    override fun isFirstVisible(): Boolean = false
 
     companion object {
         fun getInstance() = TwoFragment()

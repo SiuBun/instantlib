@@ -6,9 +6,9 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
 import android.text.TextUtils
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
-import com.baselib.mvpuse.R
-import com.baselib.mvpuse.databinding.LayoutFragmentHostBinding
+import com.baselib.use.R
 import com.baselib.mvvmuse.viewmodel.HostFragmentViewModel
+import com.baselib.use.databinding.LayoutFragmentHostBinding
 
 class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentViewModel>() {
     private lateinit var pageList: MutableList<Fragment>
@@ -29,8 +29,8 @@ class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentView
 
     override fun getContentLayout(): Int = R.layout.layout_fragment_host
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun lazyLoadData() {
+        super.lazyLoadData()
 
         initPageList()
         initTitleList()
@@ -49,7 +49,6 @@ class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentView
 
         dataBinding.tabHost.setupWithViewPager(dataBinding.vpPage, false)
         showContentView()
-
     }
 
     private fun initTitleList() {

@@ -1,9 +1,7 @@
 package com.baselib.mvpuse.presenter;
 
 import android.os.CountDownTimer;
-import android.util.Log;
 
-import com.baselib.instant.Const;
 import com.baselib.instant.mvp.BasePresenter;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.model.LoginFragModel;

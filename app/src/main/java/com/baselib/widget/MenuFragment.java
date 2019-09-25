@@ -1,4 +1,4 @@
-package com.baselib.mvpuse.widget;
+package com.baselib.widget;
 
 import android.view.View;
 import android.widget.Button;
@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
-import com.baselib.mvpuse.R;
+import com.baselib.use.R;
 import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
@@ -29,10 +29,11 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     private Button mBtnRx;
     private Button mBtnOther;
-//    private FloatButtonController mFloatButtonController;
+    //    private FloatButtonController mFloatButtonController;
     private Button mBtnNetData;
     private Button mBtnRetrofit;
     private Button mBtnMvvm;
+    private Button mBtnRoom;
 
     @Override
     public int getFragmentLayout() {
@@ -67,6 +68,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnNetData = findViewById(R.id.btn_net_data, Button.class);
         mBtnRetrofit = findViewById(R.id.btn_retrofit, Button.class);
         mBtnMvvm = findViewById(R.id.btn_mvvm, Button.class);
+        mBtnRoom = findViewById(R.id.btn_room, Button.class);
     }
 
     @Override
@@ -155,8 +157,10 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
         });
 
-        mBtnMvvm.setOnClickListener(v->{
-            startActivity(MvvmTestActivity.class);
+        mBtnMvvm.setOnClickListener(v -> startActivity(MvvmTestActivity.class));
+
+        mBtnRoom.setOnClickListener(v -> {
+            startFragmentByClz(R.id.flt_main_root,RoomFragment.getInstance());
         });
 
         getPresenter().observerAppChange();

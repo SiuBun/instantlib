@@ -1,4 +1,4 @@
-package com.baselib.mvpuse.widget;
+package com.baselib.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.baselib.instant.mvp.BaseFragment;
-import com.baselib.mvpuse.R;
+import com.baselib.use.R;
 import com.baselib.mvpuse.presenter.LoginFragPresenter;
 import com.baselib.mvpuse.view.LoginFragView;
 

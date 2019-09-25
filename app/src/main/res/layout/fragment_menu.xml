@@ -7,40 +7,42 @@
 
     <Button
         android:id="@+id/btn_rx"
-        android:layout_width="@dimen/zo_120dp"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
         android:text="rx_demo"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_get_apps"
         app:layout_constraintTop_toTopOf="parent"
         />
 
     <Button
         android:id="@+id/btn_get_apps"
-        android:layout_width="@dimen/zo_120dp"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
         android:text="all_app"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_rx" />
+        app:layout_constraintBaseline_toBaselineOf="@id/btn_rx"
+        app:layout_constraintLeft_toRightOf="@id/btn_rx"
+        app:layout_constraintRight_toLeftOf="@id/btn_net_data"
+        />
     <Button
         android:id="@+id/btn_net_data"
-        android:layout_width="@dimen/zo_120dp"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
         android:text="net_dat"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@id/btn_rx"
+        app:layout_constraintLeft_toRightOf="@id/btn_get_apps"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
+        />
     <Button
         android:id="@+id/btn_retrofit"
-        android:layout_width="@dimen/zo_120dp"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
         android:text="retrofit"
         android:textAllCaps="false"
@@ -50,7 +52,7 @@
         app:layout_constraintTop_toBottomOf="@id/btn_net_data" />
     <Button
         android:id="@+id/btn_mvvm"
-        android:layout_width="@dimen/zo_120dp"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
         android:text="mvvm"
         android:textAllCaps="false"
@@ -58,4 +60,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_retrofit" />
+
+    <Button
+        android:id="@+id/btn_room"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/zo_50dp"
+        android:text="room"
+        android:textAllCaps="false"
+        android:textSize="@dimen/zo_14sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_mvvm" />
 </android.support.constraint.ConstraintLayout>

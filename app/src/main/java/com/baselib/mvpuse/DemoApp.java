@@ -10,6 +10,7 @@ import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.net.client.OkHttpNetClient;
 import com.baselib.instant.provider.sp.MultiProcessSharedPreferences;
 import com.baselib.instant.util.LogUtils;
+import com.baselib.use.BuildConfig;
 
 public class DemoApp extends Application {
 

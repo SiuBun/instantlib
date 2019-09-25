@@ -57,9 +57,9 @@ abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: 
         }
     }
 
-    private fun statusEnabled(statuses: Int, status: Int): Boolean = (statuses and status).apply {
-        LogUtils.d("$statuses 和 $status 与运算为$this")
-    } != 0
+    private fun statusEnabled(statuses: Int, status: Int): Boolean = (statuses and status)!= 0
+//            .apply {LogUtils.d("$statuses 和 $status 与运算为$this")}
+
 
     internal val pageState: MutableLiveData<Int> = MutableLiveData()
     internal val loadingState: MutableLiveData<Boolean> = MutableLiveData()

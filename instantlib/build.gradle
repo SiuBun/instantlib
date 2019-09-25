@@ -18,6 +18,10 @@ android {
 
     }
 
+    packagingOptions {
+        exclude 'META-INF/*'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -61,6 +65,9 @@ dependencies {
     implementation rootProject.ext.dependence["lifecycle-extensions"]
     implementation rootProject.ext.dependence["lifecycle-compiler"]
     implementation rootProject.ext.dependence["lifecycle-common-java8"]
+
+    implementation rootProject.ext.dependence["room-compiler"]
+    implementation rootProject.ext.dependence["room-runtime"]
 
 
 }

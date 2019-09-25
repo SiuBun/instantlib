@@ -108,8 +108,13 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
         }
 
         initObserverAndData()
-        showLoading()
+
+        if (isFirstVisible()){
+            lazyLoadData()
+        }
     }
+
+    open fun isFirstVisible(): Boolean = true
 
     /**
      * 此处可完成vm层对象内持有的livedata和v层界面的绑定

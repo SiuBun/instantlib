@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.wsb.mvpuse"
+        applicationId "com.baselib.use"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
@@ -20,12 +20,18 @@ android {
 
         multiDexEnabled true
     }
+
+    packagingOptions {
+        exclude 'META-INF/*'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
@@ -63,4 +69,11 @@ dependencies {
     implementation rootProject.ext.dependence["lifecycle-compiler"]
     implementation rootProject.ext.dependence["lifecycle-common-java8"]
     implementation 'com.android.support:multidex:1.0.3'
+
+    implementation rootProject.ext.dependence["room-compiler"]
+    implementation rootProject.ext.dependence["room-runtime"]
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

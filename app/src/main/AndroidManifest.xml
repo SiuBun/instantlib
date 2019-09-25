@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.baselib.mvpuse">
+    package="com.baselib.use">
 
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -8,17 +8,18 @@
 
     <application
         android:allowBackup="true"
-        android:name=".DemoApp"
+        android:name="com.baselib.mvpuse.DemoApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.baselib.mvpuse.widget.MainActivity"/>
 
+        <activity android:name="com.baselib.mvvmuse.view.activity.MvvmTestActivity" />
+        <activity android:name="com.baselib.widget.MainActivity" />
         <activity
-            android:name=".widget.SplashActivity"
+            android:name="com.baselib.widget.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.baselib.mvvmuse.view.activity.MvvmTestActivity" />
     </application>
 
 </manifest>

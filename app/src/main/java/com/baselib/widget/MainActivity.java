@@ -1,16 +1,11 @@
-package com.baselib.mvpuse.widget;
+package com.baselib.widget;
 
-import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.view.KeyEvent;
 
 import com.baselib.instant.mvp.BaseActivity;
-import com.baselib.instant.util.LogUtils;
-import com.baselib.mvpuse.R;
+import com.baselib.use.R;
 import com.baselib.mvpuse.presenter.MainPresenter;
 import com.baselib.mvpuse.view.MainView;
-
-import java.util.List;
 
 /**
  * 示例界面
