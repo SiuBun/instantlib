@@ -163,7 +163,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
             startFragmentByClz(R.id.flt_main_root,RoomFragment.getInstance());
         });
 
-        getPresenter().observerAppChange();
+        getPresenter().observerAppChange(getContext());
     }
 
     @Override

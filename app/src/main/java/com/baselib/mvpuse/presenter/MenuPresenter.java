@@ -63,11 +63,11 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
         return getModel().getJokeByOkhttp();
     }
 
-    public void observerAppChange() {
+    public void observerAppChange(Context context) {
         LogUtils.i("客户端界面进行应用变化监听");
 
         ObserverManager observerManager = (ObserverManager) GlobalManager.Companion.getManager(GlobalManager.OBSERVER_SERVICE);
-        mNetStateObserver = observerManager.getNetStateObserver();
+        mNetStateObserver = observerManager.getObserver(context,ObserverManager.NET_STATE_OBSERVER_NAME);
         mNetStateObserver.addSubscriber(onNetStateChangeListener);
     }
 
@@ -76,7 +76,9 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
 
     @Override
     public void onPresenterDetach(Context context) {
-        mNetStateObserver.removeSubscriber(onNetStateChangeListener);
+        if (mNetStateObserver!=null){
+            mNetStateObserver.removeSubscriber(onNetStateChangeListener);
+        }
 
         super.onPresenterDetach(context);
     }

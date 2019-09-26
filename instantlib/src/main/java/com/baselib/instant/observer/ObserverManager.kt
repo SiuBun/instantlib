@@ -4,6 +4,7 @@ import android.content.Context
 
 import com.baselib.instant.manager.IManager
 import com.baselib.instant.observer.observer.AppChangeObserver
+import com.baselib.instant.observer.observer.BaseObserver
 import com.baselib.instant.observer.observer.NetStateObserver
 import com.baselib.instant.util.LogUtils
 
@@ -17,41 +18,33 @@ import java.util.HashMap
 class ObserverManager : IManager {
     private var mObserverMap: MutableMap<String, IObserver<*>> = HashMap()
 
-    val appChangeObserver: AppChangeObserver?
-        get() = getObserver(APP_CHANGE_OBSERVER_NAME, AppChangeObserver::class.java)
-    val netStateObserver: NetStateObserver?
-        get() = getObserver(NET_STATE_OBSERVER_NAME, NetStateObserver::class.java)
-
     override fun onManagerDetach() {
         for (name in mObserverMap.keys) {
             mObserverMap[name]?.onObserverDetach()
         }
+        mObserverMap.clear()
     }
 
-    /**
-     * 该方法内对观察者管理对象进行初始化
-     *
-     *
-     * 后面get方法获取到的观察者对象不为空需要在此put进容器钟
-     *
-     * @param context 上下文
-     */
-    fun onManagerAttach(context: Context) {
-        mObserverMap[APP_CHANGE_OBSERVER_NAME] = AppChangeObserver(context)
-        mObserverMap[NET_STATE_OBSERVER_NAME] = NetStateObserver(context)
-    }
-
-    private fun <T : IObserver<*>> getObserver(name: String, clz: Class<T>): T? {
-        return if (mObserverMap[name] == null) {
-            LogUtils.d("该观察者暂未被支持")
-            null
+    fun <T : IObserver<*>> getObserver(context: Context, name: String): T? {
+        return if (null == mObserverMap[name]) {
+            createObserver(context, name).takeIf { it != null }?.also {
+                mObserverMap[name] = it
+            } as T?
         } else {
-            mObserverMap[name] as T?
+            mObserverMap[name] as T
+        }
+    }
+
+    private fun createObserver(context: Context, name: String): IObserver<*>? {
+        return when (name) {
+            APP_CHANGE_OBSERVER_NAME -> AppChangeObserver(context)
+            NET_STATE_OBSERVER_NAME -> NetStateObserver(context)
+            else -> null
         }
     }
 
     companion object {
-        private const val APP_CHANGE_OBSERVER_NAME = "AppChangeObserver"
-        private const val NET_STATE_OBSERVER_NAME = "NetStateObserver"
+        const val APP_CHANGE_OBSERVER_NAME = "AppChangeObserver"
+        const val NET_STATE_OBSERVER_NAME = "NetStateObserver"
     }
 }

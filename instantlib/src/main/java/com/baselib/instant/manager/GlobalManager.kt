@@ -75,18 +75,17 @@ class GlobalManager : IManager {
      * @return 各功能管理对象
      */
     private fun createManagerByName(name: String): IManager {
-        val baseManager: IManager?
-        when (name) {
-            PERMISSION_SERVICE -> baseManager = PermissionsManager()
-            FLOAT_WINDOWS_SERVICE -> baseManager = FloatButtonController()
-            EXECUTOR_POOL_SERVICE -> baseManager = ThreadExecutorProxy()
-            OBSERVER_SERVICE -> baseManager = ObserverManager()
-            else -> baseManager = object : IManager {
+        LogUtils.i("所创建的管理对象名为$name")
+        return when (name) {
+            PERMISSION_SERVICE -> PermissionsManager()
+            FLOAT_WINDOWS_SERVICE -> FloatButtonController()
+            EXECUTOR_POOL_SERVICE -> ThreadExecutorProxy()
+            OBSERVER_SERVICE -> ObserverManager()
+            else -> object : IManager {
                 override fun onManagerDetach() {
                 }
             }
         }
-        return baseManager
     }
 
 
@@ -96,6 +95,7 @@ class GlobalManager : IManager {
             for (name in managerMap.keys) {
                 val manager = managerMap[name]
                 manager?.onManagerDetach()
+                LogUtils.i("已销毁的管理对象名为$name")
             }
             managerMap.clear()
         }
