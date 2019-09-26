@@ -39,7 +39,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         if (!mUserList.isEmpty()){
             UserEntity userEntity = mUserList.get(i);
-            viewHolder.tvName.setText(userEntity.getUserName()+"_"+userEntity.getPassword()+"_"+userEntity.getUpdateTime());
+            viewHolder.tvName.setText(
+                    userEntity.getUserId()+"_"+userEntity.getUserName()+"_"+userEntity.getPassword()+"_"+userEntity.getUpdateTime()
+            );
         }
     }
 

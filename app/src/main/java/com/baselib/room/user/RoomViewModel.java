@@ -1,7 +1,9 @@
 package com.baselib.room.user;
 
 import android.app.Application;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
@@ -16,7 +18,13 @@ import com.baselib.instant.util.LogUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 
 public class RoomViewModel extends BaseViewModel<RoomModel> {
@@ -26,9 +34,8 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
     private MutableLiveData<String> mUsernameError = new MutableLiveData<>();
     private MutableLiveData<String> mPasswordError = new MutableLiveData<>();
 
-    private LiveData<List<UserEntity>> mAllUserLiveData = new MutableLiveData<>();
-    private UserRepository userRepository;
-
+    private MediatorLiveData<List<UserEntity>> mShowUserLiveData = new MediatorLiveData<>();
+    private LiveData<List<UserEntity>> allUserSourse;
 
     public LiveData<String> getUserNameError() {
         return mUsernameError;
@@ -46,14 +53,12 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
         return mLocalData;
     }
 
-    public LiveData<List<UserEntity>> getAllUserLiveData() {
-        return mAllUserLiveData;
+    public LiveData<List<UserEntity>> getShowUserLiveData() {
+        return mShowUserLiveData;
     }
 
     public RoomViewModel(@NotNull Application application, @Nullable RoomModel model) {
         super(application, model);
-        userRepository = new UserRepository(application);
-        mAllUserLiveData = userRepository.getAllUser();
     }
 
     @Override
@@ -104,14 +109,32 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
 
         mSaveState.set("保存用户资料");
 
-        UserEntity entity = new UserEntity();
-        entity.setUserId(userId.toString());
-        entity.setUserName(userName.toString());
-        entity.setPassword(password.toString());
-        entity.setUpdateTime(System.currentTimeMillis());
-
-        userRepository.insertUser(entity);
+        getModel().insertUser(userId.toString(),userName.toString(),password.toString());
 
 
+    }
+
+    public void loadLocalUser() {
+        if (allUserSourse!=null){
+            mShowUserLiveData.removeSource(allUserSourse);
+        }
+        allUserSourse = getModel().getAllUser();
+        mShowUserLiveData.addSource(allUserSourse, userEntities -> mShowUserLiveData.postValue(userEntities));
+    }
+
+    @Override
+    public void onDestroy(@NotNull LifecycleOwner owner) {
+        mShowUserLiveData.removeSource(allUserSourse);
+        super.onDestroy(owner);
+    }
+
+    public void loadOneUser() {
+        Disposable subscribe = getModel().getOneUser().subscribe(userEntities -> {
+            LogUtils.i("收到加载单一用户的数据"+userEntities);
+            ArrayList<UserEntity> list = new ArrayList<>();
+            list.add(userEntities);
+            mShowUserLiveData.postValue(list);
+        });
+        addDisposable(subscribe);
     }
 }

@@ -9,26 +9,30 @@ import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+
 public class UserRepository {
 
     private final UserDao mUserDao;
-    private LiveData<List<UserEntity>> allUser;
     private ThreadExecutorProxy mThreadManager;
 
     UserRepository(Context context){
         mThreadManager = (ThreadExecutorProxy) GlobalManager.Companion.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
         UserDatabase db = UserDatabase.getInstance(context);
         mUserDao = db.getUserDao();
-        allUser = mUserDao.getAllUser();
     }
 
     LiveData<List<UserEntity>> getAllUser() {
         LogUtils.i("加载本地用户");
-        return allUser;
+        return mUserDao.getAllUser();
     }
 
     void insertUser(UserEntity entity){
         mThreadManager.execute(() -> mUserDao.inserUser(entity)
         );
+    }
+
+    public Flowable<UserEntity> getOneUser() {
+        return mUserDao.getLastUser();
     }
 }

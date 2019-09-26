@@ -8,6 +8,8 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+
 @Dao
 public interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -16,6 +18,9 @@ public interface UserDao {
     @Query("DELETE FROM user_table")
     void deleteUser();
 
-    @Query("SELECT * from user_table ORDER BY update_time ASC")
+    @Query("SELECT * from user_table ORDER BY update_time DESC")
     LiveData<List<UserEntity>> getAllUser();
+
+    @Query("SELECT * from user_table ORDER BY update_time DESC LIMIT 1")
+    Flowable<UserEntity> getLastUser();
 }

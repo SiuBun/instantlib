@@ -43,14 +43,16 @@ public class RoomFragment extends AbsMvvmFragment<LayoutFragmentRoomBinding, Roo
         userAdapter = new UserAdapter(getContext());
         dataBinding.rcvUser.setAdapter(userAdapter);
         dataBinding.rcvUser.setLayoutManager(new LinearLayoutManager(getContext()));
-        dataBinding.btnSave.setOnClickListener(v -> getViewModel().addUser(dataBinding.tietUserid.getText(),dataBinding.tietUsername.getText(), dataBinding.tietPassword.getText()));
+        dataBinding.btnSave.setOnClickListener(v -> getViewModel().addUser(dataBinding.tietUserid.getText(), dataBinding.tietUsername.getText(), dataBinding.tietPassword.getText()));
 
 
         getViewModel().getUserNameError().observe(this, s -> dataBinding.tietUsername.setError(s));
         getViewModel().getPasswordError().observe(this, s -> dataBinding.tietPassword.setError(s));
-        getViewModel().getAllUserLiveData().observe(this, userEntities -> {
-            LogUtils.i("更新的用户列表为"+userEntities.toString());
-                    userAdapter.setUsers(userEntities);
+        getViewModel().getShowUserLiveData().observe(this, userEntities -> {
+                    if (null != userEntities) {
+                        LogUtils.i("更新的用户列表为" + userEntities.toString());
+                        userAdapter.setUsers(userEntities);
+                    }
                 }
         );
 
@@ -60,6 +62,7 @@ public class RoomFragment extends AbsMvvmFragment<LayoutFragmentRoomBinding, Roo
     public void lazyLoadData() {
         super.lazyLoadData();
         Objects.requireNonNull(getViewModel());
+        getViewModel().loadOneUser();
         showContentView();
     }
 

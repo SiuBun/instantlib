@@ -68,6 +68,7 @@ dependencies {
 
     implementation rootProject.ext.dependence["room-compiler"]
     implementation rootProject.ext.dependence["room-runtime"]
+    implementation rootProject.ext.dependence["room-rxjava2"]
 
 
 }

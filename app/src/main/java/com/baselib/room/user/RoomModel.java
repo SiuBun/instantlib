@@ -3,47 +3,31 @@ package com.baselib.room.user;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 
-import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvvm.model.BaseMvvmModel;
-import com.baselib.instant.thread.ThreadExecutorProxy;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
+
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 class RoomModel extends BaseMvvmModel {
     private UserRepository mRepository;
 
 
-    public RoomModel(Application application) {
+    RoomModel(Application application) {
         mRepository = new UserRepository(application);
     }
 
-    public LiveData<List<UserEntity>> getAllUser() {
+    LiveData<List<UserEntity>> getAllUser() {
         return mRepository.getAllUser();
     }
 
-    /*public String getAllUserValue(LiveData<List<UserEntity>> mAllUserLiveData) {
-        if (null!=mAllUserLiveData.getValue()){
-            Transformations.map(mAllUserLiveData, input -> {
-                StringBuilder builder = new StringBuilder();
-                for (UserEntity userEntity : input) {
-                    builder.append(",");
-                    builder.append(userEntity.getUserName());
-                }
-
-                String localData = builder.deleteCharAt(0).toString();
-                LogUtils.i("加载内容为: " + localData);
-                return localData;
-            });
-        }else{
-            return null;
-        }
-    }*/
-
-    public void insertUser(String userName, String password) {
+    void insertUser(String userId, String userName, String password) {
 
         UserEntity entity = new UserEntity();
-        entity.setUserId("10086");
+        entity.setUserId(userId);
         entity.setUserName(userName);
         entity.setPassword(password);
         entity.setUpdateTime(System.currentTimeMillis());
@@ -55,5 +39,9 @@ class RoomModel extends BaseMvvmModel {
     @Override
     public void onModelDestroy() {
         super.onModelDestroy();
+    }
+
+    public Flowable<UserEntity> getOneUser() {
+        return mRepository.getOneUser().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 }

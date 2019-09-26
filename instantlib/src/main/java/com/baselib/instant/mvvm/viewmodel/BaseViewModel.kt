@@ -6,6 +6,7 @@ import android.support.annotation.CallSuper
 import com.baselib.instant.mvvm.model.IModel
 import com.baselib.instant.util.LogUtils
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 
 
 /**
@@ -119,7 +120,7 @@ abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: 
         LogUtils.lifeLog(owner::class.java.simpleName, "onDestroy")
     }
 
-    protected fun addDisposable(disposable: CompositeDisposable) {
+    protected fun addDisposable(disposable: Disposable) {
         compositeDisposable.add(disposable)
     }
 
