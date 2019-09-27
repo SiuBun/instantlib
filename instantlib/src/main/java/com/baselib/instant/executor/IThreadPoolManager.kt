@@ -1,4 +1,4 @@
-package com.baselib.instant.thread
+package com.baselib.instant.executor
 
 /**
  * 线程池管理对象需实现的接口

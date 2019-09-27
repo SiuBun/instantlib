@@ -4,7 +4,7 @@ import com.baselib.instant.floatwindow.FloatButtonController
 import com.baselib.instant.net.NetworkManager
 import com.baselib.instant.observer.ObserverManager
 import com.baselib.instant.permission.PermissionsManager
-import com.baselib.instant.thread.ThreadExecutorProxy
+import com.baselib.instant.executor.ThreadExecutorProxy
 import com.baselib.instant.util.LogUtils
 
 /**

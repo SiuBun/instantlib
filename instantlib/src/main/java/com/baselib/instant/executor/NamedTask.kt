@@ -1,4 +1,4 @@
-package com.baselib.instant.thread
+package com.baselib.instant.executor
 
 /**
  * 拥有名称的Runnable

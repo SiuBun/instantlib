@@ -7,7 +7,7 @@ import android.support.multidex.MultiDex;
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.net.client.OkHttpNetClient;
-import com.baselib.instant.provider.sp.MultiProcessSharedPreferences;
+import com.baselib.instant.repository.provider.sp.MultiProcessSharedPreferences;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.use.BuildConfig;
 

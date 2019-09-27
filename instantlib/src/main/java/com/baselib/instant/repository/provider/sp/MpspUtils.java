@@ -1,9 +1,6 @@
-package com.baselib.instant.provider.sp;
+package com.baselib.instant.repository.provider.sp;
 
 import android.content.Context;
-import android.content.UriMatcher;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.DeadObjectException;
 
 public class MpspUtils {

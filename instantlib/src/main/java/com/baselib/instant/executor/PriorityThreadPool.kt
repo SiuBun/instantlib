@@ -1,4 +1,4 @@
-package com.baselib.instant.thread
+package com.baselib.instant.executor
 
 import java.util.concurrent.PriorityBlockingQueue
 import java.util.concurrent.ThreadFactory

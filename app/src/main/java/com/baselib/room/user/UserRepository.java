@@ -4,7 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
 import com.baselib.instant.manager.GlobalManager;
-import com.baselib.instant.thread.ThreadExecutorProxy;
+import com.baselib.instant.executor.ThreadExecutorProxy;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.List;

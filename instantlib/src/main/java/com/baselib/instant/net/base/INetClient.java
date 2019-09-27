@@ -8,7 +8,7 @@ import okhttp3.Response;
 /**
  * 网络请求客户端对象
  * <p>
- * 各实现类实现各方法,只关注接口,底层由okhttp还是retrofit实现不关注
+ * 各实现类实现各方法,只关注接口,底层由okhttp还是urlconnection实现不关注
  *
  * @author wsb
  */

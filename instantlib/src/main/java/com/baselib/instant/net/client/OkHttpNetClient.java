@@ -7,6 +7,7 @@ import com.baselib.instant.net.base.IHttpStateCallback;
 import com.baselib.instant.net.base.INetClient;
 import com.baselib.instant.net.base.NetConfig;
 import com.baselib.instant.net.intercept.RedirectInterceptor;
+import com.baselib.instant.net.provide.ConfigProvider;
 import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +91,7 @@ public class OkHttpNetClient implements INetClient {
     @Override
     public void setConfig(NetConfig config) {
         int timeout = config.getTimeout();
-        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
+        OkHttpClient.Builder clientBuilder = ConfigProvider.INSTANCE.obtainOkHttpClient()
                 .connectTimeout(timeout, TimeUnit.SECONDS)
                 .readTimeout(timeout, TimeUnit.SECONDS)
                 .callTimeout(timeout, TimeUnit.SECONDS);

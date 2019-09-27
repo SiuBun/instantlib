@@ -1,4 +1,4 @@
-package com.baselib.instant.thread
+package com.baselib.instant.executor
 
 import android.os.Build
 import android.util.Log

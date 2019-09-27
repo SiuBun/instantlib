@@ -1,4 +1,4 @@
-package com.baselib.instant.provider
+package com.baselib.instant.repository.provider
 
 import android.app.Application
 import android.content.Context

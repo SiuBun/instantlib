@@ -1,7 +1,7 @@
 /*
  * 创建日期：2014年9月12日 下午0:0:02
  */
-package com.baselib.instant.provider.sp;
+package com.baselib.instant.repository.provider.sp;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;

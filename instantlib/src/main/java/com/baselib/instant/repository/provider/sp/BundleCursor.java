@@ -1,4 +1,4 @@
-package com.baselib.instant.provider.sp;
+package com.baselib.instant.repository.provider.sp;
 
 import android.database.MatrixCursor;
 import android.os.Bundle;

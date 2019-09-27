@@ -1,4 +1,4 @@
-package com.baselib.instant.provider.sp;
+package com.baselib.instant.repository.provider.sp;
 
 public interface MpSpCons {
     String KEY = "value";

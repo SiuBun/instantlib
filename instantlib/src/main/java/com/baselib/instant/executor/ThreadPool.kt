@@ -1,4 +1,4 @@
-package com.baselib.instant.thread
+package com.baselib.instant.executor
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ScheduledThreadPoolExecutor
