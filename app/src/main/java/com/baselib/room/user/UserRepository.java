@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.executor.ThreadExecutorProxy;
+import com.baselib.instant.repository.RepositoryManager;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
@@ -18,7 +19,8 @@ public class UserRepository {
 
     UserRepository(Context context){
         mThreadManager = (ThreadExecutorProxy) GlobalManager.Companion.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
-        UserDatabase db = UserDatabase.getInstance(context);
+
+        UserDatabase db = RepositoryManager.getProvider(context).obtainDatabase(UserDatabase.class, "user_database");
         mUserDao = db.getUserDao();
     }
 

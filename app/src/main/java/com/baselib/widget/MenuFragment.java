@@ -175,7 +175,6 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     private void useRepository() {
         RepositoryManager repositoryManager = RepositoryManager.getProvider(getContext());
-        repositoryManager.obtainDatabase(UserDatabase.class, "user_database");
 
         repositoryManager
                 .attachModule("def", "https://api-m.mtime.cn/")

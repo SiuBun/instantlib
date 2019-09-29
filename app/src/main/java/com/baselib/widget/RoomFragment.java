@@ -62,7 +62,7 @@ public class RoomFragment extends AbsMvvmFragment<LayoutFragmentRoomBinding, Roo
     public void lazyLoadData() {
         super.lazyLoadData();
         Objects.requireNonNull(getViewModel());
-        getViewModel().loadOneUser();
+        getViewModel().loadLocalUser();
         showContentView();
     }
 
