@@ -23,13 +23,13 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
         @Volatile
         private var instance: RepositoryManager? = null
 
-        fun getProvider(context: Context) {
-            instance ?: synchronized(this) {
-                instance ?: RepositoryManager(context.applicationContext).also { instance = it }
-            }
+        @JvmStatic
+        fun getProvider(context: Context): RepositoryManager = instance ?: synchronized(this) {
+            instance ?: RepositoryManager(context.applicationContext).also { instance = it }
         }
     }
 
+    private val mModuleMap: MutableMap<String, String> = mutableMapOf()
     /**
      * 建造工厂示例对象,实例化各个缓存对象
      * */
@@ -41,7 +41,7 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
     private var application: Application = context.applicationContext as Application
 
     /**
-     * 存放Retrofit所用service的对象
+     * 存放Retrofit所用的service对象,已类名本身来存储
      * */
     private var mRetrofitServiceCache: Cache<String, Any?>? = null
 
@@ -51,44 +51,48 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
     private var mRoomDatabaseCache: Cache<String, Any?>? = null
 
     /**
-     * 存放Retrofit的对象
+     * 存放Retrofit的对象,各个retrofit对象对应不同的api后台接口
      * */
     private var mRetrofitCache: Cache<String, Any?>? = null
 
-
     override fun obtainRetrofit(hostUrl: String): Retrofit {
-        val cache = mRetrofitCache
-                ?: mCacheFactory.build(CacheType.RETROFIT_SERVICE_CACHE_TYPE).apply {
-                    mRetrofitCache = this
-                }
-
-        return (cache[hostUrl]
-                ?: ConfigProvider.getRetrofitBuilder(hostUrl).build().also { cache.put(hostUrl,it) }) as Retrofit
+        return (lazyRetrofit()[hostUrl]
+                ?: ConfigProvider.getRetrofitBuilder(hostUrl).build().also { lazyRetrofit().put(hostUrl, it) }) as Retrofit
     }
 
-
-    override fun <T> Retrofit.obtainCacheService(service: Class<T>): T {
-        val cache = mRetrofitServiceCache
-                ?: mCacheFactory.build(CacheType.CACHE_SERVICE_CACHE_TYPE).apply {
-                    mRetrofitServiceCache = this
-                }
-
-        val name = service::class.java.simpleName
-        return (cache[name]
-                ?: this.create(service).also { cache.put(name,it) }) as T
+    override fun <T> obtainCacheService(retrofit: Retrofit, service: Class<T>): T {
+        val key = service::class.java.name + "_" + retrofit.baseUrl()
+        return (lazyService()[key]
+                ?: (retrofit.create(service).also { lazyService().put(key, it) })) as T
     }
-
 
     override fun <T : RoomDatabase> obtainDatabase(databaseClz: Class<T>, dbName: String): T {
-        val cache = mRoomDatabaseCache
-                ?: mCacheFactory.build(CacheType.ROOM_DATABASE_CACHE_TYPE).apply {
-                    mRoomDatabaseCache = this
-                }
-
         val name = databaseClz::class.java.simpleName
-        return (cache[name]
-                ?: Room.databaseBuilder(application, databaseClz, dbName).build().also { cache.put(name,it) }) as T
+        return (lazyDatabaseCache()[name]
+                ?: Room.databaseBuilder(application, databaseClz, dbName).build().also { lazyDatabaseCache().put(name, it) }) as T
     }
+
+    fun attachModule(name: String, url: String): RepositoryManager = apply {
+        mModuleMap[name] = url
+    }
+
+    fun getModuleUrl(moduleName: String): String = mModuleMap[moduleName]
+            ?: throw IllegalAccessException("this module and url not attached")
+
+    private fun lazyRetrofit(): Cache<String, Any?> = mRetrofitCache
+            ?: mCacheFactory.build(CacheType.RETROFIT_SERVICE_CACHE_TYPE).apply {
+                mRetrofitCache = this
+            }
+
+    private fun lazyService(): Cache<String, Any?> = mRetrofitServiceCache
+            ?: mCacheFactory.build(CacheType.CACHE_SERVICE_CACHE_TYPE).apply {
+                mRetrofitServiceCache = this
+            }
+
+    private fun lazyDatabaseCache(): Cache<String, Any?> = mRoomDatabaseCache
+            ?: mCacheFactory.build(CacheType.ROOM_DATABASE_CACHE_TYPE).apply {
+                mRoomDatabaseCache = this
+            }
 
     override fun onManagerDetach() {
         mRetrofitServiceCache?.clear()

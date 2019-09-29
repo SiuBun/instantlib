@@ -4,13 +4,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.baselib.entity.MtimeFilmeBean;
 import com.baselib.instant.mvp.BaseFragment;
+import com.baselib.instant.repository.RepositoryManager;
 import com.baselib.instant.util.LogUtils;
-import com.baselib.use.R;
 import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
+import com.baselib.repository.HostClient;
+import com.baselib.repository.ModuleClient;
+import com.baselib.room.user.UserDatabase;
+import com.baselib.use.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,6 +29,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Response;
+import retrofit2.Retrofit;
 
 public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
@@ -159,11 +165,44 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
         mBtnMvvm.setOnClickListener(v -> startActivity(MvvmTestActivity.class));
 
-        mBtnRoom.setOnClickListener(v -> {
-            startFragmentByClz(R.id.flt_main_root,RoomFragment.getInstance());
-        });
+        mBtnRoom.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, RoomFragment.getInstance()));
 
         getPresenter().observerAppChange(getContext());
+
+
+        useRepository();
+    }
+
+    private void useRepository() {
+        RepositoryManager repositoryManager = RepositoryManager.getProvider(getContext());
+        repositoryManager.obtainDatabase(UserDatabase.class, "user_database");
+
+        repositoryManager
+                .attachModule("def", "https://api-m.mtime.cn/")
+                .attachModule("module", "https://ticket-api-m.mtime.cn/");
+
+        Observable<MtimeFilmeBean> hotFilm = getHostService(repositoryManager).getHotFilm();
+
+        getModuleService(repositoryManager, ModuleClient.class)
+                .getFilmDetail(235701)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        frontpageBean -> Toast.makeText(getActivity(), "获取到的FilmBean为" + frontpageBean, Toast.LENGTH_SHORT).show(),
+                        Throwable::printStackTrace
+                );
+    }
+
+    private HostClient getHostService(RepositoryManager repositoryManager) {
+        String def = repositoryManager.getModuleUrl("def");
+        Retrofit retrofit = repositoryManager.obtainRetrofit(def);
+        return repositoryManager.obtainCacheService(retrofit, HostClient.class);
+    }
+
+    private <T>T getModuleService(RepositoryManager manager, Class<T> clientClass) {
+        String module = manager.getModuleUrl("module");
+        Retrofit retrofit = manager.obtainRetrofit(module);
+        return manager.obtainCacheService(retrofit,clientClass);
     }
 
     @Override
