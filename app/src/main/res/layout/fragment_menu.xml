@@ -9,7 +9,7 @@
         android:id="@+id/btn_rx"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
-        android:text="rx_demo"
+        android:text="rx_create_str"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintVertical_chainStyle="spread"
@@ -22,7 +22,7 @@
         android:id="@+id/btn_get_apps"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
-        android:text="all_app"
+        android:text="rx_all_app"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintBaseline_toBaselineOf="@id/btn_rx"
@@ -33,7 +33,7 @@
         android:id="@+id/btn_net_data"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
-        android:text="net_dat"
+        android:text="rx_net_data"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintBaseline_toBaselineOf="@id/btn_rx"
@@ -49,7 +49,17 @@
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_net_data" />
+        app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
+    <Button
+        android:id="@+id/btn_rx_repository"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/zo_50dp"
+        android:text="rx_repository"
+        android:textAllCaps="false"
+        android:textSize="@dimen/zo_14sp"
+        app:layout_constraintLeft_toRightOf="@id/btn_retrofit"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
     <Button
         android:id="@+id/btn_mvvm"
         android:layout_width="wrap_content"

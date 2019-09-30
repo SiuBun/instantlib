@@ -4,32 +4,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.baselib.entity.MtimeFilmeBean;
 import com.baselib.instant.mvp.BaseFragment;
-import com.baselib.instant.repository.RepositoryManager;
-import com.baselib.instant.util.LogUtils;
-import com.baselib.mvpuse.entry.AppInstantItemBean;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
-import com.baselib.repository.HostClient;
-import com.baselib.repository.ModuleClient;
-import com.baselib.room.user.UserDatabase;
 import com.baselib.use.R;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.Objects;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.Response;
-import retrofit2.Retrofit;
 
 public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
@@ -40,6 +19,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     private Button mBtnRetrofit;
     private Button mBtnMvvm;
     private Button mBtnRoom;
+    private Button mBtnRepository;
 
     @Override
     public int getFragmentLayout() {
@@ -49,6 +29,10 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     @Override
     protected MenuFragView getViewImpl() {
         return new MenuFragView() {
+            @Override
+            public void toast(String content) {
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), content,Toast.LENGTH_SHORT).show());
+            }
         };
     }
 
@@ -75,89 +59,18 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnRetrofit = findViewById(R.id.btn_retrofit, Button.class);
         mBtnMvvm = findViewById(R.id.btn_mvvm, Button.class);
         mBtnRoom = findViewById(R.id.btn_room, Button.class);
+        mBtnRepository = findViewById(R.id.btn_rx_repository, Button.class);
     }
 
     @Override
     protected void initListener() {
-        mBtnRx.setOnClickListener(v -> {
-            Observer<String> observer = new Observer<String>() {
+        getPresenter().observerAppChange(getContext());
 
-                private Disposable mDisposable;
+        mBtnRx.setOnClickListener(v -> getPresenter().createString());
 
-                @Override
-                public void onSubscribe(Disposable d) {
-                    mDisposable = d;
-                    LogUtils.d("Observer onSubscribe");
-                }
+        mBtnOther.setOnClickListener(v -> getPresenter().fromIterable(v.getContext()));
 
-                @Override
-                public void onNext(String s) {
-                    LogUtils.d("Observer onNext:" + s);
-                    // 在RxJava 2.x 中，新增的Disposable可以做到切断的操作，让Observer观察者不再接收上游事件,事件仍然分发
-                    if ("cut".equals(s)) {
-                        mDisposable.dispose();
-                    }
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                    LogUtils.d("Observer onError:" + e);
-                }
-
-                @Override
-                public void onComplete() {
-                    LogUtils.d("Observer onComplete");
-                }
-            };
-            Observable.create(e -> {
-                LogUtils.d("ObservableEmitter Observable emit 1");
-                e.onNext("1");
-                LogUtils.d("ObservableEmitter Observable emit 2");
-                e.onNext("2");
-                LogUtils.d("ObservableEmitter Observable emit cut");
-                e.onNext("cut");
-                LogUtils.d("ObservableEmitter Observable emit 3");
-                e.onNext("3");
-                LogUtils.d("ObservableEmitter Observable emit 4");
-                e.onNext("4");
-
-                e.onComplete();
-            }).map(s -> s + " after apply").subscribe(observer);
-
-        });
-
-        mBtnOther.setOnClickListener(v ->
-                Observable.fromIterable(
-                        getPresenter().getInstallAppList(v.getContext())
-                )
-                        .map(AppInstantItemBean::getAppName)
-                        .doOnError(Throwable::printStackTrace)
-                        .subscribe(str -> LogUtils.d("已经安装" + str))
-        );
-
-        mBtnNetData.setOnClickListener(v ->
-                Observable.create((ObservableOnSubscribe<Response>) e -> e.onNext(getPresenter().getJoke()))
-                        .subscribeOn(Schedulers.io())
-                        .flatMap(response -> new Observable<String>() {
-                            @Override
-                            protected void subscribeActual(Observer<? super String> observer) {
-                                try {
-                                    String string = Objects.requireNonNull(response.body()).string();
-                                    LogUtils.i("获取到的结果为 " + string);
-                                    JSONObject jsonObject = new JSONObject(string);
-                                    JSONArray jsonArray = jsonObject.optJSONArray("result");
-                                    for (int index = 0; index < jsonArray.length(); index++) {
-                                        observer.onNext(jsonArray.getJSONObject(index).optString("text"));
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }).take(3)
-                        .doOnError(Throwable::printStackTrace)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(title -> Toast.makeText(getActivity(), "获取到的标题为" + title, Toast.LENGTH_SHORT).show())
-        );
+        mBtnNetData.setOnClickListener(v -> getPresenter().flatMap());
 
         mBtnRetrofit.setOnClickListener(v -> {
 
@@ -167,41 +80,8 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
         mBtnRoom.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, RoomFragment.getInstance()));
 
-        getPresenter().observerAppChange(getContext());
 
-
-        useRepository();
-    }
-
-    private void useRepository() {
-        RepositoryManager repositoryManager = RepositoryManager.getProvider(getContext());
-
-        repositoryManager
-                .attachModule("def", "https://api-m.mtime.cn/")
-                .attachModule("module", "https://ticket-api-m.mtime.cn/");
-
-        Observable<MtimeFilmeBean> hotFilm = getHostService(repositoryManager).getHotFilm();
-
-        getModuleService(repositoryManager, ModuleClient.class)
-                .getFilmDetail(235701)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        frontpageBean -> Toast.makeText(getActivity(), "获取到的FilmBean为" + frontpageBean, Toast.LENGTH_SHORT).show(),
-                        Throwable::printStackTrace
-                );
-    }
-
-    private HostClient getHostService(RepositoryManager repositoryManager) {
-        String def = repositoryManager.getModuleUrl("def");
-        Retrofit retrofit = repositoryManager.obtainRetrofit(def);
-        return repositoryManager.obtainCacheService(retrofit, HostClient.class);
-    }
-
-    private <T>T getModuleService(RepositoryManager manager, Class<T> clientClass) {
-        String module = manager.getModuleUrl("module");
-        Retrofit retrofit = manager.obtainRetrofit(module);
-        return manager.obtainCacheService(retrofit,clientClass);
+        mBtnRepository.setOnClickListener(v -> getPresenter().useRepository(getContext()));
     }
 
     @Override
