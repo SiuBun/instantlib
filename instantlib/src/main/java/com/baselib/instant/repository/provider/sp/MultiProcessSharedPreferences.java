@@ -87,7 +87,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     public static boolean DEBUG = false;
     private Context mAppContext;
     /**
-     * sp名
+     * sp文件名
      */
     private String mName;
 
@@ -100,13 +100,18 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
      * <p>
      * true代表安全模式
      */
-    private boolean mIsSafeMode;
+    private boolean mSafeMode;
+
+    /**
+     * 占位符
+     * */
     private static final Object CONTENT = new Object();
 
     /**
      * sp改变监听对象
      */
     private HashMap<OnSharedPreferenceChangeListener, Object> mSpChangeListeners;
+
     private BroadcastReceiver mReceiver;
     /**
      * 写在清单列表中的provider的authorities值
@@ -145,11 +150,13 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
         mAppContext = context.getApplicationContext();
         mName = name;
         mMode = mode;
-        mIsSafeMode = MpspUtils.isSafeMode(mAppContext);
+        mSafeMode = MpspUtils.isSafeMode(mAppContext);
     }
 
     /**
      * 检查并防止{@link #sAuthorityUrl}为null的情况
+     *
+     * @param context 用于获取当前应用内关于该内容提供者的信息
      */
     public void checkInitAuthority(Context context) {
         if (sAuthorityUrl == null) {
@@ -185,12 +192,12 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     }
 
     @Override
-    public int getEditMode() {
+    public int getAccessMode() {
         return this.mMode;
     }
 
     @Override
-    public String getEditName() {
+    public String getEditFileName() {
         return mName;
     }
 
@@ -200,17 +207,17 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     }
 
     @Override
-    public boolean editSafeMode() {
-        return mIsSafeMode;
+    public boolean confirmSafeMode2Edit() {
+        return mSafeMode;
     }
 
     @Override
-    public void editCheckInitAuthority(Context context) {
+    public void invokeCheckInitAuthority(Context context) {
         checkInitAuthority(context);
     }
 
     @Override
-    public <T> T editProcessPmhdException(RuntimeException e, T result) {
+    public <T> T handleProcessPmhdException(RuntimeException e, T result) {
         // java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:80) ... Caused by: android.os.DeadObjectException at android.os.BinderProxy.transact(Native Method) at android.content.pm.IPackageManager$Stub$Proxy.getPackageInfo(IPackageManager.java:1374)
         return MpspUtils.processPmhdException(e, result);
     }
@@ -219,13 +226,13 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, ?> getAll() {
-        Map<String, ?> v = (Map<String, ?>) getValue(mAppContext, MpSpCons.PATH_GET_ALL, null, null);
+        Map<String, ?> v = (Map<String, ?>) getValue(mAppContext, MpSpConst.PATH_GET_ALL, null, null);
         return v != null ? v : new HashMap<>();
     }
 
     @Override
     public String getString(String key, String defValue) {
-        return (String) getValue(mAppContext, MpSpCons.PATH_GET_STRING, key, defValue);
+        return (String) getValue(mAppContext, MpSpConst.PATH_GET_STRING, key, defValue);
     }
 
     /**
@@ -233,33 +240,33 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
      */
     @Override
     public Set<String> getStringSet(String key, Set<String> defValues) {
-        return (Set<String>) getValue(mAppContext, MpSpCons.PATH_GET_STRING, key, defValues);
+        return (Set<String>) getValue(mAppContext, MpSpConst.PATH_GET_STRING, key, defValues);
     }
 
     @Override
     public int getInt(String key, int defValue) {
-        return (Integer) getValue(mAppContext, MpSpCons.PATH_GET_INT, key, defValue);
+        return (Integer) getValue(mAppContext, MpSpConst.PATH_GET_INT, key, defValue);
     }
 
     @Override
     public long getLong(String key, long defValue) {
-        return (Long) getValue(mAppContext, MpSpCons.PATH_GET_LONG, key, defValue);
+        return (Long) getValue(mAppContext, MpSpConst.PATH_GET_LONG, key, defValue);
     }
 
     @Override
     public float getFloat(String key, float defValue) {
-        return (Float) getValue(mAppContext, MpSpCons.PATH_GET_FLOAT, key, defValue);
+        return (Float) getValue(mAppContext, MpSpConst.PATH_GET_FLOAT, key, defValue);
     }
 
     @Override
     public boolean getBoolean(String key, boolean defValue) {
-        return (Boolean) getValue(mAppContext, MpSpCons.PATH_GET_BOOLEAN, key, defValue);
+        return (Boolean) getValue(mAppContext, MpSpConst.PATH_GET_BOOLEAN, key, defValue);
     }
 
     @Override
     public boolean contains(String key) {
         try {
-            Object result = getValue(mAppContext, MpSpCons.PATH_CONTAINS, key, null);
+            Object result = getValue(mAppContext, MpSpConst.PATH_CONTAINS, key, null);
             return Boolean.TRUE.equals(result);
         } catch (Throwable e) {
             //IGNORED
@@ -278,16 +285,16 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
             if (mSpChangeListeners == null) {
                 mSpChangeListeners = new HashMap<>();
             }
-            Boolean result = (Boolean) getValue(mAppContext, MpSpCons.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.SP_CHANGE_LISTENER_KEY, false);
+            Boolean result = (Boolean) getValue(mAppContext, MpSpConst.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpConst.SP_CHANGE_LISTENER_KEY, false);
             if (Boolean.TRUE.equals(result)) {
                 mSpChangeListeners.put(listener, CONTENT);
                 if (mReceiver == null) {
                     mReceiver = new BroadcastReceiver() {
                         @Override
                         public void onReceive(Context context, Intent intent) {
-                            String name = intent.getStringExtra(MpSpCons.KEY_NAME);
+                            String name = intent.getStringExtra(MpSpConst.KEY_NAME);
                             @SuppressWarnings("unchecked")
-                            List<String> keysModified = (List<String>) intent.getSerializableExtra(MpSpCons.KEY);
+                            List<String> keysModified = (List<String>) intent.getSerializableExtra(MpSpConst.KEY);
                             if (mName.equals(name) && keysModified != null) {
                                 Set<OnSharedPreferenceChangeListener> listeners = new HashSet<>(mSpChangeListeners.keySet());
                                 for (int i = keysModified.size() - 1; i >= 0; i--) {
@@ -311,7 +318,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
         synchronized (this) {
             // WeakHashMap
-            getValue(mAppContext, MpSpCons.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.SP_CHANGE_LISTENER_KEY, false);
+            getValue(mAppContext, MpSpConst.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpConst.SP_CHANGE_LISTENER_KEY, false);
             if (mSpChangeListeners != null) {
                 mSpChangeListeners.remove(listener);
                 if (mSpChangeListeners.isEmpty() && mReceiver != null) {
@@ -322,10 +329,16 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
     }
 
 
+    /**
+     * 从文件中获取对应key的值,提供默认值用于查找失败时候返回
+     * @param context 上下文
+     * @param key 保存数据的键
+     * @param defValue 键对应的值查找失败时候的默认返回
+     * */
     private Object getValue(Context context, String pathSegment, String key, Object defValue) {
         Object v = null;
         // 如果设备处在“安全模式”，返回defValue；
-        if (mIsSafeMode) {
+        if (mSafeMode) {
             v = defValue;
         } else {
             try {
@@ -359,7 +372,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                     }
                 }
                 if (bundle != null) {
-                    v = bundle.get(MpSpCons.KEY);
+                    v = bundle.get(MpSpConst.KEY);
                     bundle.clear();
                 }
                 cursor.close();
@@ -390,17 +403,17 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
             sAuthoriry = MpspUtils.processPmhdException(e, "");
         }
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_ALL, MpSpCons.GET_ALL);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_STRING, MpSpCons.GET_STRING);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_INT, MpSpCons.GET_INT);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_LONG, MpSpCons.GET_LONG);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_FLOAT, MpSpCons.GET_FLOAT);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_GET_BOOLEAN, MpSpCons.GET_BOOLEAN);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_CONTAINS, MpSpCons.CONTAINS);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_APPLY, MpSpCons.APPLY);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_COMMIT, MpSpCons.COMMIT);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
-        mUriMatcher.addURI(sAuthoriry, MpSpCons.PATH_WILDCARD + MpSpCons.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpCons.UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_GET_ALL, MpSpConst.GET_ALL);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_GET_STRING, MpSpConst.GET_STRING);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_GET_INT, MpSpConst.GET_INT);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_GET_LONG, MpSpConst.GET_LONG);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_GET_FLOAT, MpSpConst.GET_FLOAT);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_GET_BOOLEAN, MpSpConst.GET_BOOLEAN);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_CONTAINS, MpSpConst.CONTAINS);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_APPLY, MpSpConst.APPLY);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_COMMIT, MpSpConst.COMMIT);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpConst.REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
+        mUriMatcher.addURI(sAuthoriry, MpSpConst.PATH_WILDCARD + MpSpConst.PATH_UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER, MpSpConst.UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER);
         return true;
     }
 
@@ -460,8 +473,8 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
         SharedPreferences preferences = mAppContext.getSharedPreferences(name, mode);
         int match = mUriMatcher.match(uri);
         switch (match) {
-            case MpSpCons.APPLY:
-            case MpSpCons.COMMIT:
+            case MpSpConst.APPLY:
+            case MpSpConst.COMMIT:
                 boolean hasListeners = mListenersCount != null && mListenersCount.get(name) != null && mListenersCount.get(name) > 0;
                 ArrayList<String> keysModified = null;
                 Map<String, Object> map = null;
@@ -515,7 +528,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                     result = 1;
                 } else {
                     switch (match) {
-                        case MpSpCons.APPLY:
+                        case MpSpConst.APPLY:
                             // Android 2.3
                             ReflectionUtil.editorApply(editor);
                             result = 1;
@@ -525,7 +538,7 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
                             // changes reflected in memory.
                             notifyListeners(name, keysModified);
                             break;
-                        case MpSpCons.COMMIT:
+                        case MpSpConst.COMMIT:
                             if (editor.commit()) {
                                 result = 1;
                                 notifyListeners(name, keysModified);
@@ -554,8 +567,8 @@ public class MultiProcessSharedPreferences extends ContentProvider implements Sh
             Intent intent = new Intent();
             intent.setAction(makeAction(name));
             intent.setPackage(mAppContext.getPackageName());
-            intent.putExtra(MpSpCons.KEY_NAME, name);
-            intent.putExtra(MpSpCons.KEY, keysModified);
+            intent.putExtra(MpSpConst.KEY_NAME, name);
+            intent.putExtra(MpSpConst.KEY, keysModified);
             mAppContext.sendBroadcast(intent);
         }
     }

@@ -4,12 +4,14 @@ import android.database.MatrixCursor;
 import android.os.Bundle;
 
 /**
+ * 游标对象
+ *
  * @author wsb
  */
 final class BundleCursor extends MatrixCursor {
     private Bundle mBundle;
 
-    public BundleCursor(Bundle extras) {
+    BundleCursor(Bundle extras) {
         super(new String[]{}, 0);
         mBundle = extras;
     }

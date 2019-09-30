@@ -2,8 +2,12 @@ package com.baselib.instant.repository.provider.sp;
 
 import android.content.Context;
 import android.os.DeadObjectException;
-
-public class MpspUtils {
+/**
+ * 跨进程sp对象工具
+ *
+ * @author wsb
+ * */
+class MpspUtils {
     /**
      * 处理Package manager has died异常
      *

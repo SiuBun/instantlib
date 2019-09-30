@@ -1,6 +1,11 @@
 package com.baselib.instant.repository.provider.sp;
 
-public interface MpSpCons {
+/**
+ * 跨进程sp文件常量
+ *
+ * @author wsb
+ * */
+public interface MpSpConst {
     String KEY = "value";
     String KEY_NAME = "name";
     String PATH_WILDCARD = "*/";

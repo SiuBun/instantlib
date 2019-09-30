@@ -2,6 +2,7 @@ package com.baselib.mvpuse.presenter;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.os.Build;
 
 import com.baselib.entity.FilmDetailBean;
 import com.baselib.entity.FilmItemBean;
@@ -38,7 +39,7 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 
-public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
+public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel> {
 
     private NetStateObserver mNetStateObserver;
     private NetStateObserver.OnNetStateChangeListener onNetStateChangeListener = new NetStateObserver.OnNetStateChangeListener() {
@@ -51,7 +52,8 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
         public void onWifiStateChanged(boolean isConnected) {
             LogUtils.i("当前wifi状态发生变化，是否为连接状态：" + isConnected);
         }
-    };;
+    };
+    ;
 
     @Override
     public MenuFragModel initModel() {
@@ -87,16 +89,14 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
         LogUtils.i("客户端界面进行应用变化监听");
 
         ObserverManager observerManager = (ObserverManager) GlobalManager.Companion.getManager(GlobalManager.OBSERVER_SERVICE);
-        mNetStateObserver = observerManager.getObserver(context,ObserverManager.NET_STATE_OBSERVER_NAME);
+        mNetStateObserver = observerManager.getObserver(context, ObserverManager.NET_STATE_OBSERVER_NAME);
         mNetStateObserver.addSubscriber(onNetStateChangeListener);
     }
 
 
-
-
     @Override
     public void onPresenterDetach(Context context) {
-        if (mNetStateObserver!=null){
+        if (mNetStateObserver != null) {
             mNetStateObserver.removeSubscriber(onNetStateChangeListener);
         }
 
@@ -150,16 +150,17 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
     }
 
     public void fromIterable(Context context) {
-        Observable.fromIterable(
+        addDisposable(Observable.fromIterable(
                 getInstallAppList(context)
-        )
-                .map(AppInstantItemBean::getAppName)
-                .doOnError(Throwable::printStackTrace)
-                .subscribe(str -> LogUtils.d("已经安装" + str));
+                )
+                        .map(AppInstantItemBean::getAppName)
+                        .doOnError(Throwable::printStackTrace)
+                        .subscribe(str -> LogUtils.d("已经安装" + str))
+        );
     }
 
     public void flatMap() {
-        Observable.create((ObservableOnSubscribe<Response>) e -> e.onNext(getJoke()))
+        addDisposable(Observable.create((ObservableOnSubscribe<Response>) e -> e.onNext(getJoke()))
                 .subscribeOn(Schedulers.io())
                 .flatMap(response -> new Observable<String>() {
                     @Override
@@ -179,7 +180,7 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
                 }).take(3)
                 .doOnError(Throwable::printStackTrace)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(title -> getView().toast("获取到的标题为" +title));
+                .subscribe(title -> getView().toast("获取到的标题为" + title)));
     }
 
     public void useRepository(Context context) {
@@ -194,12 +195,12 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
         Observable<FilmDetailBean> filmDetail = getModuleService(repositoryManager, ModuleClient.class)
                 .getFilmDetail(235701);
 
-//        changeObserver2List(hotFilm);
+//        changeObserver2List(hotFilm,false);
         changeObserver2Item(hotFilm);
     }
 
     private void changeObserver2Item(Observable<MtimeFilmeBean> hotFilm) {
-        hotFilm.flatMap((Function<MtimeFilmeBean, ObservableSource<FilmItemBean>>) filmeBean -> new Observable<FilmItemBean>() {
+        addDisposable(hotFilm.flatMap((Function<MtimeFilmeBean, ObservableSource<FilmItemBean>>) filmeBean -> new Observable<FilmItemBean>() {
             @Override
             protected void subscribeActual(Observer<? super FilmItemBean> observer) {
                 List<FilmItemBean> ms = filmeBean.getMs();
@@ -207,40 +208,41 @@ public class MenuPresenter extends BasePresenter<MenuFragView, MenuFragModel>{
                     observer.onNext(filmItemBean);
                 }
             }
-        }).filter(filmItemBean -> filmItemBean.isIs3D())
+        }).filter(FilmItemBean::isIs3D)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         frontpageBean -> LogUtils.i("普通获取到的数据为" + frontpageBean),
                         Throwable::printStackTrace
-                );
+                ));
     }
 
-    private void changeObserver2List(Observable<MtimeFilmeBean> hotFilm) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    private void changeObserver2List(Observable<MtimeFilmeBean> hotFilm, boolean program) {
         Observable<List<FilmItemBean>> map;
-        if (false) {
-            map = hotFilm.map(
-                    filmeBean -> filmeBean.getMs().stream().filter(filmItemBean -> filmItemBean.isIs3D()).collect(Collectors.toList())
-            );
-
-        } else {
-            map = hotFilm.flatMap(
-                    (Function<MtimeFilmeBean, ObservableSource<List<FilmItemBean>>>) filmeBean -> new Observable<List<FilmItemBean>>() {
-                        @Override
-                        protected void subscribeActual(Observer<? super List<FilmItemBean>> observer) {
-                            observer.onNext(filmeBean.getMs().stream().filter(filmItemBean -> filmItemBean.isIs3D()).collect(Collectors.toList()));
-                        }
-                    }
-            );
-        }
-
-        map.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        frontpageBean -> LogUtils.i("高版本map方式获取到的数据为" + frontpageBean),
-                        Throwable::printStackTrace
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (program) {
+                map = hotFilm.map(
+                        filmeBean -> filmeBean.getMs().stream().filter(FilmItemBean::isIs3D).collect(Collectors.toList())
                 );
+
+            } else {
+                map = hotFilm.flatMap(
+                        (Function<MtimeFilmeBean, ObservableSource<List<FilmItemBean>>>) filmeBean -> new Observable<List<FilmItemBean>>() {
+                            @Override
+                            protected void subscribeActual(Observer<? super List<FilmItemBean>> observer) {
+                                observer.onNext(filmeBean.getMs().stream().filter(FilmItemBean::isIs3D).collect(Collectors.toList()));
+                            }
+                        }
+                );
+            }
+
+            addDisposable(map.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            frontpageBean -> LogUtils.i("高版本map方式获取到的数据为" + frontpageBean),
+                            Throwable::printStackTrace
+                    ));
+        }
     }
 
     private HostClient getHostService(RepositoryManager repositoryManager) {

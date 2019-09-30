@@ -30,10 +30,11 @@ class ResourcesProvider private constructor(context: Context) {
         @Volatile
         private var instance: ResourcesProvider? = null
 
-        fun getProvider(context: Context) {
-            instance ?: synchronized(this) {
-                instance ?: ResourcesProvider(context).also { instance = it }
-            }
+        /**
+         * 对外暴露的方法
+         * */
+        fun getProvider(context: Context): ResourcesProvider = instance ?: synchronized(this) {
+            instance ?: ResourcesProvider(context).also { instance = it }
         }
     }
 

@@ -33,31 +33,31 @@ public class UriDispatcher {
         String defValue = selectionArgs[2];
 
         switch (dispatcherCallback.getUriMatcher().match(uri)) {
-            case MpSpCons.GET_ALL:
+            case MpSpConst.GET_ALL:
                 UriDispatcher.putAll(context, name, mode, bundle);
                 break;
-            case MpSpCons.GET_STRING:
+            case MpSpConst.GET_STRING:
                 UriDispatcher.putString(context, name, mode, key, defValue, bundle);
                 break;
-            case MpSpCons.GET_INT:
+            case MpSpConst.GET_INT:
                 UriDispatcher.putInt(context, name, mode, key, defValue, bundle);
                 break;
-            case MpSpCons.GET_LONG:
+            case MpSpConst.GET_LONG:
                 UriDispatcher.putLong(context, name, mode, key, defValue, bundle);
                 break;
-            case MpSpCons.GET_FLOAT:
+            case MpSpConst.GET_FLOAT:
                 UriDispatcher.putFloat(context, name, mode, key, defValue, bundle);
                 break;
-            case MpSpCons.GET_BOOLEAN:
+            case MpSpConst.GET_BOOLEAN:
                 UriDispatcher.putBoolean(context, name, mode, key, defValue, bundle);
                 break;
-            case MpSpCons.CONTAINS:
+            case MpSpConst.CONTAINS:
                 UriDispatcher.putContains(context, name, mode, key, bundle);
                 break;
-            case MpSpCons.REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER:
+            case MpSpConst.REGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER:
                 UriDispatcher.registerOnSpChange(bundle, dispatcherCallback);
                 break;
-            case MpSpCons.UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER:
+            case MpSpConst.UNREGISTER_ON_SHARED_PREFERENCE_CHANGE_LISTENER:
                 UriDispatcher.unregisterOnSpChange(bundle, dispatcherCallback);
                 break;
             default:
@@ -67,31 +67,31 @@ public class UriDispatcher {
     }
 
     static void putAll(Context context, String name, int mode, Bundle bundle) {
-        bundle.putSerializable(MpSpCons.KEY, (HashMap<String, ?>) context.getSharedPreferences(name, mode).getAll());
+        bundle.putSerializable(MpSpConst.KEY, (HashMap<String, ?>) context.getSharedPreferences(name, mode).getAll());
     }
 
     static void putString(Context context, String name, int mode, String key, String defValue, Bundle bundle) {
-        bundle.putString(MpSpCons.KEY, context.getSharedPreferences(name, mode).getString(key, defValue));
+        bundle.putString(MpSpConst.KEY, context.getSharedPreferences(name, mode).getString(key, defValue));
     }
 
     static void putInt(Context context, String name, int mode, String key, String defValue, Bundle bundle) {
-        bundle.putInt(MpSpCons.KEY, context.getSharedPreferences(name, mode).getInt(key, Integer.parseInt(defValue)));
+        bundle.putInt(MpSpConst.KEY, context.getSharedPreferences(name, mode).getInt(key, Integer.parseInt(defValue)));
     }
 
     static void putLong(Context context, String name, int mode, String key, String defValue, Bundle bundle) {
-        bundle.putLong(MpSpCons.KEY, context.getSharedPreferences(name, mode).getLong(key, Long.parseLong(defValue)));
+        bundle.putLong(MpSpConst.KEY, context.getSharedPreferences(name, mode).getLong(key, Long.parseLong(defValue)));
     }
 
     static void putFloat(Context context, String name, int mode, String key, String defValue, Bundle bundle) {
-        bundle.putFloat(MpSpCons.KEY, context.getSharedPreferences(name, mode).getFloat(key, Float.parseFloat(defValue)));
+        bundle.putFloat(MpSpConst.KEY, context.getSharedPreferences(name, mode).getFloat(key, Float.parseFloat(defValue)));
     }
 
     static void putBoolean(Context context, String name, int mode, String key, String defValue, Bundle bundle) {
-        bundle.putBoolean(MpSpCons.KEY, context.getSharedPreferences(name, mode).getBoolean(key, Boolean.parseBoolean(defValue)));
+        bundle.putBoolean(MpSpConst.KEY, context.getSharedPreferences(name, mode).getBoolean(key, Boolean.parseBoolean(defValue)));
     }
 
     static void putContains(Context context, String name, int mode, String key, Bundle bundle) {
-        bundle.putBoolean(MpSpCons.KEY, context.getSharedPreferences(name, mode).contains(key));
+        bundle.putBoolean(MpSpConst.KEY, context.getSharedPreferences(name, mode).contains(key));
     }
 
     static void registerOnSpChange(Bundle bundle, UriDispatcherCallback dispatcherCallback) {
@@ -101,7 +101,7 @@ public class UriDispatcher {
         int count = (countInteger == null ? 0 : countInteger) + 1;
         dispatcherCallback.getListenersCountNoNull().put(name, count);
         countInteger = dispatcherCallback.getListenersCountNoNull().get(name);
-        bundle.putBoolean(MpSpCons.KEY, count == (countInteger == null ? 0 : countInteger));
+        bundle.putBoolean(MpSpConst.KEY, count == (countInteger == null ? 0 : countInteger));
     }
 
     static void unregisterOnSpChange(Bundle bundle, UriDispatcherCallback dispatcherCallback) {
@@ -110,11 +110,11 @@ public class UriDispatcher {
         int count = (countInteger == null ? 0 : countInteger) - 1;
         if (count <= 0) {
             dispatcherCallback.getListenersCountNoNull().remove(name);
-            bundle.putBoolean(MpSpCons.KEY, !dispatcherCallback.getListenersCountNoNull().containsKey(name));
+            bundle.putBoolean(MpSpConst.KEY, !dispatcherCallback.getListenersCountNoNull().containsKey(name));
         } else {
             dispatcherCallback.getListenersCountNoNull().put(name, count);
             countInteger = dispatcherCallback.getListenersCountNoNull().get(name);
-            bundle.putBoolean(MpSpCons.KEY, count == (countInteger == null ? 0 : countInteger));
+            bundle.putBoolean(MpSpConst.KEY, count == (countInteger == null ? 0 : countInteger));
         }
     }
 }

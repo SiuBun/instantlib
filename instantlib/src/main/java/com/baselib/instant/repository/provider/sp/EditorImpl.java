@@ -20,7 +20,7 @@ public final class EditorImpl implements SharedPreferences.Editor {
     private boolean mClear = false;
     private EditImplCallback mImplCallback;
 
-    public EditorImpl(EditImplCallback implCallback) {
+    EditorImpl(EditImplCallback implCallback) {
         mImplCallback = implCallback;
     }
 
@@ -93,38 +93,38 @@ public final class EditorImpl implements SharedPreferences.Editor {
 
     @Override
     public void apply() {
-        setValue(mImplCallback.getContext(), MpSpCons.PATH_APPLY);
+        setValue(mImplCallback.getContext(), MpSpConst.PATH_APPLY);
     }
 
     @Override
     public boolean commit() {
-        return setValue(mImplCallback.getContext(), MpSpCons.PATH_COMMIT);
+        return setValue(mImplCallback.getContext(), MpSpConst.PATH_COMMIT);
     }
 
     private boolean setValue(Context context, String pathSegment) {
         boolean result = false;
         // 如果设备处在“安全模式”，返回false；
-        if (!mImplCallback.editSafeMode()) {
+        if (!mImplCallback.confirmSafeMode2Edit()) {
             try {
-                mImplCallback.editCheckInitAuthority(context);
+                mImplCallback.invokeCheckInitAuthority(context);
             } catch (RuntimeException e) {
                 // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.getPackageInfo(ApplicationPackageManager.java:77)
-                result = mImplCallback.editProcessPmhdException(e, false);
+                result = mImplCallback.handleProcessPmhdException(e, false);
             }
-            String[] selectionArgs = new String[]{String.valueOf(mImplCallback.getEditMode()), String.valueOf(mClear)};
+            String[] selectionArgs = new String[]{String.valueOf(mImplCallback.getAccessMode()), String.valueOf(mClear)};
             synchronized (this) {
-                Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(mImplCallback.getAuthorityUrl(), mImplCallback.getEditName()), pathSegment);
+                Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(mImplCallback.getAuthorityUrl(), mImplCallback.getEditFileName()), pathSegment);
                 ContentValues values = ReflectionUtil.contentValuesNewInstance(mModified);
                 try {
                     result = context.getContentResolver().update(uri, values, null, selectionArgs) > 0;
                 } catch (IllegalArgumentException e) {
                     // 解决ContentProvider所在进程被杀时的抛出的异常：java.lang.IllegalArgumentException: Unknown URI content://xxx.xxx.xxx/xxx/xxx at android.content.ContentResolver.update(ContentResolver.java:1312)
 //                    if (DEBUG) {
-                        e.printStackTrace();
+                    e.printStackTrace();
 //                    }
                 } catch (RuntimeException e) {
                     // 解决崩溃：java.lang.RuntimeException: Package manager has died at android.app.ApplicationPackageManager.resolveContentProvider(ApplicationPackageManager.java:609) ... at android.content.ContentResolver.update(ContentResolver.java:1310)
-                    result = mImplCallback.editProcessPmhdException(e, false);
+                    result = mImplCallback.handleProcessPmhdException(e, false);
                 }
             }
         }
@@ -132,19 +132,61 @@ public final class EditorImpl implements SharedPreferences.Editor {
     }
 
 
+    /**
+     * 编辑器回调接口
+     *
+     * @author wsb
+     */
     public interface EditImplCallback {
-        boolean editSafeMode();
+        /**
+         * 确认当前设备是否在安全模式后告知编辑器对象
+         *
+         * @return true代表安全模式下
+         */
+        boolean confirmSafeMode2Edit();
 
+        /**
+         * 获取上下文
+         *
+         * @return 操作所需上下文
+         */
         Context getContext();
 
-        <T> T editProcessPmhdException(RuntimeException e, T result);
+        /**
+         * 回调对象处理java.lang.RuntimeException: Package manager has died的错误
+         *
+         * @param e      异常信息
+         * @param result 期望返回内容
+         * @return 最终处理结果
+         */
+        <T> T handleProcessPmhdException(RuntimeException e, T result);
 
-        void editCheckInitAuthority(Context context);
+        /**
+         * 要求回调对象执行authority初始化的行为
+         *
+         * @param context 用于初始化的上下文
+         */
+        void invokeCheckInitAuthority(Context context);
 
-        int getEditMode();
+        /**
+         * 获取回调对象的sp文件的访问模式
+         *
+         * @return 访问模式
+         */
+        int getAccessMode();
 
-        String getEditName();
+        /**
+         * 获取回调对象的sp文件名
+         *
+         * @return sp文件名
+         */
+        String getEditFileName();
 
+        /**
+         * 获取内容提供者url
+         *
+         * @return 协议url
+         */
         Uri getAuthorityUrl();
     }
 }

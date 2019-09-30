@@ -2,6 +2,9 @@ package com.baselib.instant.mvp;
 
 import android.content.Context;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 /**
  * P层基类
  * <p>
@@ -37,11 +40,16 @@ public abstract class BasePresenter<V extends IBaseView, M extends BaseModel> {
         mView = view;
     }
 
+    /**
+     * 正在执行的可消费事件
+     * */
+    private CompositeDisposable mDisposable;
 
     /**
      * 同步V层生命周期onDestroy,销毁时候进行view层对象解除挂载
      */
     public void onPresenterDetach(Context context) {
+        unRxSubscribe();
         mView = null;
         mModel.onModelDetach(context);
         mModel = null;
@@ -62,5 +70,25 @@ public abstract class BasePresenter<V extends IBaseView, M extends BaseModel> {
      * */
     public V getView() {
         return mView;
+    }
+
+    /**
+     * 解绑当前对象里产生的rx消费对象防止内存泄露
+     * */
+    private void unRxSubscribe() {
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.clear();
+        }
+    }
+
+    /**
+     * 产生的rx消费对象添加到对应管理对象中便于处理
+     * @param disposable 产生的消费对象
+     * */
+    protected void addDisposable(Disposable disposable) {
+        if (this.mDisposable == null) {
+            this.mDisposable = new CompositeDisposable();
+        }
+        this.mDisposable.add(disposable);
     }
 }
