@@ -33,6 +33,7 @@ class ResourcesProvider private constructor(context: Context) {
         /**
          * 对外暴露的方法
          * */
+        @JvmStatic
         fun getProvider(context: Context): ResourcesProvider = instance ?: synchronized(this) {
             instance ?: ResourcesProvider(context).also { instance = it }
         }

@@ -24,6 +24,9 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
         @Volatile
         private var instance: RepositoryManager? = null
 
+        /**
+         * 对外暴露的方法
+         * */
         @JvmStatic
         fun getProvider(context: Context): RepositoryManager = instance ?: synchronized(this) {
             instance ?: RepositoryManager(context.applicationContext).also { instance = it }
@@ -53,7 +56,7 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
      * */
     private val mRoomDatabaseCache: Cache<String, Any?> by lazy {
         LogUtils.i("懒加载room缓存")
-        mCacheFactory.build(CacheType.RETROFIT_SERVICE_CACHE_TYPE)
+        mCacheFactory.build(CacheType.ROOM_DATABASE_CACHE_TYPE)
     }
 
     /**
@@ -88,9 +91,9 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
             ?: throw IllegalAccessException("this module and url not attached")
 
     override fun onManagerDetach() {
-        mRetrofitServiceCache?.clear()
-        mRoomDatabaseCache?.clear()
-        mRetrofitCache?.clear()
+        mRetrofitServiceCache.clear()
+        mRoomDatabaseCache.clear()
+        mRetrofitCache.clear()
     }
 
 }

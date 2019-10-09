@@ -20,10 +20,9 @@ class CustomAlarmManager(context: Context) {
         @Volatile
         private var instance: CustomAlarmManager? = null
 
-        fun getProvider(context: Context) {
-            instance ?: synchronized(this) {
-                instance ?: CustomAlarmManager(context).also { instance = it }
-            }
+        @JvmStatic
+        fun getProvider(context: Context): CustomAlarmManager = instance ?: synchronized(this) {
+            instance ?: CustomAlarmManager(context).also { instance = it }
         }
     }
 
