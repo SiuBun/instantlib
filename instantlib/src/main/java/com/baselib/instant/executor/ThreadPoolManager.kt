@@ -41,22 +41,14 @@ class ThreadPoolManager constructor(corePoolSize: Int, maximumPoolSize: Int, kee
         private const val DEFAULT_KEEP_ALIVE_TIME: Long = 0
         private val DEFAULT_TIME_UNIT = TimeUnit.SECONDS
 
-        fun buildInstance(threadPoolManagerName: String,
-                          corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit): ThreadPoolManager? {
-            return buildInstance(threadPoolManagerName, corePoolSize, maximumPoolSize, keepAliveTime,
-                    unit, false)
-        }
-
-        fun buildInstance(threadPoolManagerName: String,
-                          corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit,
-                          isPriority: Boolean): ThreadPoolManager? {
-            return buildInstance(threadPoolManagerName, corePoolSize, maximumPoolSize, keepAliveTime,
-                    unit, isPriority, null)
-        }
-
+        @JvmOverloads
         fun buildInstance(threadPoolManagerName: String?,
-                          corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit,
-                          isPriority: Boolean = false, listener: ITaskExecuteListener?): ThreadPoolManager? {
+                          corePoolSize: Int,
+                          maximumPoolSize: Int,
+                          keepAliveTime: Long,
+                          unit: TimeUnit,
+                          isPriority: Boolean = false,
+                          listener: ITaskExecuteListener?=null): ThreadPoolManager? {
             return if (threadPoolManagerName == null || "" == threadPoolManagerName.trim { it <= ' ' }
                     || corePoolSize < 0 || maximumPoolSize <= 0 || maximumPoolSize < corePoolSize
                     || keepAliveTime < 0) {
