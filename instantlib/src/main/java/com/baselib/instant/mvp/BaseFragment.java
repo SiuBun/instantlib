@@ -218,7 +218,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     @Override
     public void onDestroyView() {
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroyView");
-        widgetDestory();
+        widgetDestroy();
         mBasePresenter.onPresenterDetach(getActivity());
         mHandler.onDestroy();
         super.onDestroyView();
@@ -229,7 +229,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      * <p>
      * 界面销毁阶段调用该方法进行相关控件销毁，如果子类有相关控件销毁操作可以重写该方法，在方法中执行
      */
-    public void widgetDestory() {
+    public void widgetDestroy() {
         controlProgressBar(false);
         mProgressBar = null;
     }

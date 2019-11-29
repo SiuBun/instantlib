@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.baselib.instant.bpdownload.DownloadHelper;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
@@ -14,7 +15,6 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     private Button mBtnRx;
     private Button mBtnOther;
-    //    private FloatButtonController mFloatButtonController;
     private Button mBtnNetData;
     private Button mBtnRetrofit;
     private Button mBtnMvvm;
@@ -43,11 +43,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initData() {
-//        mFloatButtonController = (FloatButtonController) GlobalManager.Companion.getManager(GlobalManager.FLOAT_WINDOWS_SERVICE);
-
-//        mFloatButtonController
-//                .setShowType(FloatButtonController.getShowType(false))
-//                .showFloatButton(getActivity());
+        DownloadHelper.INSTANCE.addTask();
     }
 
     @Override
@@ -85,8 +81,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     }
 
     @Override
-    public void widgetDestory() {
-//        mFloatButtonController.closeFloatButton();
-        super.widgetDestory();
+    public void widgetDestroy() {
+        super.widgetDestroy();
     }
 }
