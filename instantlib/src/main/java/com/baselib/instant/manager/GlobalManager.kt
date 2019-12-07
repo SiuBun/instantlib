@@ -1,6 +1,5 @@
 package com.baselib.instant.manager
 
-import com.baselib.instant.floatwindow.FloatButtonController
 import com.baselib.instant.net.NetworkManager
 import com.baselib.instant.observer.ObserverManager
 import com.baselib.instant.permission.PermissionsManager
@@ -78,7 +77,6 @@ class GlobalManager : IManager {
         LogUtils.i("所创建的管理对象名为$name")
         return when (name) {
             PERMISSION_SERVICE -> PermissionsManager()
-            FLOAT_WINDOWS_SERVICE -> FloatButtonController()
             EXECUTOR_POOL_SERVICE -> ThreadExecutorProxy()
             OBSERVER_SERVICE -> ObserverManager()
             else -> object : IManager {
