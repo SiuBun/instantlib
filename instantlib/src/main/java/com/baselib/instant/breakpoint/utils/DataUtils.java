@@ -1,8 +1,8 @@
 package com.baselib.instant.breakpoint.utils;
 
-import com.baselib.instant.bpdownload.executable.NormalDownloadTask;
 import com.baselib.instant.util.LogUtils;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -31,7 +31,7 @@ public class DataUtils {
         conn.setRequestMethod("GET");
 
         conn.connect();
-        if (conn.getResponseCode() == DownloadConst.REQ_REFLECT) {
+        if (conn.getResponseCode() == BreakPointConst.REQ_REFLECT) {
             redirectUrl = conn.getHeaderField("Location");
             LogUtils.i(" 下载地址重定向为 " + redirectUrl);
         }else{
@@ -41,6 +41,10 @@ public class DataUtils {
         conn.disconnect();
 
         return redirectUrl;
+    }
+
+    public static String spliceTaskFileDir(File file) {
+        return file.getAbsolutePath() + File.separator + BreakPointConst.DIR_NAME;
     }
 
     public static int generateId(final String url, final String path) {

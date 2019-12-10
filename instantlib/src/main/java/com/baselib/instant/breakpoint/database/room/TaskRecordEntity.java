@@ -11,8 +11,7 @@ import android.support.annotation.NonNull;
  * @author wsb
  */
 @Entity(tableName = "download_task_record_table")
-public
-class TaskRecordEntity {
+public class TaskRecordEntity {
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "task_id")

@@ -4,8 +4,9 @@ import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import com.baselib.instant.bpdownload.database.DatabaseOperate;
-import com.baselib.instant.bpdownload.utils.DownloadConst;
+
+import com.baselib.instant.breakpoint.database.DatabaseOperate;
+import com.baselib.instant.breakpoint.utils.BreakPointConst;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class RoomStrategy implements DatabaseOperate {
     private final TaskDao mTaskDao;
 
     public RoomStrategy(Context context) {
-        TaskDatabase taskDatabase = Room.databaseBuilder(context.getApplicationContext(), TaskDatabase.class, DownloadConst.DB_NAME).build();
+        TaskDatabase taskDatabase = Room.databaseBuilder(context.getApplicationContext(), TaskDatabase.class, BreakPointConst.DB_NAME).build();
         mTaskDao = taskDatabase.getTaskDao();
     }
 

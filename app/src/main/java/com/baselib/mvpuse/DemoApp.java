@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import com.baselib.instant.breakpoint.BreakPointDownloader;
 import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.net.client.OkHttpNetClient;
@@ -32,6 +33,8 @@ public class DemoApp extends Application {
                         .setClient(OkHttpNetClient.build())
                         .build()
         );
+
+        BreakPointDownloader.getInstance().attachApplication(this);
 
     }
 

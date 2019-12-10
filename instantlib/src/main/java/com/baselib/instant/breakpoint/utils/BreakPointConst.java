@@ -1,11 +1,13 @@
 package com.baselib.instant.breakpoint.utils;
 
 /**
- * 断点续传所用常量
+ * 断点工具常量
  *
  * @author wsb
- */
-public interface DownloadConst {
+ * */
+public interface BreakPointConst {
+
+    int DEFAULT_CAPACITY = 10;
 
     /**
      * 下载目录名

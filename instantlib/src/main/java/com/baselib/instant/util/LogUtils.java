@@ -25,6 +25,12 @@ public class LogUtils {
         }
     }
 
+    public static void w(@NonNull Object... args) {
+        if (LOG_SWITCH) {
+            Log.w(TAG, getStringBuilder(args));
+        }
+    }
+
     public static void d(@NonNull Object... args) {
         if (LOG_SWITCH) {
             Log.d(TAG, getStringBuilder(args));
@@ -56,6 +62,6 @@ public class LogUtils {
      * @param content    方法名
      */
     public static void lifeLog(String simpleName, String content) {
-        i(simpleName , content);
+        i(simpleName, content);
     }
 }

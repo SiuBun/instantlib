@@ -4,8 +4,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.baselib.instant.bpdownload.DownloadHelper;
+import com.baselib.instant.breakpoint.BreakPointDownloader;
+import com.baselib.instant.breakpoint.Task;
 import com.baselib.instant.mvp.BaseFragment;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
@@ -43,8 +45,31 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initData() {
-        DownloadHelper.INSTANCE.addTask();
+        final Task task = new Task.Builder()
+                .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
+                .setTaskFileName("downtask")
+                .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
+                .build();
+
+        final Task.TaskListener taskListener = new Task.TaskListener() {
+
+            @Override
+            public void postNewTaskFail(String msg) {
+                LogUtils.w(msg);
+            }
+
+            @Override
+            public void postNewTaskSuccess(int taskId) {
+                mTaskId = taskId;
+                LogUtils.i("任务添加成功,等待下载,id为" + task);
+            }
+
+        };
+
+        task.addTaskListener(taskListener);
+        BreakPointDownloader.getInstance().postTask(getContext(),task);
     }
+    private int mTaskId;
 
     @Override
     protected void initFragmentViews(View fragmentView) {
@@ -68,14 +93,11 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
         mBtnNetData.setOnClickListener(v -> getPresenter().flatMap());
 
-        mBtnRetrofit.setOnClickListener(v -> {
-
-        });
+        mBtnRetrofit.setOnClickListener(v -> LogUtils.i("移除任务结果"+BreakPointDownloader.getInstance().removeTask(mTaskId)));
 
         mBtnMvvm.setOnClickListener(v -> startActivity(MvvmTestActivity.class));
 
         mBtnRoom.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, RoomFragment.getInstance()));
-
 
         mBtnRepository.setOnClickListener(v -> getPresenter().useRepository(getContext()));
     }

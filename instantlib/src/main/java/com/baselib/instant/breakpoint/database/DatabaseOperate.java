@@ -2,7 +2,8 @@ package com.baselib.instant.breakpoint.database;
 
 import android.support.annotation.Nullable;
 
-import com.baselib.instant.bpdownload.database.room.TaskRecordEntity;
+
+import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
 
 import java.util.List;
 
