@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.baselib.instant.breakpoint.BreakPointDownloader;
+import com.baselib.instant.breakpoint.BreakPointHelper;
 import com.baselib.instant.breakpoint.Task;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
@@ -18,7 +18,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     private Button mBtnRx;
     private Button mBtnOther;
     private Button mBtnNetData;
-    private Button mBtnRetrofit;
+    private Button mBtnBpDownload;
     private Button mBtnMvvm;
     private Button mBtnRoom;
     private Button mBtnRepository;
@@ -45,29 +45,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initData() {
-        final Task task = new Task.Builder()
-                .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
-                .setTaskFileName("downtask")
-                .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
-                .build();
 
-        final Task.TaskListener taskListener = new Task.TaskListener() {
-
-            @Override
-            public void postNewTaskFail(String msg) {
-                LogUtils.w(msg);
-            }
-
-            @Override
-            public void postNewTaskSuccess(int taskId) {
-                mTaskId = taskId;
-                LogUtils.i("任务添加成功,等待下载,id为" + task);
-            }
-
-        };
-
-        task.addTaskListener(taskListener);
-        BreakPointDownloader.getInstance().postTask(getContext(),task);
     }
     private int mTaskId;
 
@@ -77,7 +55,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnRx = findViewById(R.id.btn_rx, Button.class);
         mBtnOther = findViewById(R.id.btn_get_apps, Button.class);
         mBtnNetData = findViewById(R.id.btn_net_data, Button.class);
-        mBtnRetrofit = findViewById(R.id.btn_retrofit, Button.class);
+        mBtnBpDownload = findViewById(R.id.btn_bp_download, Button.class);
         mBtnMvvm = findViewById(R.id.btn_mvvm, Button.class);
         mBtnRoom = findViewById(R.id.btn_room, Button.class);
         mBtnRepository = findViewById(R.id.btn_rx_repository, Button.class);
@@ -93,7 +71,40 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
         mBtnNetData.setOnClickListener(v -> getPresenter().flatMap());
 
-        mBtnRetrofit.setOnClickListener(v -> LogUtils.i("移除任务结果"+BreakPointDownloader.getInstance().removeTask(mTaskId)));
+        mBtnBpDownload.setOnClickListener(v -> {
+                    final Task task = new Task.Builder()
+                            .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
+                            .setTaskFileName("downtask")
+                            .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
+                            .build();
+
+                    final Task.TaskListener taskListener = new Task.TaskListener() {
+
+                        @Override
+                        public void postNewTaskFail(String msg) {
+                            LogUtils.w(msg);
+                        }
+
+                        @Override
+                        public void postNewTaskSuccess(int taskId) {
+                            mTaskId = taskId;
+                            LogUtils.i("任务添加成功,等待下载,id为" + task);
+                        }
+
+                        @Override
+                        public void onTaskDownloadError(String message) {
+                            LogUtils.e(message);
+                        }
+
+                    };
+
+                    task.addTaskListener(taskListener);
+                    BreakPointHelper.getInstance().postTask(getContext(),task);
+
+//                    LogUtils.i("移除任务结果"+ BreakPointHelper.getInstance().removeTask(mTaskId));
+
+                }
+        );
 
         mBtnMvvm.setOnClickListener(v -> startActivity(MvvmTestActivity.class));
 

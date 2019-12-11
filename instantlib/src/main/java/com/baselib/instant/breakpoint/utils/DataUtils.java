@@ -33,7 +33,7 @@ public class DataUtils {
         conn.connect();
         if (conn.getResponseCode() == BreakPointConst.REQ_REFLECT) {
             redirectUrl = conn.getHeaderField("Location");
-            LogUtils.i(" 下载地址重定向为 " + redirectUrl);
+            LogUtils.i(" 该链接出现重定向,下载地址重定向为 " + redirectUrl);
         }else{
             LogUtils.i(" 下载地址请求码 = " + conn.getResponseCode());
 

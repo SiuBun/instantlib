@@ -41,10 +41,10 @@
         app:layout_constraintRight_toRightOf="parent"
         />
     <Button
-        android:id="@+id/btn_retrofit"
+        android:id="@+id/btn_bp_download"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
-        android:text="retrofit"
+        android:text="download"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -57,7 +57,7 @@
         android:text="rx_repository"
         android:textAllCaps="false"
         android:textSize="@dimen/zo_14sp"
-        app:layout_constraintLeft_toRightOf="@id/btn_retrofit"
+        app:layout_constraintLeft_toRightOf="@id/btn_bp_download"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
     <Button
@@ -69,7 +69,7 @@
         android:textSize="@dimen/zo_14sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_retrofit" />
+        app:layout_constraintTop_toBottomOf="@id/btn_bp_download" />
 
     <Button
         android:id="@+id/btn_room"

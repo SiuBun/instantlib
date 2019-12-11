@@ -1,8 +1,6 @@
 package com.baselib.instant.breakpoint;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.baselib.instant.breakpoint.bussiness.DownloadExecutor;
 import com.baselib.instant.breakpoint.database.DataBaseRepository;
@@ -11,192 +9,142 @@ import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.breakpoint.utils.DataCheck;
 import com.baselib.instant.util.LogUtils;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 断点下载工具类
+ * 断点下载执行类
  *
  * @author wsb
  */
-public class BreakPointDownloader {
-    /**
-     * 下载任务本地存储对象
-     */
+class BreakPointDownloader {
+
     private DataBaseRepository mDatabaseRepository;
 
-    private final HashMap<Integer, Task> mTaskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
+    private StreamProcessor mStreamProcessor = new OkHttpSteamProcessor();
 
     private final DownloadExecutor mExecutor = new DownloadExecutor();
 
-    private final byte[] mTaskLock = new byte[0];
+    public void executeTask(Context context, Task task) {
+        final Task.PreloadListener preloadListener = new Task.PreloadListener() {
+            @Override
+            public void preloadFail(String message) {
+                task.onTaskPreloadFail("预加载失败");
+            }
 
-    private BreakPointDownloader() {
+            @Override
+            public void preloadSuccess(String downloadUrl) {
+                LogUtils.i("最终执行下载的链接为" + downloadUrl);
 
+                getFileStream(context, task, downloadUrl);
+            }
+        };
+        asyncExecute(task.preload(preloadListener));
     }
 
-    public static BreakPointDownloader getInstance() {
-        return Provider.get();
-    }
+    private void getFileStream(Context context, Task task, String downloadUrl) {
+        try {
+            final FileStreamListener streamListener = new FileStreamListener() {
 
-    /**
-     * 初始化断点下载
-     * <p>
-     * 加载原来保存的下载任务到队列内
-     *
-     * @param context 上下文
-     */
-    public void attachApplication(@NonNull Context context) {
-        final Context applicationContext = context.getApplicationContext();
-
-        mDatabaseRepository = new DataBaseRepository(applicationContext);
-        asyncExecute(() -> {
-            final List<TaskRecordEntity> taskRecords = mDatabaseRepository.loadAllTaskRecord();
-            DataCheck.checkEmpty(taskRecords);
-
-            DataCheck.checkNoEmptyWithCallback(taskRecords, data -> {
-                for (TaskRecordEntity recordEntity : data) {
-                    final Task task = Task.Builder.transformRecord(recordEntity);
-                    mTaskMap.put(task.getTaskId(), task);
+                @Override
+                public void getFileStreamFail(String msg) {
+                    task.onTaskDownloadError(msg);
                 }
-            });
+
+                @Override
+                public void getFileStreamSuccess(long contentLength, InputStream byteStream) {
+                    LogUtils.i("已获取文件长度" + contentLength);
+
+                    parseFileInputStream(task, contentLength, byteStream);
+                }
+            };
+
+
+            mStreamProcessor.getCompleteFileStream(downloadUrl, streamListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+            task.onTaskDownloadError(e.getMessage());
+        }
+    }
+
+    private void parseFileInputStream(Task task, long contentLength, InputStream byteStream) {
+        final File tmpFile = new File(task.getTaskFileDir(), task.getTaskFileName() + ".tmp");
+        if (!tmpFile.getParentFile().exists()) {
+            tmpFile.getParentFile().mkdirs();
+        }
+        try {
+            RandomAccessFile tmpAccessFile = new RandomAccessFile(tmpFile, "rw");
+            tmpAccessFile.setLength(contentLength);
+            // 计算每个线程理论上下载的数量.
+            final int threadCount = BreakPointConst.DEFAULT_THREAD_COUNT;
+//            分段文件理论大小
+            final long segmentSize = contentLength / threadCount;
+            for (int threadId = 0; threadId < threadCount; threadId++) {
+                // 线程开始下载的位置
+                long startIndex = threadId * segmentSize;
+                // 线程结束下载的位置
+                long endIndex;
+                // 如果是最后一个线程,将剩下的文件全部交给这个线程完成
+                if(threadId == threadCount -1){
+                    endIndex = contentLength;
+                }else {
+                    endIndex = (threadId + 1) * segmentSize;
+                }
+                endIndex = endIndex-1;
+                startSegmentDownload(threadId,startIndex,endIndex);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            task.onTaskDownloadError(e.getMessage());
+        }
+    }
+
+    private void startSegmentDownload(int threadId, long startIndex, long endIndex) {
+        LogUtils.d("开启线程分段下载:当前下载段为"+threadId+",起始分别是"+startIndex+","+endIndex);
+        asyncExecute(()->{
 
         });
-    }
 
-    /**
-     * 解除断点下载相关资源
-     * <p>
-     * 1.移除任务监听
-     * <p>
-     * 2.清空列表
-     */
-    public void detachApplication() {
-        for (Map.Entry<Integer, Task> task : mTaskMap.entrySet()) {
-            task.getValue().cleanTaskListener();
-            task.getValue().onAppDetach();
-        }
-        mTaskMap.clear();
     }
 
     private void asyncExecute(Runnable runnable) {
         mExecutor.execute(runnable);
     }
 
-    /**
-     * 提交任务
-     * <p>
-     * 如果列表中未存在重复任务(判断标准查看{@link #taskDuplicate(Task)}),则任务添加到列表中.列表中已存在,说明当前或之前应用生命周期内出现过该任务的提交,
-     * 故任务监听会挂载到之前已创建的任务上
-     *
-     * @param context 上下文
-     * @param task    任务对象
-     */
-    public void postTask(@NonNull Context context, @NonNull Task task) {
-        synchronized (mTaskLock) {
-            if (addTask(context, task)) {
-                LogUtils.i("任务添加成功");
-                task.postNewTaskSuccess(task.getTaskId());
-            } else {
-                task.postNewTaskFail("当前或之前应用生命周期内出现过该任务的提交,故任务监听会挂载到之前已创建的任务上");
-                DataCheck.checkNoNullWithCallback(mTaskMap.get(task.getTaskId()), taskBeListen -> taskBeListen.addTaskListeners(task.getTaskListerer()));
-            }
+    public void loadTaskRecord(Context context, LoadLocalTaskListener listener) {
+        final Context applicationContext = context.getApplicationContext();
+        mDatabaseRepository = new DataBaseRepository(applicationContext);
+        asyncExecute(() -> {
+            final List<TaskRecordEntity> taskRecords = mDatabaseRepository.loadAllTaskRecord();
+            DataCheck.checkEmpty(taskRecords);
 
-            executeTask(context, task);
-        }
-    }
-
-    private void executeTask(Context context, Task task) {
-
-    }
-
-    /**
-     * 添加任务
-     * <p>
-     * 如果列表中未存在重复任务(判断标准查看{@link #taskDuplicate(Task)}),则任务添加到列表中.列表中已存在,说明当前或之前应用生命周期内出现过该任务的提交,
-     * 故任务监听会挂载到之前已创建的任务上
-     * <p>
-     * 和{@link #removeTask(int)}相对应
-     *
-     * @param context 上下文
-     * @param task    任务对象
-     * @return true 代表操作成功
-     */
-    public boolean addTask(@NonNull Context context, @NonNull Task task) {
-        synchronized (mTaskLock) {
-            boolean addResult = false;
-            task.supplementField(context);
-            LogUtils.i("所准备添加的任务内容如下" + task);
-            if (!taskDuplicate(task)) {
-                mTaskMap.put(task.getTaskId(), task);
-                addResult = true;
-            }
-            return addResult;
-        }
-    }
-
-    /**
-     * 根据任务id从列表中移除
-     * <p>
-     * 和{@link #postTask(Context, Task)}相对应
-     *
-     * @param taskId 任务id
-     * @return true 代表操作成功
-     */
-    public boolean removeTask(int taskId) {
-        synchronized (mTaskLock) {
-            AtomicBoolean removeResult = new AtomicBoolean(false);
-            DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> {
-                task.cleanTaskListener();
-                removeResult.set(mTaskMap.remove(taskId) != null);
+            DataCheck.checkNoEmptyWithCallback(taskRecords, data -> {
+                Map<Integer, Task> taskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
+                for (TaskRecordEntity recordEntity : data) {
+                    final Task task = Task.Builder.transformRecord(recordEntity);
+                    taskMap.put(task.getTaskId(), task);
+                }
+                listener.localTaskExist(taskMap);
             });
-            return removeResult.get();
-        }
+        });
     }
 
     /**
-     * 根据任务id移除该任务的监听对象
-     * <p>
-     * 和{@link #addTaskListener(int, Task.TaskListener)}相对应
+     * 加载本地记录监听
      *
-     * @param taskId   任务id
-     * @param listener 任务的监听对象
-     * @return true 代表操作成功
+     * @author wsb
      */
-    public boolean removeTaskListener(int taskId, @NonNull Task.TaskListener listener) {
-        AtomicBoolean removeResult = new AtomicBoolean(false);
-        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> removeResult.set(task.removeTaskListener(listener)));
-        return removeResult.get();
-    }
-
-    /**
-     * 根据任务id添加该任务的监听对象
-     * <p>
-     * 和{@link #removeTaskListener(int, Task.TaskListener)}相对应
-     *
-     * @param taskId   任务id
-     * @param listener 任务的监听对象
-     * @return true 代表操作成功
-     */
-    public boolean addTaskListener(int taskId, @NonNull Task.TaskListener listener) {
-        AtomicBoolean addResult = new AtomicBoolean(false);
-        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> addResult.set(task.addTaskListener(listener)));
-        return addResult.get();
-    }
-
-    private boolean taskDuplicate(Task task) {
-        return mTaskMap.containsKey(task.getTaskId());
-    }
-
-    private static class Provider {
-        private static final BreakPointDownloader DOWNLOADER = new BreakPointDownloader();
-
-        static BreakPointDownloader get() {
-            return DOWNLOADER;
-        }
+    interface LoadLocalTaskListener {
+        /**
+         * 本地存在往期任务
+         *
+         * @param taskMap 往期任务内容
+         */
+        void localTaskExist(Map<Integer, Task> taskMap);
     }
 
 

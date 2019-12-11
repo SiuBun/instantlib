@@ -72,9 +72,22 @@ public class Task {
             LogUtils.i("参数调整以后的文件目录为" + this.mTaskFileDir);
         }
 
+//        任务的唯一标识,根据下载url和保存位置来生成
         this.mTaskId = DataUtils.generateId(getTaskUrl(), getTaskPath());
     }
 
+
+    public Runnable preload(Task.PreloadListener preloadListener) {
+        return () -> {
+            try {
+                String redirectionUrl = DataUtils.getRedirectionUrl(getTaskUrl());
+                preloadListener.preloadSuccess(TextUtils.isEmpty(redirectionUrl)?getTaskUrl():redirectionUrl);
+            } catch (Exception e) {
+                e.printStackTrace();
+                preloadListener.preloadFail(e.getMessage());
+            }
+        };
+    }
 
 
     public boolean addTaskListener(TaskListener listener) {
@@ -99,7 +112,7 @@ public class Task {
 
     }
 
-    public Set<TaskListener> getTaskListerer() {
+    public Set<TaskListener> getTaskListener() {
         return this.mTaskListenerSet;
     }
 
@@ -113,9 +126,15 @@ public class Task {
         }
     }
 
-    public void postNewTaskFail(String msg) {
+    public void onTaskPreloadFail(String msg) {
         for (TaskListener listener:mTaskListenerSet){
             listener.postNewTaskFail(msg);
+        }
+    }
+
+    public void onTaskDownloadError(String message) {
+        for (TaskListener listener:mTaskListenerSet){
+            listener.onTaskDownloadError(message);
         }
     }
 
@@ -177,5 +196,18 @@ public class Task {
          * @param taskId 任务在列表内的id
          * */
         void postNewTaskSuccess(int taskId);
+
+        /**
+         * 任务下载过程中出现异常
+         *
+         * @param message 附带描述
+         * */
+        void onTaskDownloadError(String message);
+    }
+
+    public interface PreloadListener {
+        void preloadFail(String message);
+
+        void preloadSuccess(String redirectionUrl);
     }
 }
