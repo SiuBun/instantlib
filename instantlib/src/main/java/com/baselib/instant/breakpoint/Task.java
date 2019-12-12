@@ -6,12 +6,14 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
+import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.breakpoint.utils.DataUtils;
 import com.baselib.instant.util.LogUtils;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 public class Task {
     private int mTaskId;
@@ -22,6 +24,12 @@ public class Task {
     private Set<TaskListener> mTaskListenerSet;
 
     private final byte[] mListenerLock = new byte[0];
+
+    private File mTmpAccessFile;
+
+    private File[] mCacheFiles;
+
+    private final CountDownLatch mCountDownLatch;
 
     public int getTaskId() {
         return mTaskId;
@@ -56,11 +64,21 @@ public class Task {
 
     private Task() {
         mTaskListenerSet = new HashSet<>();
+        mCacheFiles = new File[BreakPointConst.DEFAULT_THREAD_COUNT];
+        mCountDownLatch = new CountDownLatch(BreakPointConst.DEFAULT_THREAD_COUNT);
+    }
+
+    public File getTmpAccessFile() {
+        return mTmpAccessFile;
+    }
+
+    public CountDownLatch getCountDownLatch() {
+        return mCountDownLatch;
     }
 
     public void supplementField(Context context) {
         if (TextUtils.isEmpty(this.mTaskFileName)) {
-            this.mTaskFileName = String.valueOf(System.currentTimeMillis());
+            this.mTaskFileName = getFileName(getTaskUrl());
         }
 
         if (TextUtils.isEmpty(this.mTaskFileDir)) {
@@ -76,12 +94,21 @@ public class Task {
         this.mTaskId = DataUtils.generateId(getTaskUrl(), getTaskPath());
     }
 
+    // 获取下载文件的名称
+    public String getFileName(String url) {
+        return url.substring(url.lastIndexOf("/") + 1);
+    }
 
+    /**
+     * 该方法作为下载任务的前置任务,需要在子线程里执行,避免阻塞UI线程
+     *
+     * @param preloadListener 前置任务加载监听
+     */
     public Runnable preload(Task.PreloadListener preloadListener) {
         return () -> {
             try {
                 String redirectionUrl = DataUtils.getRedirectionUrl(getTaskUrl());
-                preloadListener.preloadSuccess(TextUtils.isEmpty(redirectionUrl)?getTaskUrl():redirectionUrl);
+                preloadListener.preloadSuccess(TextUtils.isEmpty(redirectionUrl) ? getTaskUrl() : redirectionUrl);
             } catch (Exception e) {
                 e.printStackTrace();
                 preloadListener.preloadFail(e.getMessage());
@@ -91,19 +118,19 @@ public class Task {
 
 
     public boolean addTaskListener(TaskListener listener) {
-        synchronized (mListenerLock){
+        synchronized (mListenerLock) {
             return mTaskListenerSet.add(listener);
         }
     }
 
     public boolean removeTaskListener(TaskListener listener) {
-        synchronized (mListenerLock){
+        synchronized (mListenerLock) {
             return mTaskListenerSet.remove(listener);
         }
     }
 
-    public void cleanTaskListener(){
-        synchronized (mListenerLock){
+    public void cleanTaskListener() {
+        synchronized (mListenerLock) {
             mTaskListenerSet.clear();
         }
     }
@@ -120,23 +147,46 @@ public class Task {
         mTaskListenerSet.addAll(listeners);
     }
 
-    public void postNewTaskSuccess(int taskId) {
-        for (TaskListener listener:mTaskListenerSet){
-            listener.postNewTaskSuccess(taskId);
+    public void postNewTaskSuccess() {
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.postNewTaskSuccess(getTaskId());
         }
     }
 
     public void onTaskPreloadFail(String msg) {
-        for (TaskListener listener:mTaskListenerSet){
-            listener.postNewTaskFail(msg);
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.postTaskFail(msg);
         }
     }
 
     public void onTaskDownloadError(String message) {
-        for (TaskListener listener:mTaskListenerSet){
+        for (TaskListener listener : mTaskListenerSet) {
             listener.onTaskDownloadError(message);
         }
     }
+
+    public void setTaskTmpFile(File tmpFile) {
+        this.mTmpAccessFile = tmpFile;
+    }
+
+    public void setCacheFile(int threadId, File cacheFile) {
+        mCacheFiles[threadId] = cacheFile;
+    }
+
+    public void requestDownloadFinish() {
+        mTmpAccessFile.renameTo(new File(getTaskFileDir(), getTaskFileName()));
+
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.onTaskDownloadFinish();
+        }
+    }
+
+    public void onTaskProgressUpdate(int threadId, long progress) {
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.onTaskProgressUpdate(threadId, progress);
+        }
+    }
+
 
     public static class Builder {
         private String mTaskUrl;
@@ -187,22 +237,27 @@ public class Task {
          *
          * @param msg 附带描述
          */
-        void postNewTaskFail(String msg);
+        void postTaskFail(String msg);
 
         /**
          * 任务添加成功
-         *
+         * <p>
          * 该任务被添加到任务列表内
+         *
          * @param taskId 任务在列表内的id
-         * */
+         */
         void postNewTaskSuccess(int taskId);
 
         /**
          * 任务下载过程中出现异常
          *
          * @param message 附带描述
-         * */
+         */
         void onTaskDownloadError(String message);
+
+        void onTaskProgressUpdate(int threadId, long progress);
+
+        void onTaskDownloadFinish();
     }
 
     public interface PreloadListener {

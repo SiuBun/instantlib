@@ -60,12 +60,11 @@ public class BreakPointHelper {
     }
 
 
-
     /**
      * 提交任务
      * <p>
      * 如果列表中未存在重复任务(判断标准查看{@link #taskDuplicate(Task)}),则任务添加到列表中.列表中已存在,说明当前或之前应用生命周期内出现过该任务的提交,
-     * 故任务监听会挂载到之前已创建的任务上
+     * 任务监听将会挂载到之前已创建的任务上
      *
      * @param context 上下文
      * @param task    任务对象
@@ -84,7 +83,7 @@ public class BreakPointHelper {
     }
 
     private void executeTask(Context context, Task task) {
-        mBreakPointDownloader.executeTask(context,task);
+        mBreakPointDownloader.executeTask(context, task);
     }
 
     /**

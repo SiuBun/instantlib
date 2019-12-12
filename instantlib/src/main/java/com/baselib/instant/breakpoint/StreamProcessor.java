@@ -1,5 +1,7 @@
 package com.baselib.instant.breakpoint;
 
+import java.io.File;
+
 /**
  * 流处理对象标准操作
  *
@@ -19,4 +21,15 @@ interface StreamProcessor {
     void getCompleteFileStream(String url, FileStreamListener streamListener) throws Exception;
 
 
+    /**
+     * 下载指定起终点的分段文件
+     *
+     * @param url              下载链接
+     * @param tmpAccessFile    所写入的文件
+     * @param startIndex       实际写入起点
+     * @param endIndex         实际写入终点
+     * @param downloadListener 分段下载监听
+     * @throws Exception 流处理过程中可能出现异常需要被捕获处理
+     */
+    void downloadRangeFile(String url, File tmpAccessFile, long startIndex, long endIndex, RangeDownloadListener downloadListener) throws Exception;
 }

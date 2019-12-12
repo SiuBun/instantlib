@@ -74,14 +74,14 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnBpDownload.setOnClickListener(v -> {
                     final Task task = new Task.Builder()
                             .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
-                            .setTaskFileName("downtask")
+//                            .setTaskFileName("downtask.apk")
                             .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
                             .build();
 
                     final Task.TaskListener taskListener = new Task.TaskListener() {
 
                         @Override
-                        public void postNewTaskFail(String msg) {
+                        public void postTaskFail(String msg) {
                             LogUtils.w(msg);
                         }
 
@@ -94,6 +94,16 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
                         @Override
                         public void onTaskDownloadError(String message) {
                             LogUtils.e(message);
+                        }
+
+                        @Override
+                        public void onTaskProgressUpdate(int threadId, long progress) {
+//                            LogUtils.i("任务线程"+threadId+"下载进度更新,为" + progress);
+                        }
+
+                        @Override
+                        public void onTaskDownloadFinish() {
+                            LogUtils.i("任务下载完成");
                         }
 
                     };

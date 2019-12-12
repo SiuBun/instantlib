@@ -64,6 +64,7 @@ public interface BreakPointConst {
 
     int REQ_RANGE_SUCCESS = 206;
 
-    int DEFAULT_THREAD_COUNT = 4;
+    int DEFAULT_THREAD_COUNT = 5;
+
     long DEFAULT_TIMEOUT = 10;
 }
