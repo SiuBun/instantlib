@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.baselib.instant.breakpoint.BreakPointHelper;
 import com.baselib.instant.breakpoint.Task;
+import com.baselib.instant.breakpoint.TaskListener;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
@@ -33,7 +34,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         return new MenuFragView() {
             @Override
             public void toast(String content) {
-                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), content,Toast.LENGTH_SHORT).show());
+                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show());
             }
         };
     }
@@ -47,6 +48,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     protected void initData() {
 
     }
+
     private int mTaskId;
 
     @Override
@@ -78,7 +80,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
                             .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
                             .build();
 
-                    final Task.TaskListener taskListener = new Task.TaskListener() {
+                    final TaskListener taskListener = new TaskListener() {
 
                         @Override
                         public void postTaskFail(String msg) {
@@ -97,8 +99,8 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
                         }
 
                         @Override
-                        public void onTaskProgressUpdate(int threadId, long progress) {
-//                            LogUtils.i("任务线程"+threadId+"下载进度更新,为" + progress);
+                        public void onTaskProgressUpdate(long taskTotalSize, long length) {
+                            LogUtils.i("任务下载进度更新,文件大小为" + taskTotalSize + ",已下载" + length);
                         }
 
                         @Override
@@ -109,7 +111,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
                     };
 
                     task.addTaskListener(taskListener);
-                    BreakPointHelper.getInstance().postTask(getContext(),task);
+                    BreakPointHelper.getInstance().postTask(getContext(), task);
 
 //                    LogUtils.i("移除任务结果"+ BreakPointHelper.getInstance().removeTask(mTaskId));
 

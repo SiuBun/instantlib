@@ -20,6 +20,11 @@ public interface BreakPointConst {
     String DB_NAME = "task_database";
 
     /**
+     * 任务新建
+     * */
+    int DOWNLOAD_WAITING = -1;
+
+    /**
      * 任务前置工作已经完成
      * */
     int DOWNLOAD_PREPARED = 0;

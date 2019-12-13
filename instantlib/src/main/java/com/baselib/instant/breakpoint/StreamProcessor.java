@@ -1,5 +1,7 @@
 package com.baselib.instant.breakpoint;
 
+import android.support.annotation.WorkerThread;
+
 import java.io.File;
 
 /**
@@ -16,9 +18,9 @@ interface StreamProcessor {
      *
      * @param url            下载链接
      * @param streamListener 文件流获取监听对象
-     * @throws Exception 流处理过程中可能出现异常需要被捕获处理
      */
-    void getCompleteFileStream(String url, FileStreamListener streamListener) throws Exception;
+    @WorkerThread
+    void getCompleteFileStream(String url, FileStreamListener streamListener);
 
 
     /**
@@ -31,5 +33,6 @@ interface StreamProcessor {
      * @param downloadListener 分段下载监听
      * @throws Exception 流处理过程中可能出现异常需要被捕获处理
      */
+    @WorkerThread
     void downloadRangeFile(String url, File tmpAccessFile, long startIndex, long endIndex, RangeDownloadListener downloadListener) throws Exception;
 }

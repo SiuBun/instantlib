@@ -3,6 +3,7 @@ package com.baselib.instant.breakpoint;
 import android.content.Context;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
@@ -11,6 +12,7 @@ import com.baselib.instant.breakpoint.utils.DataUtils;
 import com.baselib.instant.util.LogUtils;
 
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -28,8 +30,11 @@ public class Task {
     private File mTmpAccessFile;
 
     private File[] mCacheFiles;
+    private long[] mDownloadFileLength;
 
     private final CountDownLatch mCountDownLatch;
+    private int mTaskState;
+    private Long mTaskTotalSize;
 
     public int getTaskId() {
         return mTaskId;
@@ -63,8 +68,10 @@ public class Task {
     }
 
     private Task() {
+        mTaskState = BreakPointConst.DOWNLOAD_WAITING;
         mTaskListenerSet = new HashSet<>();
         mCacheFiles = new File[BreakPointConst.DEFAULT_THREAD_COUNT];
+        mDownloadFileLength = new long[BreakPointConst.DEFAULT_THREAD_COUNT];
         mCountDownLatch = new CountDownLatch(BreakPointConst.DEFAULT_THREAD_COUNT);
     }
 
@@ -76,9 +83,16 @@ public class Task {
         return mCountDownLatch;
     }
 
+    /**
+     * 补齐成员
+     * <p>
+     * 对该下载任务的保存文件名,保存位置及id进行生成
+     *
+     * @param context 上下文
+     */
     public void supplementField(Context context) {
         if (TextUtils.isEmpty(this.mTaskFileName)) {
-            this.mTaskFileName = getFileName(getTaskUrl());
+            this.mTaskFileName = getFileNameByUrl(getTaskUrl());
         }
 
         if (TextUtils.isEmpty(this.mTaskFileDir)) {
@@ -94,8 +108,10 @@ public class Task {
         this.mTaskId = DataUtils.generateId(getTaskUrl(), getTaskPath());
     }
 
-    // 获取下载文件的名称
-    public String getFileName(String url) {
+    /**
+     * 从url链接获取下载文件的名称
+     */
+    private String getFileNameByUrl(String url) {
         return url.substring(url.lastIndexOf("/") + 1);
     }
 
@@ -104,7 +120,8 @@ public class Task {
      *
      * @param preloadListener 前置任务加载监听
      */
-    public Runnable preload(Task.PreloadListener preloadListener) {
+    @WorkerThread
+    public Runnable preload(PreloadListener preloadListener) {
         return () -> {
             try {
                 String redirectionUrl = DataUtils.getRedirectionUrl(getTaskUrl());
@@ -147,31 +164,73 @@ public class Task {
         mTaskListenerSet.addAll(listeners);
     }
 
+    /**
+     * 提交任务成功通知所有监听对象
+     */
     public void postNewTaskSuccess() {
         for (TaskListener listener : mTaskListenerSet) {
             listener.postNewTaskSuccess(getTaskId());
         }
     }
 
+    /**
+     * 预加载成功通知所有监听对象
+     */
+    public void onTaskPreloadSuccess() {
+        setTaskState(BreakPointConst.DOWNLOAD_PREPARED);
+    }
+
+    /**
+     * 预加载失败通知所有监听对象
+     *
+     * @param msg 附带消息
+     */
     public void onTaskPreloadFail(String msg) {
         for (TaskListener listener : mTaskListenerSet) {
-            listener.postTaskFail(msg);
+            listener.onTaskDownloadError(msg);
         }
     }
 
+    /**
+     * 任务下载过程出错,通知所有监听对象
+     *
+     * @param message 附带消息
+     */
     public void onTaskDownloadError(String message) {
         for (TaskListener listener : mTaskListenerSet) {
             listener.onTaskDownloadError(message);
         }
     }
 
-    public void setTaskTmpFile(File tmpFile) {
-        this.mTmpAccessFile = tmpFile;
+    /**
+     * 下载进度更新通知所有监听对象
+     *
+     * @param length 已下载的文件长度
+     */
+    public void onTaskProgressUpdate(long length) {
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.onTaskProgressUpdate(getTaskTotalSize(), length);
+        }
     }
 
-    public void setCacheFile(int threadId, File cacheFile) {
-        mCacheFiles[threadId] = cacheFile;
+    /**
+     * 当分段文件进度更新的时候调用
+     * <p>
+     * 将当前所有分段文件长度累加得到总的下载长度,再返回给客户端,因为客户端只关注整体任务下载
+     *
+     * @param threadId             线程id
+     * @param threadDownloadLength 分段任务已下载长度
+     */
+    public void onRangeFileProgressUpdate(int threadId, long threadDownloadLength) {
+        setDownloadedLength(threadId, threadDownloadLength);
+        long totalLength = 0;
+
+        for (long len : mDownloadFileLength) {
+            totalLength += len;
+        }
+        onTaskProgressUpdate(totalLength);
     }
+
 
     public void requestDownloadFinish() {
         mTmpAccessFile.renameTo(new File(getTaskFileDir(), getTaskFileName()));
@@ -181,23 +240,153 @@ public class Task {
         }
     }
 
-    public void onTaskProgressUpdate(int threadId, long progress) {
-        for (TaskListener listener : mTaskListenerSet) {
-            listener.onTaskProgressUpdate(threadId, progress);
+    public TaskRecordEntity parseToRecord() {
+        final TaskRecordEntity recordEntity = new TaskRecordEntity();
+        recordEntity.setCurrentSize(0L);
+        recordEntity.setFileDir(getTaskFileDir());
+        recordEntity.setFileName(getTaskFileName());
+        recordEntity.setId(getTaskId());
+        recordEntity.setState(getTaskState());
+        recordEntity.setTotalSize(getTaskTotalSize());
+        recordEntity.setUpdateTime(System.currentTimeMillis());
+        recordEntity.setUrl(getTaskUrl());
+        return recordEntity;
+    }
+
+
+    public void createTaskTmpFile(long contentLength) throws Exception {
+        setTaskTotalSize(contentLength);
+        //            创建占位文件并设置长度
+        final File tmpFile = new File(getTaskFileDir(), getTaskFileName() + ".tmp");
+        RandomAccessFile tmpAccessFile = new RandomAccessFile(tmpFile, "rw");
+        tmpAccessFile.setLength(contentLength);
+        this.mTmpAccessFile = tmpFile;
+    }
+
+    public File[] getCacheFiles() {
+        return mCacheFiles;
+    }
+
+    public void setDownloadedLength(int threadId, long cacheStartIndex) {
+        mDownloadFileLength[threadId] = cacheStartIndex;
+    }
+
+    public int getTaskState() {
+        return mTaskState;
+    }
+
+    public void setTaskState(int taskState) {
+        this.mTaskState = taskState;
+    }
+
+    public Long getTaskTotalSize() {
+        return mTaskTotalSize;
+    }
+
+    public void setTaskTotalSize(Long taskTotalSize) {
+        this.mTaskTotalSize = taskTotalSize;
+    }
+
+    public void parseSegment(long contentLength, SegmentTaskEvaluator creator) {
+        try {
+            LogUtils.i("已获取文件长度" + contentLength);
+            createTaskTmpFile(contentLength);
+
+            for (int threadIndex = 0; threadIndex < BreakPointConst.DEFAULT_THREAD_COUNT; threadIndex++) {
+                calculateSegmentPoint(threadIndex, creator);
+            }
+
+            LogUtils.d("开始执行分段下载,等待分段下载结束");
+            getCountDownLatch().await();
+            LogUtils.d("所有分段下载任务结束");
+            requestDownloadFinish();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
+    public void calculateSegmentPoint(int threadId, SegmentTaskEvaluator creator) {
+        final File cacheFile = new File(getTaskFileDir(), "thread" + threadId + "_" + getTaskFileName() + ".cache");
+        mCacheFiles[threadId] = cacheFile;
+
+        // 线程开始下载的位置
+        final long startIndex = getStartIndex(cacheFile, getTaskTotalSize(), threadId);
+        setDownloadedLength(threadId, startIndex);
+        // 线程结束下载的位置
+        final long endIndex = getEndIndex(getTaskTotalSize(), threadId);
+
+        creator.startSegmentDownload(threadId, startIndex, endIndex);
+    }
+
+    /**
+     * 获取分段任务下载终点
+     *
+     * @param contentLength 文件长度
+     * @param threadId      线程下标
+     */
+    private long getEndIndex(long contentLength, int threadId) {
+        final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
+        long endIndex;
+        // 如果是最后一个线程,将剩下的文件全部交给这个线程完成
+        if (threadId == BreakPointConst.DEFAULT_THREAD_COUNT - 1) {
+            endIndex = contentLength;
+        } else {
+            endIndex = (threadId + 1) * segmentSize;
+        }
+        endIndex = endIndex - 1;
+        return endIndex;
+    }
+
+    /**
+     * 获取分段任务下载起点
+     * <p>
+     * 如果本地存在缓存文件,那么从缓存文件获取该任务已下载的长度.文件不存在或者读取失败就计算该分段任务的理论起点
+     *
+     * @param cacheFile     缓存任务
+     * @param contentLength 文件大小
+     * @param threadId      线程下标
+     * @return 返回真正写入的起点
+     */
+    private long getStartIndex(File cacheFile, long contentLength, int threadId) {
+        final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
+        long cacheStartIndex;
+        final long intentStart = threadId * segmentSize;
+        try {
+            if (cacheFile.exists()) {
+                final RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile, "rw");
+                //重新设置下载起点
+                cacheStartIndex = Long.parseLong(cacheAccessFile.readLine());
+            } else {
+                cacheStartIndex = intentStart;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            cacheStartIndex = intentStart;
+        }
+        return cacheStartIndex;
+    }
 
     public static class Builder {
         private String mTaskUrl;
         private String mTaskFileDir;
         private String mTaskFileName;
 
+        /**
+         * 将本地记录转换为任务
+         *
+         * @param recordEntity 本地记录的条目
+         * @return 可执行的任务
+         */
         public static Task transformRecord(TaskRecordEntity recordEntity) {
-            return new Builder()
+            final Task task = new Builder()
                     .setTaskUrl(recordEntity.getUrl())
                     .setTaskFileDir(recordEntity.getFileDir())
                     .setTaskFileName(recordEntity.getFileName()).build();
+            task.setTaskState(recordEntity.getState());
+            task.setTaskTotalSize(recordEntity.getTotalSize());
+            return task;
         }
 
         public Builder setTaskFileDir(@NonNull String fileDir) {
@@ -227,42 +416,21 @@ public class Task {
         }
     }
 
-    public interface TaskListener {
+    /**
+     * 分段任务估值器
+     *
+     * @author wsb
+     * */
+    public interface SegmentTaskEvaluator {
         /**
-         * 任务添加失败
+         * 开启分段下载
          * <p>
-         * 提交失败可能包括如下常见原因:
-         * <p>
-         * 当前或之前的应用生命周期内,已完成对该任务的添加
+         * 该方法将被多次调用
          *
-         * @param msg 附带描述
+         * @param threadId 线程下标
+         * @param start    下载起点
+         * @param end      下载终点
          */
-        void postTaskFail(String msg);
-
-        /**
-         * 任务添加成功
-         * <p>
-         * 该任务被添加到任务列表内
-         *
-         * @param taskId 任务在列表内的id
-         */
-        void postNewTaskSuccess(int taskId);
-
-        /**
-         * 任务下载过程中出现异常
-         *
-         * @param message 附带描述
-         */
-        void onTaskDownloadError(String message);
-
-        void onTaskProgressUpdate(int threadId, long progress);
-
-        void onTaskDownloadFinish();
-    }
-
-    public interface PreloadListener {
-        void preloadFail(String message);
-
-        void preloadSuccess(String redirectionUrl);
+        void startSegmentDownload(int threadId, long start, long end);
     }
 }

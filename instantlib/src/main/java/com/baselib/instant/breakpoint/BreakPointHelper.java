@@ -59,6 +59,17 @@ public class BreakPointHelper {
         mTaskMap.clear();
     }
 
+    /**
+     * 全列表下载开始
+     *
+     * @param context 上下文
+     */
+    public void commitTask(Context context) {
+        for (Map.Entry<Integer, Task> entry : mTaskMap.entrySet()) {
+            postTask(context, entry.getValue());
+        }
+    }
+
 
     /**
      * 提交任务
@@ -73,17 +84,14 @@ public class BreakPointHelper {
         synchronized (mTaskLock) {
             if (addTask(context, task)) {
                 LogUtils.i("新任务添加成功");
+                mBreakPointDownloader.onNewTaskAdd(task);
             } else {
                 DataCheck.checkNoNullWithCallback(mTaskMap.get(task.getTaskId()), taskBeListen -> taskBeListen.addTaskListeners(task.getTaskListener()));
             }
 
-            executeTask(context, task);
+            mBreakPointDownloader.executeTask(context, task);
 
         }
-    }
-
-    private void executeTask(Context context, Task task) {
-        mBreakPointDownloader.executeTask(context, task);
     }
 
     /**
@@ -133,13 +141,13 @@ public class BreakPointHelper {
     /**
      * 根据任务id移除该任务的监听对象
      * <p>
-     * 和{@link #addTaskListener(int, Task.TaskListener)}相对应
+     * 和{@link #addTaskListener(int, TaskListener)}相对应
      *
      * @param taskId   任务id
      * @param listener 任务的监听对象
      * @return true 代表操作成功
      */
-    public boolean removeTaskListener(int taskId, @NonNull Task.TaskListener listener) {
+    public boolean removeTaskListener(int taskId, @NonNull TaskListener listener) {
         AtomicBoolean removeResult = new AtomicBoolean(false);
         DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> removeResult.set(task.removeTaskListener(listener)));
         return removeResult.get();
@@ -148,13 +156,13 @@ public class BreakPointHelper {
     /**
      * 根据任务id添加该任务的监听对象
      * <p>
-     * 和{@link #removeTaskListener(int, Task.TaskListener)}相对应
+     * 和{@link #removeTaskListener(int, TaskListener)}相对应
      *
      * @param taskId   任务id
      * @param listener 任务的监听对象
      * @return true 代表操作成功
      */
-    public boolean addTaskListener(int taskId, @NonNull Task.TaskListener listener) {
+    public boolean addTaskListener(int taskId, @NonNull TaskListener listener) {
         AtomicBoolean addResult = new AtomicBoolean(false);
         DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> addResult.set(task.addTaskListener(listener)));
         return addResult.get();

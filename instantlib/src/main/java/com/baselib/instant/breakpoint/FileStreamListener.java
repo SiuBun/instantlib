@@ -1,5 +1,7 @@
 package com.baselib.instant.breakpoint;
 
+import android.support.annotation.WorkerThread;
+
 import java.io.InputStream;
 
 /**
@@ -13,6 +15,7 @@ public interface FileStreamListener {
      *
      * @param msg 失败信息
      */
+    @WorkerThread
     void getFileStreamFail(String msg);
 
     /**
@@ -21,5 +24,6 @@ public interface FileStreamListener {
      * @param contentLength 文件流长度
      * @param byteStream    文件流对象
      */
+    @WorkerThread
     void getFileStreamSuccess(long contentLength, InputStream byteStream);
 }

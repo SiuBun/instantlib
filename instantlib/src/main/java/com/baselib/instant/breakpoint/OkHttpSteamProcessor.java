@@ -1,5 +1,8 @@
 package com.baselib.instant.breakpoint;
 
+import android.os.SystemClock;
+import android.support.annotation.WorkerThread;
+
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
 
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +30,7 @@ public class OkHttpSteamProcessor implements StreamProcessor {
     private OkHttpClient mOkHttpClient;
 
     @Override
+    @WorkerThread
     public void getCompleteFileStream(String url, FileStreamListener streamListener) {
         Request request = new Request.Builder()
                 .url(url)
@@ -54,8 +58,10 @@ public class OkHttpSteamProcessor implements StreamProcessor {
     }
 
     @Override
+    @WorkerThread
     public void downloadRangeFile(String url, File file, long startIndex, long endIndex, RangeDownloadListener downloadListener) throws IOException {
-        Request request = new Request.Builder().header("RANGE", "bytes=" + startIndex + "-" + endIndex)
+        Request request = new Request.Builder()
+                .header("RANGE", "bytes=" + startIndex + "-" + endIndex)
                 .url(url)
                 .build();
 
@@ -70,22 +76,27 @@ public class OkHttpSteamProcessor implements StreamProcessor {
 
             byte[] buffer = new byte[1024 << 2];
             int length = -1;
-            // 记录本次请求所下载文件的大小
+            // 记录本次请求所下载文件的长度
             int currentDownloadLength = 0;
-//            当前分段文件的下载大小
-            long currentRangeFileLength = 0;
+//            当前分段文件的写入的位置
+            long currentRangeFileIndex = 0;
 
+//            long millis = SystemClock.uptimeMillis();
             while ((length = is.read(buffer)) > 0) {
                 tmpAccessFile.write(buffer, 0, length);
 //                更新本次已下载长度
                 currentDownloadLength += length;
-//                更新当前写至文件哪个位置,即文件起点加已下载长度
-                currentRangeFileLength = startIndex + currentDownloadLength;
-                downloadListener.updateProgress(currentRangeFileLength);
+//                更新当前分段文件的已下载的长度,即文件实际下载起点加已下载长度
+                currentRangeFileIndex = startIndex + currentDownloadLength;
+                downloadListener.updateProgress(currentRangeFileIndex);
+
+//                if (SystemClock.uptimeMillis() - millis >= 1000) {
+//                    millis = SystemClock.uptimeMillis();
+//                }
             }
 
 //            分段任务下载完成
-            downloadListener.requestDownloadFinish(currentDownloadLength,currentRangeFileLength);
+            downloadListener.requestDownloadFinish(currentDownloadLength,currentRangeFileIndex);
 
         }else {
             downloadListener.requestDownloadFail("该链接请求码为" + response.code() + "或者response.body()为空");
