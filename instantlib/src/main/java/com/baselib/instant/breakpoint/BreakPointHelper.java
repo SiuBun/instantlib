@@ -3,8 +3,9 @@ package com.baselib.instant.breakpoint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.baselib.instant.breakpoint.bussiness.BreakPointDownloader;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
-import com.baselib.instant.breakpoint.utils.DataCheck;
+import com.baselib.instant.util.DataCheck;
 import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;

@@ -1,4 +1,4 @@
-package com.baselib.instant.breakpoint.utils;
+package com.baselib.instant.util;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

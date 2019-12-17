@@ -7,6 +7,7 @@ import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
+import com.baselib.instant.breakpoint.operate.PreloadListener;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.breakpoint.utils.DataUtils;
 import com.baselib.instant.util.LogUtils;

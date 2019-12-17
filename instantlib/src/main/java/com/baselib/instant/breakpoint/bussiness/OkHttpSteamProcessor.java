@@ -1,7 +1,10 @@
-package com.baselib.instant.breakpoint;
+package com.baselib.instant.breakpoint.bussiness;
 
 import android.support.annotation.WorkerThread;
 
+import com.baselib.instant.breakpoint.operate.FileStreamListener;
+import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
+import com.baselib.instant.breakpoint.operate.StreamProcessor;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
 
 import org.jetbrains.annotations.NotNull;

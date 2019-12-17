@@ -1,14 +1,17 @@
-package com.baselib.instant.breakpoint;
+package com.baselib.instant.breakpoint.bussiness;
 
 import android.content.Context;
 import android.os.Looper;
 
-import com.baselib.instant.breakpoint.bussiness.DownloadExecutor;
+import com.baselib.instant.breakpoint.operate.FileStreamListener;
+import com.baselib.instant.breakpoint.Task;
 import com.baselib.instant.breakpoint.database.DataBaseRepository;
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
+import com.baselib.instant.breakpoint.operate.PreloadListener;
+import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
+import com.baselib.instant.breakpoint.operate.StreamProcessor;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
-import com.baselib.instant.breakpoint.utils.DataCheck;
-import com.baselib.instant.breakpoint.utils.DataUtils;
+import com.baselib.instant.util.DataCheck;
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
 
@@ -28,7 +31,7 @@ import java.util.Map;
  *
  * @author wsb
  */
-class BreakPointDownloader {
+public class BreakPointDownloader {
 
     private DataBaseRepository mDatabaseRepository;
 
@@ -191,7 +194,7 @@ class BreakPointDownloader {
      *
      * @author wsb
      */
-    interface LoadLocalTaskListener {
+    public interface LoadLocalTaskListener {
         /**
          * 本地存在往期任务
          *

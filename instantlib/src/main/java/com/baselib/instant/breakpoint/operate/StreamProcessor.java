@@ -1,4 +1,4 @@
-package com.baselib.instant.breakpoint;
+package com.baselib.instant.breakpoint.operate;
 
 import android.support.annotation.WorkerThread;
 
@@ -9,7 +9,7 @@ import java.io.File;
  *
  * @author wsb
  */
-interface StreamProcessor {
+public interface StreamProcessor {
 
     /**
      * 获取下载文件完整的流
