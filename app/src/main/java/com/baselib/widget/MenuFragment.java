@@ -108,6 +108,15 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
                             LogUtils.i("任务下载完成");
                         }
 
+                        @Override
+                        public void onTaskCancel() {
+                            LogUtils.i("任务取消");
+                        }
+
+                        @Override
+                        public void onTaskDownloadStart(String downloadUrl) {
+                            LogUtils.i("下载开始,文件来源:" + downloadUrl);
+                        }
                     };
 
                     task.addTaskListener(taskListener);

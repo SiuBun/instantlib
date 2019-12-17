@@ -7,6 +7,8 @@ import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.breakpoint.utils.DataCheck;
 import com.baselib.instant.util.LogUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,11 +20,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class BreakPointHelper {
 
-
+    /**
+     * 保存执行任务的容器
+     * */
     private final HashMap<Integer, Task> mTaskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
 
+    /**
+     * 负责下载功能
+     * */
     private final BreakPointDownloader mBreakPointDownloader = new BreakPointDownloader();
 
+    /**
+     * 任务锁
+     * */
     private final byte[] mTaskLock = new byte[0];
 
     private BreakPointHelper() {
@@ -82,16 +92,59 @@ public class BreakPointHelper {
      */
     public void postTask(@NonNull Context context, @NonNull Task task) {
         synchronized (mTaskLock) {
+            task.addTaskListener(getDatabaseCallback(task));
             if (addTask(context, task)) {
                 LogUtils.i("新任务添加成功");
-                mBreakPointDownloader.onNewTaskAdd(task);
+                task.postNewTaskSuccess();
             } else {
+                LogUtils.i("关联已有任务");
                 DataCheck.checkNoNullWithCallback(mTaskMap.get(task.getTaskId()), taskBeListen -> taskBeListen.addTaskListeners(task.getTaskListener()));
             }
 
             mBreakPointDownloader.executeTask(context, task);
 
         }
+    }
+
+    @NotNull
+    private TaskListener getDatabaseCallback(@NonNull Task task) {
+        return new TaskListener() {
+            @Override
+            public void postTaskFail(String msg) {
+
+            }
+
+            @Override
+            public void postNewTaskSuccess(int taskId) {
+                LogUtils.d("数据库插入新条目");
+                mBreakPointDownloader.onNewTaskAdd(task);
+            }
+
+            @Override
+            public void onTaskDownloadError(String message) {
+
+            }
+
+            @Override
+            public void onTaskProgressUpdate(long taskTotalSize, long length) {
+
+            }
+
+            @Override
+            public void onTaskDownloadFinish() {
+
+            }
+
+            @Override
+            public void onTaskCancel() {
+                mBreakPointDownloader.deleteTaskRecord(task);
+            }
+
+            @Override
+            public void onTaskDownloadStart(String downloadUrl) {
+
+            }
+        };
     }
 
     /**
@@ -131,6 +184,7 @@ public class BreakPointHelper {
         synchronized (mTaskLock) {
             AtomicBoolean removeResult = new AtomicBoolean(false);
             DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> {
+                task.onTaskCancel();
                 task.cleanTaskListener();
                 removeResult.set(mTaskMap.remove(taskId) != null);
             });

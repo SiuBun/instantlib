@@ -1,6 +1,5 @@
 package com.baselib.instant.breakpoint;
 
-import android.os.SystemClock;
 import android.support.annotation.WorkerThread;
 
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
@@ -88,7 +87,7 @@ public class OkHttpSteamProcessor implements StreamProcessor {
                 currentDownloadLength += length;
 //                更新当前分段文件的已下载的长度,即文件实际下载起点加已下载长度
                 currentRangeFileIndex = startIndex + currentDownloadLength;
-                downloadListener.updateProgress(currentRangeFileIndex);
+                downloadListener.updateRangeProgress(currentRangeFileIndex);
 
 //                if (SystemClock.uptimeMillis() - millis >= 1000) {
 //                    millis = SystemClock.uptimeMillis();
@@ -96,10 +95,10 @@ public class OkHttpSteamProcessor implements StreamProcessor {
             }
 
 //            分段任务下载完成
-            downloadListener.requestDownloadFinish(currentDownloadLength,currentRangeFileIndex);
+            downloadListener.rangeDownloadFinish(currentDownloadLength, currentRangeFileIndex);
 
-        }else {
-            downloadListener.requestDownloadFail("该链接请求码为" + response.code() + "或者response.body()为空");
+        } else {
+            downloadListener.rangeDownloadFail("该链接请求码为" + response.code() + "或者response.body()为空");
         }
     }
 

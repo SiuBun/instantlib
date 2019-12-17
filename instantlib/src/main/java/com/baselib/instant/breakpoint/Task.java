@@ -12,6 +12,7 @@ import com.baselib.instant.breakpoint.utils.DataUtils;
 import com.baselib.instant.util.LogUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +30,9 @@ public class Task {
 
     private File mTmpAccessFile;
 
+    /**
+     * 存放.cache文件
+     */
     private File[] mCacheFiles;
     private long[] mDownloadFileLength;
 
@@ -175,8 +179,10 @@ public class Task {
 
     /**
      * 预加载成功通知所有监听对象
+     *
+     * @param realDownloadUrl 最终下载的链接
      */
-    public void onTaskPreloadSuccess() {
+    public void onTaskPreloadSuccess(String realDownloadUrl) {
         setTaskState(BreakPointConst.DOWNLOAD_PREPARED);
     }
 
@@ -186,8 +192,19 @@ public class Task {
      * @param msg 附带消息
      */
     public void onTaskPreloadFail(String msg) {
+        setTaskState(BreakPointConst.DOWNLOAD_ERROR);
         for (TaskListener listener : mTaskListenerSet) {
             listener.onTaskDownloadError(msg);
+        }
+    }
+
+    /**
+     * 任务取消通知所有监听对象
+     */
+    public void onTaskCancel() {
+        setTaskState(BreakPointConst.DOWNLOAD_CANCEL);
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.onTaskCancel();
         }
     }
 
@@ -197,6 +214,7 @@ public class Task {
      * @param message 附带消息
      */
     public void onTaskDownloadError(String message) {
+        setTaskState(BreakPointConst.DOWNLOAD_ERROR);
         for (TaskListener listener : mTaskListenerSet) {
             listener.onTaskDownloadError(message);
         }
@@ -210,6 +228,18 @@ public class Task {
     public void onTaskProgressUpdate(long length) {
         for (TaskListener listener : mTaskListenerSet) {
             listener.onTaskProgressUpdate(getTaskTotalSize(), length);
+        }
+    }
+
+    /**
+     * 下载开始通知所有监听对象
+     *
+     * @param downloadUrl 从该链接处进行真正的文件下载
+     */
+    public void onTaskDownloadStart(String downloadUrl) {
+        setTaskState(BreakPointConst.DOWNLOAD_START);
+        for (TaskListener listener : mTaskListenerSet) {
+            listener.onTaskDownloadStart(downloadUrl);
         }
     }
 
@@ -232,7 +262,9 @@ public class Task {
     }
 
 
-    public void requestDownloadFinish() {
+    public void requestDownloadSuccess() {
+        setTaskState(BreakPointConst.DOWNLOAD_SUCCESS);
+
         mTmpAccessFile.renameTo(new File(getTaskFileDir(), getTaskFileName()));
 
         for (TaskListener listener : mTaskListenerSet) {
@@ -253,10 +285,13 @@ public class Task {
         return recordEntity;
     }
 
-
+    /**
+     * 创建占位文件并设置长度
+     *
+     * @param contentLength 文件总长度
+     */
     public void createTaskTmpFile(long contentLength) throws Exception {
         setTaskTotalSize(contentLength);
-        //            创建占位文件并设置长度
         final File tmpFile = new File(getTaskFileDir(), getTaskFileName() + ".tmp");
         RandomAccessFile tmpAccessFile = new RandomAccessFile(tmpFile, "rw");
         tmpAccessFile.setLength(contentLength);
@@ -299,75 +334,43 @@ public class Task {
             LogUtils.d("开始执行分段下载,等待分段下载结束");
             getCountDownLatch().await();
             LogUtils.d("所有分段下载任务结束");
-            requestDownloadFinish();
 
+            requestDownloadSuccess();
 
         } catch (Exception e) {
             e.printStackTrace();
+            onTaskDownloadError(e.getMessage());
         }
     }
 
-    public void calculateSegmentPoint(int threadId, SegmentTaskEvaluator creator) {
+    public void calculateSegmentPoint(int threadId, SegmentTaskEvaluator creator) throws FileNotFoundException {
         final File cacheFile = new File(getTaskFileDir(), "thread" + threadId + "_" + getTaskFileName() + ".cache");
         mCacheFiles[threadId] = cacheFile;
 
         // 线程开始下载的位置
-        final long startIndex = getStartIndex(cacheFile, getTaskTotalSize(), threadId);
-        setDownloadedLength(threadId, startIndex);
+        final long startIndex = DataUtils.getStartIndex(cacheFile, getTaskTotalSize(), threadId,true);
+
+        final long intentStartIndex = DataUtils.getStartIndex(cacheFile, getTaskTotalSize(), threadId, false);
+        LogUtils.d(threadId+"线程在本次文件下载的起点下标为"+startIndex+",之前已下载了"+(startIndex-intentStartIndex));
+
         // 线程结束下载的位置
-        final long endIndex = getEndIndex(getTaskTotalSize(), threadId);
+        final long endIndex = DataUtils.getEndIndex(getTaskTotalSize(), threadId);
 
-        creator.startSegmentDownload(threadId, startIndex, endIndex);
+        final RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile, "rw");
+        creator.startSegmentDownload(threadId, cacheAccessFile, startIndex, endIndex);
+    }
+
+    public long getSegmentFileSize(int threadId) {
+        return DataUtils.getEndIndex(getTaskTotalSize(),threadId)-DataUtils.getStartIndex(getTaskTotalSize(),threadId)+1;
     }
 
     /**
-     * 获取分段任务下载终点
-     *
-     * @param contentLength 文件长度
-     * @param threadId      线程下标
-     */
-    private long getEndIndex(long contentLength, int threadId) {
-        final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
-        long endIndex;
-        // 如果是最后一个线程,将剩下的文件全部交给这个线程完成
-        if (threadId == BreakPointConst.DEFAULT_THREAD_COUNT - 1) {
-            endIndex = contentLength;
-        } else {
-            endIndex = (threadId + 1) * segmentSize;
-        }
-        endIndex = endIndex - 1;
-        return endIndex;
-    }
-
-    /**
-     * 获取分段任务下载起点
+     * 对外暴露的任务构建类
      * <p>
-     * 如果本地存在缓存文件,那么从缓存文件获取该任务已下载的长度.文件不存在或者读取失败就计算该分段任务的理论起点
+     * 只通过该类进行任务构建
      *
-     * @param cacheFile     缓存任务
-     * @param contentLength 文件大小
-     * @param threadId      线程下标
-     * @return 返回真正写入的起点
+     * @author wsb
      */
-    private long getStartIndex(File cacheFile, long contentLength, int threadId) {
-        final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
-        long cacheStartIndex;
-        final long intentStart = threadId * segmentSize;
-        try {
-            if (cacheFile.exists()) {
-                final RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile, "rw");
-                //重新设置下载起点
-                cacheStartIndex = Long.parseLong(cacheAccessFile.readLine());
-            } else {
-                cacheStartIndex = intentStart;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            cacheStartIndex = intentStart;
-        }
-        return cacheStartIndex;
-    }
-
     public static class Builder {
         private String mTaskUrl;
         private String mTaskFileDir;
@@ -420,17 +423,18 @@ public class Task {
      * 分段任务估值器
      *
      * @author wsb
-     * */
+     */
     public interface SegmentTaskEvaluator {
         /**
          * 开启分段下载
          * <p>
          * 该方法将被多次调用
          *
-         * @param threadId 线程下标
-         * @param start    下载起点
-         * @param end      下载终点
+         * @param threadId        线程下标
+         * @param cacheAccessFile 该线程任务对应的缓存记录文件
+         * @param start           下载起点
+         * @param end             下载终点
          */
-        void startSegmentDownload(int threadId, long start, long end);
+        void startSegmentDownload(int threadId, RandomAccessFile cacheAccessFile, long start, long end);
     }
 }

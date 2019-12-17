@@ -13,7 +13,7 @@ public interface TaskListener {
         void postTaskFail(String msg);
 
         /**
-         * 任务添加成功
+         * 新任务添加成功
          * <p>
          * 该任务被添加到任务列表内,客户端可以在该方法内执行添加新任务完成的操作
          *
@@ -46,4 +46,16 @@ public interface TaskListener {
          * 所有分段任务下载完成时候回调,客户端可以在方法内执行下载完成操作
          */
         void onTaskDownloadFinish();
-    }
+
+        /**
+         * 任务取消
+         * */
+        void onTaskCancel();
+
+        /**
+         * 任务下载开始
+         *
+         * @param downloadUrl 最终下载文件的链接
+         * */
+        void onTaskDownloadStart(String downloadUrl);
+}

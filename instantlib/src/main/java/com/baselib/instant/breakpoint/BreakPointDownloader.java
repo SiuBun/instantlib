@@ -8,12 +8,15 @@ import com.baselib.instant.breakpoint.database.DataBaseRepository;
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.breakpoint.utils.DataCheck;
+import com.baselib.instant.breakpoint.utils.DataUtils;
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +49,7 @@ class BreakPointDownloader {
      * <p>
      * 2.请求文件流得知完整文件大小{@link #getFileStream(Task, String)},创建占位文件并明确分段下载起始点
      * <p>
-     * 3.解析文件流开始分段下载任务
+     * 3.解析文件流开始分段下载任务{@link Task#parseSegment(long, Task.SegmentTaskEvaluator)}
      *
      * @param context 上下文
      * @param task    任务对象
@@ -60,8 +63,7 @@ class BreakPointDownloader {
 
             @Override
             public void preloadSuccess(String realDownloadUrl) {
-                task.onTaskPreloadSuccess();
-                LogUtils.i("最终执行下载的链接为" + realDownloadUrl);
+                task.onTaskPreloadSuccess(realDownloadUrl);
                 getFileStream(task, realDownloadUrl);
             }
         };
@@ -79,27 +81,11 @@ class BreakPointDownloader {
 
                 @Override
                 public void getFileStreamSuccess(long contentLength, InputStream byteStream) {
-                    final Task.SegmentTaskEvaluator segmentTaskEvaluator = (threadId, start, end) -> {
-                        final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, start, end);
-                        final Runnable runnable = () -> {
-                            try {
-                                mStreamProcessor.downloadRangeFile(
-                                        downloadUrl,
-                                        task.getTmpAccessFile(),
-                                        start,
-                                        end,
-                                        rangeDownloadListener);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                task.onTaskDownloadError(e.getMessage());
-                            }
-                        };
-                        asyncExecute(runnable);
-                    };
-                    task.parseSegment(contentLength, segmentTaskEvaluator);
+                    task.onTaskDownloadStart(downloadUrl);
+
+                    task.parseSegment(contentLength, getSegmentTaskEvaluator(task, downloadUrl));
                 }
             };
-
 
             mStreamProcessor.getCompleteFileStream(downloadUrl, streamListener);
         } catch (Exception e) {
@@ -109,21 +95,39 @@ class BreakPointDownloader {
     }
 
     @NotNull
-    private RangeDownloadListener getRangeDownloadListener(Task task, int threadId, long realStartIndex, long realEndIndex) {
+    private Task.SegmentTaskEvaluator getSegmentTaskEvaluator(Task task, String downloadUrl) {
+        return (threadId, cacheAccessFile, start, end) -> asyncExecute(getSegmentRunnable(threadId, cacheAccessFile,start, end, downloadUrl, task));
+    }
+
+    @NotNull
+    private Runnable getSegmentRunnable(int threadId, RandomAccessFile cacheAccessFile, long start, long end, String downloadUrl, Task task) {
+        return () -> {
+            try {
+                final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, cacheAccessFile,start, end);
+                mStreamProcessor.downloadRangeFile(downloadUrl, task.getTmpAccessFile(), start, end, rangeDownloadListener);
+            } catch (Exception e) {
+                e.printStackTrace();
+                task.onTaskDownloadError(e.getMessage());
+            }
+        };
+    }
+
+    @NotNull
+    private RangeDownloadListener getRangeDownloadListener(Task task, int threadId, RandomAccessFile cacheAccessFile, long realStartIndex, long realEndIndex) {
         return new RangeDownloadListener() {
             @Override
-            public void requestDownloadFail(String msg) {
+            public void rangeDownloadFail(String msg) {
                 task.onTaskDownloadError(msg);
             }
 
             @Override
-            public void requestDownloadFinish(long currentDownloadLength, long currentRangeFileLength) {
+            public void rangeDownloadFinish(long currentDownloadLength, long currentRangeFileLength) {
                 LogUtils.d(String.format(Locale.SIMPLIFIED_CHINESE, "%1d分段任务下载完成,线程的任务起点为%2d-本次共下载%3d byte,写至文件%4d处,分段文件总byte大小%5d",
                         threadId,
                         realStartIndex,
                         currentDownloadLength,
                         currentRangeFileLength,
-                        realEndIndex - realStartIndex + 1
+                        task.getSegmentFileSize(threadId)
                 ));
 
                 LogUtils.i("下载完成" + task.getCacheFiles()[threadId].getName() + "将被删除:" + task.getCacheFiles()[threadId].delete());
@@ -131,15 +135,21 @@ class BreakPointDownloader {
             }
 
             @Override
-            public void updateProgress(long rangeFileDownloadIndex) {
+            public void updateRangeProgress(long rangeFileDownloadIndex) {
 
                 //将当前现在到的位置保存到文件中
-//                cacheAccessFile.seek(0);
-//                cacheAccessFile.write((String.valueOf(rangeFileDownloadIndex)).getBytes(Charset.defaultCharset()));
+                try {
+                    cacheAccessFile.seek(0);
+                    cacheAccessFile.write((String.valueOf(rangeFileDownloadIndex)).getBytes(Charset.defaultCharset()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                //                        分段任务已下载长度
+                // 分段任务已下载长度
                 final long length = rangeFileDownloadIndex - realStartIndex;
-
+//                if (threadId == 1){
+//                    LogUtils.i(threadId+"线程本次已下载长度:"+length);
+//                }
                 task.onRangeFileProgressUpdate(threadId, length);
 
             }
@@ -169,8 +179,11 @@ class BreakPointDownloader {
     }
 
     public void onNewTaskAdd(Task task) {
-        task.postNewTaskSuccess();
-        mDatabaseRepository.addTaskRecord(task.parseToRecord());
+        asyncExecute(() -> mDatabaseRepository.addTaskRecord(task.parseToRecord()));
+    }
+
+    public void deleteTaskRecord(Task task) {
+        asyncExecute(() -> mDatabaseRepository.deleteTaskRecord(task.parseToRecord()));
     }
 
     /**
