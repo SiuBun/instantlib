@@ -12,33 +12,75 @@ import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.breakpoint.utils.DataUtils;
 import com.baselib.instant.util.LogUtils;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * 下载的任务对象
+ *
+ * @author wsb
+ */
 public class Task {
+
+    /**
+     * 任务的唯一标识,补齐之后生成
+     */
     private int mTaskId;
+
+    /**
+     * 文件预期下载地址
+     */
     private String mTaskUrl;
+
+    /**
+     * 文件保存目录
+     */
     private String mTaskFileDir;
+
+    /**
+     * 文件保存名称
+     */
     private String mTaskFileName;
 
+    /**
+     * 任务监听列表
+     */
     private Set<TaskListener> mTaskListenerSet;
 
-    private final byte[] mListenerLock = new byte[0];
+    /**
+     * 监听对象锁
+     */
+    private final byte[] mLock = new byte[0];
 
+    /**
+     * 下载的文件,下载完成以前以占位文件形式保存,下载完成后修改文件类型
+     */
     private File mTmpAccessFile;
 
     /**
-     * 存放.cache文件
+     * 各任务已下载长度
      */
-    private File[] mCacheFiles;
-    private long[] mDownloadFileLength;
+    private Map<String, Long> mDownloadFileCache;
 
     private final CountDownLatch mCountDownLatch;
+
+    /**
+     * 任务状态
+     */
     private int mTaskState;
+
+    /**
+     * 文件总大小
+     */
     private Long mTaskTotalSize;
 
     public int getTaskId() {
@@ -75,8 +117,7 @@ public class Task {
     private Task() {
         mTaskState = BreakPointConst.DOWNLOAD_WAITING;
         mTaskListenerSet = new HashSet<>();
-        mCacheFiles = new File[BreakPointConst.DEFAULT_THREAD_COUNT];
-        mDownloadFileLength = new long[BreakPointConst.DEFAULT_THREAD_COUNT];
+        mDownloadFileCache = new HashMap<>(BreakPointConst.DEFAULT_THREAD_COUNT);
         mCountDownLatch = new CountDownLatch(BreakPointConst.DEFAULT_THREAD_COUNT);
     }
 
@@ -109,8 +150,10 @@ public class Task {
             LogUtils.i("参数调整以后的文件目录为" + this.mTaskFileDir);
         }
 
-//        任务的唯一标识,根据下载url和保存位置来生成
-        this.mTaskId = DataUtils.generateId(getTaskUrl(), getTaskPath());
+        if (0 == this.mTaskId){
+            LogUtils.i("根据下载url和保存位置来生成任务的唯一标识");
+            setTaskId(DataUtils.generateId(getTaskUrl(), getTaskPath()));
+        }
     }
 
     /**
@@ -140,19 +183,19 @@ public class Task {
 
 
     public boolean addTaskListener(TaskListener listener) {
-        synchronized (mListenerLock) {
+        synchronized (mLock) {
             return mTaskListenerSet.add(listener);
         }
     }
 
     public boolean removeTaskListener(TaskListener listener) {
-        synchronized (mListenerLock) {
+        synchronized (mLock) {
             return mTaskListenerSet.remove(listener);
         }
     }
 
     public void cleanTaskListener() {
-        synchronized (mListenerLock) {
+        synchronized (mLock) {
             mTaskListenerSet.clear();
         }
     }
@@ -253,13 +296,14 @@ public class Task {
      * @param threadDownloadLength 分段任务已下载长度
      */
     public void onRangeFileProgressUpdate(int threadId, long threadDownloadLength) {
-        setDownloadedLength(threadId, threadDownloadLength);
-        long totalLength = 0;
-
-        for (long len : mDownloadFileLength) {
-            totalLength += len;
+        changeDownloadCacheById(threadId, threadDownloadLength);
+        synchronized (mLock) {
+            long totalLength = 0;
+            for (Map.Entry<String, Long> entry : mDownloadFileCache.entrySet()) {
+                totalLength += entry.getValue();
+            }
+            onTaskProgressUpdate(totalLength);
         }
-        onTaskProgressUpdate(totalLength);
     }
 
 
@@ -275,7 +319,7 @@ public class Task {
 
     public TaskRecordEntity parseToRecord() {
         final TaskRecordEntity recordEntity = new TaskRecordEntity();
-        recordEntity.setCurrentSize(0L);
+        recordEntity.setCurrentSize(getTaskCurrentSizeJson());
         recordEntity.setFileDir(getTaskFileDir());
         recordEntity.setFileName(getTaskFileName());
         recordEntity.setId(getTaskId());
@@ -284,6 +328,20 @@ public class Task {
         recordEntity.setUpdateTime(System.currentTimeMillis());
         recordEntity.setUrl(getTaskUrl());
         return recordEntity;
+    }
+
+    public String getTaskCurrentSizeJson() {
+        final JSONObject jsonObject = new JSONObject();
+        synchronized (mLock) {
+            try {
+                for (Map.Entry<String, Long> entry : mDownloadFileCache.entrySet()) {
+                    jsonObject.put(entry.getKey(), entry.getValue());
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return jsonObject.toString();
     }
 
     /**
@@ -299,16 +357,12 @@ public class Task {
         this.mTmpAccessFile = tmpFile;
     }
 
-    public File[] getCacheFiles() {
-        return mCacheFiles;
-    }
-
-    public void setDownloadedLength(int threadId, long cacheStartIndex) {
-        mDownloadFileLength[threadId] = cacheStartIndex;
-    }
-
     public int getTaskState() {
         return mTaskState;
+    }
+
+    public void setTaskId(int mTaskId) {
+        this.mTaskId = mTaskId;
     }
 
     public void setTaskState(int taskState) {
@@ -321,6 +375,19 @@ public class Task {
 
     public void setTaskTotalSize(Long taskTotalSize) {
         this.mTaskTotalSize = taskTotalSize;
+    }
+
+    public void changeDownloadCacheById(int threadId, long l) {
+        synchronized (mLock) {
+            mDownloadFileCache.put(getThreadCacheStr(threadId), l);
+        }
+    }
+
+    public long getDownloadCacheById(int threadId) {
+        synchronized (mLock) {
+            final Long value = mDownloadFileCache.get(getThreadCacheStr(threadId));
+            return value == null ? DataUtils.getTheoryStartIndex(getTaskTotalSize(), threadId) : value;
+        }
     }
 
     public void parseSegment(long contentLength, SegmentTaskEvaluator creator) {
@@ -344,31 +411,32 @@ public class Task {
         }
     }
 
-    public void calculateSegmentPoint(int threadId, SegmentTaskEvaluator creator) throws FileNotFoundException {
-        final File cacheFile = new File(getTaskFileDir(), "thread" + threadId + "_" + getTaskFileName() + ".cache");
-        mCacheFiles[threadId] = cacheFile;
-
+    public void calculateSegmentPoint(int threadId, SegmentTaskEvaluator creator) {
         // 线程开始下载的位置
-        final long startIndex = DataUtils.getStartIndex(cacheFile, getTaskTotalSize(), threadId,true);
+        final long startIndex = getDownloadCacheById(threadId);
 
-        final long intentStartIndex = DataUtils.getStartIndex(cacheFile, getTaskTotalSize(), threadId, false);
-        LogUtils.d(threadId+"线程在本次文件下载的起点下标为"+startIndex+",之前已下载了"+(startIndex-intentStartIndex));
+        final long intentStartIndex = DataUtils.getTheoryStartIndex(getTaskTotalSize(), threadId);
+        LogUtils.d(threadId + "线程在本次文件下载的起点下标为" + (intentStartIndex+startIndex) + ",之前已下载了" + getDownloadCacheById(threadId));
 
         // 线程结束下载的位置
-        final long endIndex = DataUtils.getEndIndex(getTaskTotalSize(), threadId);
+        final long endIndex = DataUtils.getTheoryEndIndex(getTaskTotalSize(), threadId);
 
-        final RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile, "rw");
-        creator.startSegmentDownload(threadId, cacheAccessFile, startIndex, endIndex);
+        creator.startSegmentDownload(threadId, startIndex, endIndex);
+    }
+
+    @NotNull
+    private String getThreadCacheStr(int threadId) {
+        return "thread_" + threadId;
     }
 
     public long getSegmentFileSize(int threadId) {
-        return DataUtils.getEndIndex(getTaskTotalSize(),threadId)-DataUtils.getStartIndex(getTaskTotalSize(),threadId)+1;
+        return DataUtils.getTheoryEndIndex(getTaskTotalSize(), threadId) - DataUtils.getTheoryStartIndex(getTaskTotalSize(), threadId) + 1;
     }
 
     /**
      * 对外暴露的任务构建类
      * <p>
-     * 只通过该类进行任务构建
+     * 只通过该类进行任务构建,新建出来的任务是没有id的,需要在添加的时候去生成
      *
      * @author wsb
      */
@@ -383,13 +451,17 @@ public class Task {
          * @param recordEntity 本地记录的条目
          * @return 可执行的任务
          */
-        public static Task transformRecord(TaskRecordEntity recordEntity) {
+        public static Task transformRecord(Context context,TaskRecordEntity recordEntity) {
             final Task task = new Builder()
                     .setTaskUrl(recordEntity.getUrl())
                     .setTaskFileDir(recordEntity.getFileDir())
                     .setTaskFileName(recordEntity.getFileName()).build();
             task.setTaskState(recordEntity.getState());
+
+            task.changeTaskCurrentSize(recordEntity.getCurrentSize());
             task.setTaskTotalSize(recordEntity.getTotalSize());
+            task.setTaskId(recordEntity.getId());
+            task.supplementField(context);
             return task;
         }
 
@@ -420,6 +492,21 @@ public class Task {
         }
     }
 
+    private void changeTaskCurrentSize(String currentSize) {
+        try {
+            final JSONObject jsonObject = new JSONObject(currentSize);
+            final int length = jsonObject.length();
+            mDownloadFileCache = new HashMap<>(length);
+
+            for (int index = 0; index < length; index++) {
+                changeDownloadCacheById(index, jsonObject.optLong(getThreadCacheStr(index)));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 分段任务估值器
      *
@@ -431,11 +518,10 @@ public class Task {
          * <p>
          * 该方法将被多次调用
          *
-         * @param threadId        线程下标
-         * @param cacheAccessFile 该线程任务对应的缓存记录文件
-         * @param start           下载起点
-         * @param end             下载终点
+         * @param threadId 线程下标
+         * @param start    下载起点
+         * @param end      下载终点
          */
-        void startSegmentDownload(int threadId, RandomAccessFile cacheAccessFile, long start, long end);
+        void startSegmentDownload(int threadId, long start, long end);
     }
 }

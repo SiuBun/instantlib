@@ -3,24 +3,21 @@ package com.baselib.instant.breakpoint.bussiness;
 import android.content.Context;
 import android.os.Looper;
 
-import com.baselib.instant.breakpoint.operate.FileStreamListener;
 import com.baselib.instant.breakpoint.Task;
 import com.baselib.instant.breakpoint.database.DataBaseRepository;
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
+import com.baselib.instant.breakpoint.operate.FileStreamListener;
 import com.baselib.instant.breakpoint.operate.PreloadListener;
 import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
 import com.baselib.instant.breakpoint.operate.StreamProcessor;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
-import com.baselib.instant.util.DataCheck;
 import com.baselib.instant.manager.BusinessHandler;
+import com.baselib.instant.util.DataCheck;
 import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -99,14 +96,14 @@ public class BreakPointDownloader {
 
     @NotNull
     private Task.SegmentTaskEvaluator getSegmentTaskEvaluator(Task task, String downloadUrl) {
-        return (threadId, cacheAccessFile, start, end) -> asyncExecute(getSegmentRunnable(threadId, cacheAccessFile,start, end, downloadUrl, task));
+        return (threadId, start, end) -> asyncExecute(getSegmentRunnable(threadId, start, end, downloadUrl, task));
     }
 
     @NotNull
-    private Runnable getSegmentRunnable(int threadId, RandomAccessFile cacheAccessFile, long start, long end, String downloadUrl, Task task) {
+    private Runnable getSegmentRunnable(int threadId, long start, long end, String downloadUrl, Task task) {
         return () -> {
             try {
-                final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, cacheAccessFile,start, end);
+                final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, start, end);
                 mStreamProcessor.downloadRangeFile(downloadUrl, task.getTmpAccessFile(), start, end, rangeDownloadListener);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -116,7 +113,7 @@ public class BreakPointDownloader {
     }
 
     @NotNull
-    private RangeDownloadListener getRangeDownloadListener(Task task, int threadId, RandomAccessFile cacheAccessFile, long realStartIndex, long realEndIndex) {
+    private RangeDownloadListener getRangeDownloadListener(Task task, int threadId, long realStartIndex, long realEndIndex) {
         return new RangeDownloadListener() {
             @Override
             public void rangeDownloadFail(String msg) {
@@ -129,30 +126,17 @@ public class BreakPointDownloader {
                         threadId,
                         realStartIndex,
                         currentDownloadLength,
-                        currentRangeFileLength,
+                        realEndIndex,
                         task.getSegmentFileSize(threadId)
                 ));
-
-                LogUtils.i("下载完成" + task.getCacheFiles()[threadId].getName() + "将被删除:" + task.getCacheFiles()[threadId].delete());
+                LogUtils.i(threadId + "线程代表的下载任务完成");
                 task.getCountDownLatch().countDown();
             }
 
             @Override
             public void updateRangeProgress(long rangeFileDownloadIndex) {
-
-                //将当前现在到的位置保存到文件中
-                try {
-                    cacheAccessFile.seek(0);
-                    cacheAccessFile.write((String.valueOf(rangeFileDownloadIndex)).getBytes(Charset.defaultCharset()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 // 分段任务已下载长度
                 final long length = rangeFileDownloadIndex - realStartIndex;
-//                if (threadId == 1){
-//                    LogUtils.i(threadId+"线程本次已下载长度:"+length);
-//                }
                 task.onRangeFileProgressUpdate(threadId, length);
 
             }
@@ -173,7 +157,7 @@ public class BreakPointDownloader {
             DataCheck.checkNoEmptyWithCallback(taskRecords, data -> {
                 Map<Integer, Task> taskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
                 for (TaskRecordEntity recordEntity : data) {
-                    final Task task = Task.Builder.transformRecord(recordEntity);
+                    final Task task = Task.Builder.transformRecord(applicationContext,recordEntity);
                     taskMap.put(task.getTaskId(), task);
                 }
                 listener.localTaskExist(taskMap);
@@ -187,6 +171,14 @@ public class BreakPointDownloader {
 
     public void deleteTaskRecord(Task task) {
         asyncExecute(() -> mDatabaseRepository.deleteTaskRecord(task.parseToRecord()));
+    }
+
+    public void onTaskProgressUpdateById(Task task) {
+        asyncExecute(()-> mDatabaseRepository.updateTaskRecord(task.getTaskId(),task.getTaskCurrentSizeJson()));
+    }
+
+    public void onTaskDownloadError(Task task) {
+        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.parseToRecord()));
     }
 
     /**

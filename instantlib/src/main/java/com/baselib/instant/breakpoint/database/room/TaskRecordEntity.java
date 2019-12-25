@@ -33,7 +33,7 @@ public class TaskRecordEntity {
     private Long mTotalSize;
 
     @ColumnInfo(name = "current_size")
-    private Long mCurrentSize;
+    private String mCurrentSize;
 
     @ColumnInfo(name = "update_time")
     private Long mUpdateTime;
@@ -63,11 +63,11 @@ public class TaskRecordEntity {
         this.mTotalSize = mTotalSize;
     }
 
-    public Long getCurrentSize() {
+    public String getCurrentSize() {
         return mCurrentSize;
     }
 
-    public void setCurrentSize(Long mCurrentSize) {
+    public void setCurrentSize(String mCurrentSize) {
         this.mCurrentSize = mCurrentSize;
     }
 

@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 断点下载工具类,对外暴露方法
@@ -23,17 +24,17 @@ public class BreakPointHelper {
 
     /**
      * 保存执行任务的容器
-     * */
+     */
     private final HashMap<Integer, Task> mTaskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
 
     /**
      * 负责下载功能
-     * */
+     */
     private final BreakPointDownloader mBreakPointDownloader = new BreakPointDownloader();
 
     /**
      * 任务锁
-     * */
+     */
     private final byte[] mTaskLock = new byte[0];
 
     private BreakPointHelper() {
@@ -45,7 +46,7 @@ public class BreakPointHelper {
     }
 
     /**
-     * 初始化断点下载
+     * 初始化断点下载(必调)
      * <p>
      * 加载原来保存的下载任务到队列内
      *
@@ -93,60 +94,70 @@ public class BreakPointHelper {
      */
     public void postTask(@NonNull Context context, @NonNull Task task) {
         synchronized (mTaskLock) {
-            task.addTaskListener(getDatabaseCallback(task));
+            AtomicReference<Task> t = new AtomicReference<>();
+
+
             if (addTask(context, task)) {
                 LogUtils.i("新任务添加成功");
+                task.addTaskListener(getDatabaseTaskListener(task));
                 task.postNewTaskSuccess();
+                t.set(task);
             } else {
                 LogUtils.i("关联已有任务");
-                DataCheck.checkNoNullWithCallback(mTaskMap.get(task.getTaskId()), taskBeListen -> taskBeListen.addTaskListeners(task.getTaskListener()));
+                DataCheck.checkNoNullWithCallback(mTaskMap.get(task.getTaskId()), taskBeListen -> {
+                    taskBeListen.addTaskListeners(task.getTaskListener());
+                    taskBeListen.addTaskListener(getDatabaseTaskListener(taskBeListen));
+                    t.set(taskBeListen);
+                });
             }
 
-            mBreakPointDownloader.executeTask(context, task);
+            LogUtils.i("最终执行的任务"+t.get());
+            mBreakPointDownloader.executeTask(context, t.get());
 
         }
     }
 
     @NotNull
-    private TaskListener getDatabaseCallback(@NonNull Task task) {
+    private TaskListener getDatabaseTaskListener(Task t) {
         return new TaskListener() {
-            @Override
-            public void postTaskFail(String msg) {
+                    @Override
+                    public void postTaskFail(String msg) {
 
-            }
+                    }
 
-            @Override
-            public void postNewTaskSuccess(int taskId) {
-                LogUtils.d("数据库插入新条目");
-                mBreakPointDownloader.onNewTaskAdd(task);
-            }
+                    @Override
+                    public void postNewTaskSuccess(int taskId) {
+                        LogUtils.d("数据库插入新条目,id为" + taskId);
+                        mBreakPointDownloader.onNewTaskAdd(t);
+                    }
 
-            @Override
-            public void onTaskDownloadError(String message) {
+                    @Override
+                    public void onTaskDownloadError(String message) {
+                        mBreakPointDownloader.onTaskDownloadError(t);
+                    }
 
-            }
+                    @Override
+                    public void onTaskProgressUpdate(long taskTotalSize, long length) {
+                        mBreakPointDownloader.onTaskProgressUpdateById(t);
+                    }
 
-            @Override
-            public void onTaskProgressUpdate(long taskTotalSize, long length) {
+                    @Override
+                    public void onTaskDownloadFinish() {
 
-            }
+                    }
 
-            @Override
-            public void onTaskDownloadFinish() {
+                    @Override
+                    public void onTaskCancel() {
+                        mBreakPointDownloader.deleteTaskRecord(t);
+                    }
 
-            }
+                    @Override
+                    public void onTaskDownloadStart(String downloadUrl) {
 
-            @Override
-            public void onTaskCancel() {
-                mBreakPointDownloader.deleteTaskRecord(task);
-            }
-
-            @Override
-            public void onTaskDownloadStart(String downloadUrl) {
-
-            }
-        };
+                    }
+                };
     }
+
 
     /**
      * 添加任务

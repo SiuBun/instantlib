@@ -108,9 +108,9 @@ public class OkHttpSteamProcessor implements StreamProcessor {
     private OkHttpClient getHttpClient() {
         if (null == mOkHttpClient) {
             mOkHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                    .readTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                    .callTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+//                    .connectTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+//                    .readTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+//                    .callTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
                     .build();
         }
         return mOkHttpClient;

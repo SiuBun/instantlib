@@ -22,9 +22,18 @@ public interface DatabaseOperate {
 
     /**
      * 更新任务记录到本地记录中
+     *
      * @param recordEntity 更新条目
      */
     void updateTaskRecord(TaskRecordEntity recordEntity);
+
+    /**
+     * 更新任务记录到本地记录中
+     *
+     * @param taskId      更新的id
+     * @param currentSize 当前下载量
+     */
+    void updateTaskRecord(int taskId, String currentSize);
 
     /**
      * 从本地记录中删除任务条目
@@ -43,7 +52,8 @@ public interface DatabaseOperate {
      *
      * @return 返回任务条目列表
      */
-    @Nullable List<TaskRecordEntity> loadAllTaskRecord();
+    @Nullable
+    List<TaskRecordEntity> loadAllTaskRecord();
 
     /**
      * 根据id获取对应的任务记录

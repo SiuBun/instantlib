@@ -100,7 +100,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
                         @Override
                         public void onTaskProgressUpdate(long taskTotalSize, long length) {
-                            LogUtils.i("任务下载进度更新,文件大小为" + taskTotalSize + ",已下载" + length);
+//                            LogUtils.i("任务下载进度更新,文件大小为" + taskTotalSize + ",已下载" + length);
                         }
 
                         @Override

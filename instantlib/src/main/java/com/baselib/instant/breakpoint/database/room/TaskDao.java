@@ -32,6 +32,9 @@ public interface TaskDao {
     @Update
     void updateTaskRecord(TaskRecordEntity recordEntity);
 
+    @Query("UPDATE download_task_record_table SET current_size= :currentSize WHERE task_id=:taskId")
+    void updateTaskRecord(int taskId, String currentSize);
+
     @Query("DELETE FROM download_task_record_table")
     void cleanTaskRecord();
 }

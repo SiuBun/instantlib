@@ -72,4 +72,6 @@ public interface BreakPointConst {
     int DEFAULT_THREAD_COUNT = 5;
 
     long DEFAULT_TIMEOUT = 10;
+
+    int DATABASE_UPDATE_INTERVAL = 1;
 }

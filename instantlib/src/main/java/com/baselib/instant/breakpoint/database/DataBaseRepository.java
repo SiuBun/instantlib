@@ -1,13 +1,16 @@
 package com.baselib.instant.breakpoint.database;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 
 import com.baselib.instant.breakpoint.database.room.RoomStrategy;
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
+import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 数据库策略管理类
@@ -18,8 +21,10 @@ import java.util.List;
  */
 public class DataBaseRepository implements DatabaseOperate {
     private DatabaseOperate mDatabase;
+    private long mUptimeMillis;
 
     public DataBaseRepository(Context context) {
+        mUptimeMillis = System.currentTimeMillis();
         mDatabase = new RoomStrategy(context);
     }
 
@@ -31,6 +36,16 @@ public class DataBaseRepository implements DatabaseOperate {
     @Override
     public void updateTaskRecord(TaskRecordEntity recordEntity) {
         mDatabase.updateTaskRecord(recordEntity);
+    }
+
+    @Override
+    public void updateTaskRecord(int taskId, String currentSize) {
+        final long millis = System.currentTimeMillis();
+        if (millis - mUptimeMillis >= TimeUnit.SECONDS.toMillis(BreakPointConst.DATABASE_UPDATE_INTERVAL)) {
+            LogUtils.i("更新当前进度到"+taskId+"任务的记录里"+currentSize);
+            mUptimeMillis = millis;
+            mDatabase.updateTaskRecord(taskId, currentSize);
+        }
     }
 
     @Override

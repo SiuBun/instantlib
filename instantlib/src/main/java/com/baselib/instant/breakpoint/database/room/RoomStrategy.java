@@ -35,6 +35,11 @@ public class RoomStrategy implements DatabaseOperate {
     }
 
     @Override
+    public void updateTaskRecord(int taskId, String currentSize) {
+        mTaskDao.updateTaskRecord(taskId, currentSize);
+    }
+
+    @Override
     public void deleteTaskRecord(TaskRecordEntity recordEntity) {
         mTaskDao.deleteTaskRecord(recordEntity);
     }

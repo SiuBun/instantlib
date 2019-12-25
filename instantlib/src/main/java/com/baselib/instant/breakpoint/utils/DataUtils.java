@@ -76,49 +76,23 @@ public class DataUtils {
         return hex.toString();
     }
 
-    public static long getStartIndex(long contentLength, int threadId) {
-        return getStartIndex(null,contentLength,threadId,false);
-    }
-
     /**
-     * 获取分段任务下载起点
-     * <p>
-     * 如果本地存在缓存文件,那么从缓存文件获取该任务已下载的长度.文件不存在或者读取失败就计算该分段任务的理论起点
-     *
-     * @param cacheFile     缓存任务
-     * @param contentLength 文件大小
-     * @param threadId      线程下标
-     * @return 返回真正写入的起点
-     */
-    public static long getStartIndex(File cacheFile, long contentLength, int threadId, boolean useCache) {
-        final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
-        long cacheStartIndex;
-//        理论下载起点
-        final long intentStart = threadId * segmentSize;
-        try {
-            final RandomAccessFile cacheAccessFile = new RandomAccessFile(cacheFile, "rw");
-            if (useCache && cacheFile.exists()) {
-//                重新设置下载起点
-                cacheStartIndex = Long.parseLong(cacheAccessFile.readLine());
-            } else {
-                cacheStartIndex = intentStart;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            cacheStartIndex = intentStart;
-        }
-
-
-        return cacheStartIndex;
-    }
-
-    /**
-     * 获取分段任务下载终点
+     * 获取分段任务理论下载终点
      *
      * @param contentLength 文件长度
      * @param threadId      线程下标
      */
-    public static long getEndIndex(long contentLength, int threadId) {
+    public static long getTheoryStartIndex(long contentLength, int threadId) {
+        return contentLength / BreakPointConst.DEFAULT_THREAD_COUNT * threadId;
+    }
+
+    /**
+     * 获取分段任务理论下载终点
+     *
+     * @param contentLength 文件长度
+     * @param threadId      线程下标
+     */
+    public static long getTheoryEndIndex(long contentLength, int threadId) {
         final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
         long endIndex;
         // 如果是最后一个线程,将剩下的文件全部交给这个线程完成
