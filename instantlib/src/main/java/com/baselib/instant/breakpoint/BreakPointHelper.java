@@ -48,12 +48,19 @@ public class BreakPointHelper {
     /**
      * 初始化断点下载(必调)
      * <p>
-     * 加载原来保存的下载任务到队列内
+     * 加载原来保存的下载任务到队列内并添加数据库监听
      *
      * @param context 上下文
      */
     public void attachApplication(@NonNull Context context) {
-        mBreakPointDownloader.loadTaskRecord(context, mTaskMap::putAll);
+        mBreakPointDownloader.loadTaskRecord(context, taskMap -> {
+
+            for (Map.Entry<Integer, Task> entry : taskMap.entrySet()) {
+                final Task task = entry.getValue();
+                task.addTaskListener(getDatabaseTaskListener(task));
+                mTaskMap.put(entry.getKey(), task);
+            }
+        });
     }
 
     /**
@@ -64,21 +71,26 @@ public class BreakPointHelper {
      * 2.清空列表
      */
     public void detachApplication() {
-        for (Map.Entry<Integer, Task> task : mTaskMap.entrySet()) {
-            task.getValue().cleanTaskListener();
-            task.getValue().onAppDetach();
+        for (Map.Entry<Integer, Task> taskEntry : mTaskMap.entrySet()) {
+            taskEntry.getValue().cleanTaskListener();
+            taskEntry.getValue().onAppDetach();
         }
         mTaskMap.clear();
     }
 
     /**
      * 全列表下载开始
+     * <p>
+     * 只开始下载那些未完成的任务
      *
      * @param context 上下文
      */
     public void commitTask(Context context) {
         for (Map.Entry<Integer, Task> entry : mTaskMap.entrySet()) {
-            postTask(context, entry.getValue());
+            final Task task = entry.getValue();
+            if (task.incompleteState()) {
+                postTask(context, task);
+            }
         }
     }
 
@@ -106,56 +118,51 @@ public class BreakPointHelper {
                 LogUtils.i("关联已有任务");
                 DataCheck.checkNoNullWithCallback(mTaskMap.get(task.getTaskId()), taskBeListen -> {
                     taskBeListen.addTaskListeners(task.getTaskListener());
-                    taskBeListen.addTaskListener(getDatabaseTaskListener(taskBeListen));
                     t.set(taskBeListen);
                 });
             }
 
-            LogUtils.i("最终执行的任务"+t.get());
+            LogUtils.i("最终执行的任务" + t.get());
             mBreakPointDownloader.executeTask(context, t.get());
 
         }
     }
 
     @NotNull
-    private TaskListener getDatabaseTaskListener(Task t) {
-        return new TaskListener() {
-                    @Override
-                    public void postTaskFail(String msg) {
+    private TaskPostListener getDatabaseTaskListener(Task t) {
+        return new TaskPostListener() {
 
-                    }
+            @Override
+            public void postNewTaskSuccess(int taskId) {
+                LogUtils.d("数据库插入新条目,id为" + taskId);
+                mBreakPointDownloader.onNewTaskAdd(t);
+            }
 
-                    @Override
-                    public void postNewTaskSuccess(int taskId) {
-                        LogUtils.d("数据库插入新条目,id为" + taskId);
-                        mBreakPointDownloader.onNewTaskAdd(t);
-                    }
+            @Override
+            public void onTaskDownloadError(String message) {
+                mBreakPointDownloader.onTaskDownloadError(t);
+            }
 
-                    @Override
-                    public void onTaskDownloadError(String message) {
-                        mBreakPointDownloader.onTaskDownloadError(t);
-                    }
+            @Override
+            public void onTaskProgressUpdate(long taskTotalSize, long length) {
+                mBreakPointDownloader.onTaskProgressUpdateById(t);
+            }
 
-                    @Override
-                    public void onTaskProgressUpdate(long taskTotalSize, long length) {
-                        mBreakPointDownloader.onTaskProgressUpdateById(t);
-                    }
+            @Override
+            public void onTaskDownloadFinish() {
 
-                    @Override
-                    public void onTaskDownloadFinish() {
+            }
 
-                    }
+            @Override
+            public void onTaskCancel() {
+                mBreakPointDownloader.deleteTaskRecord(t);
+            }
 
-                    @Override
-                    public void onTaskCancel() {
-                        mBreakPointDownloader.deleteTaskRecord(t);
-                    }
+            @Override
+            public void onTaskDownloadStart(String downloadUrl) {
 
-                    @Override
-                    public void onTaskDownloadStart(String downloadUrl) {
-
-                    }
-                };
+            }
+        };
     }
 
 
@@ -196,9 +203,11 @@ public class BreakPointHelper {
         synchronized (mTaskLock) {
             AtomicBoolean removeResult = new AtomicBoolean(false);
             DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> {
-                task.onTaskCancel();
-                task.cleanTaskListener();
-                removeResult.set(mTaskMap.remove(taskId) != null);
+                mBreakPointDownloader.mainThreadExecute(() -> {
+                    task.onTaskCancel();
+                    task.cleanTaskListener();
+                    removeResult.set(mTaskMap.remove(taskId) != null);
+                });
             });
             return removeResult.get();
         }
@@ -207,13 +216,13 @@ public class BreakPointHelper {
     /**
      * 根据任务id移除该任务的监听对象
      * <p>
-     * 和{@link #addTaskListener(int, TaskListener)}相对应
+     * 和{@link #addTaskListener(int, TaskPostListener)}相对应
      *
      * @param taskId   任务id
      * @param listener 任务的监听对象
      * @return true 代表操作成功
      */
-    public boolean removeTaskListener(int taskId, @NonNull TaskListener listener) {
+    public boolean removeTaskListener(int taskId, @NonNull TaskPostListener listener) {
         AtomicBoolean removeResult = new AtomicBoolean(false);
         DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> removeResult.set(task.removeTaskListener(listener)));
         return removeResult.get();
@@ -222,13 +231,13 @@ public class BreakPointHelper {
     /**
      * 根据任务id添加该任务的监听对象
      * <p>
-     * 和{@link #removeTaskListener(int, TaskListener)}相对应
+     * 和{@link #removeTaskListener(int, TaskPostListener)}相对应
      *
      * @param taskId   任务id
      * @param listener 任务的监听对象
      * @return true 代表操作成功
      */
-    public boolean addTaskListener(int taskId, @NonNull TaskListener listener) {
+    public boolean addTaskListener(int taskId, @NonNull TaskPostListener listener) {
         AtomicBoolean addResult = new AtomicBoolean(false);
         DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> addResult.set(task.addTaskListener(listener)));
         return addResult.get();

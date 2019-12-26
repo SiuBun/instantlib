@@ -1,16 +1,11 @@
 package com.baselib.instant.breakpoint;
 
-public interface TaskListener {
-        /**
-         * 任务添加失败
-         * <p>
-         * 提交失败可能包括如下常见原因:
-         * <p>
-         * 当前或之前的应用生命周期内,已完成对该任务的添加
-         *
-         * @param msg 附带描述
-         */
-        void postTaskFail(String msg);
+/**
+ * 任务执行监听
+ *
+ * @author wsb
+ * */
+public interface TaskPostListener {
 
         /**
          * 新任务添加成功

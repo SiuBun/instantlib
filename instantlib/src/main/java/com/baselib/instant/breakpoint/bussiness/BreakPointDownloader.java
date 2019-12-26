@@ -36,9 +36,7 @@ public class BreakPointDownloader {
 
     private final DownloadExecutor mExecutor = new DownloadExecutor();
 
-    private final BusinessHandler mHandler = new BusinessHandler(Looper.getMainLooper(), msg -> {
-
-    });
+    private final BusinessHandler mHandler = new BusinessHandler(Looper.getMainLooper(), msg -> {});
 
     /**
      * 执行指定下载任务
@@ -58,12 +56,12 @@ public class BreakPointDownloader {
         final PreloadListener preloadListener = new PreloadListener() {
             @Override
             public void preloadFail(String message) {
-                task.onTaskPreloadFail("预加载失败," + message);
+                mainThreadExecute(()-> task.onTaskPreloadFail("预加载失败," + message));
             }
 
             @Override
             public void preloadSuccess(String realDownloadUrl) {
-                task.onTaskPreloadSuccess(realDownloadUrl);
+                mainThreadExecute(()-> task.onTaskPreloadSuccess(realDownloadUrl));
                 getFileStream(task, realDownloadUrl);
             }
         };
@@ -76,12 +74,12 @@ public class BreakPointDownloader {
 
                 @Override
                 public void getFileStreamFail(String msg) {
-                    task.onTaskDownloadError(msg);
+                    mainThreadExecute(()-> task.onTaskDownloadError("文件流获取出错: " + msg));
                 }
 
                 @Override
                 public void getFileStreamSuccess(long contentLength, InputStream byteStream) {
-                    task.onTaskDownloadStart(downloadUrl);
+                    mainThreadExecute(()-> task.onTaskDownloadStart(downloadUrl));
 
                     task.parseSegment(contentLength, getSegmentTaskEvaluator(task, downloadUrl));
                 }
@@ -90,7 +88,7 @@ public class BreakPointDownloader {
             mStreamProcessor.getCompleteFileStream(downloadUrl, streamListener);
         } catch (Exception e) {
             e.printStackTrace();
-            task.onTaskDownloadError(e.getMessage());
+            mainThreadExecute(()-> task.onTaskDownloadError(e.getMessage()));
         }
     }
 
@@ -102,12 +100,12 @@ public class BreakPointDownloader {
     @NotNull
     private Runnable getSegmentRunnable(int threadId, long start, long end, String downloadUrl, Task task) {
         return () -> {
+            final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, start, end);
             try {
-                final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, start, end);
                 mStreamProcessor.downloadRangeFile(downloadUrl, task.getTmpAccessFile(), start, end, rangeDownloadListener);
             } catch (Exception e) {
                 e.printStackTrace();
-                task.onTaskDownloadError(e.getMessage());
+                rangeDownloadListener.rangeDownloadFail(e.getMessage());
             }
         };
     }
@@ -117,7 +115,7 @@ public class BreakPointDownloader {
         return new RangeDownloadListener() {
             @Override
             public void rangeDownloadFail(String msg) {
-                task.onTaskDownloadError(msg);
+                mainThreadExecute(()-> task.onTaskDownloadError(threadId + "分段任务下载过程出错," + msg));
             }
 
             @Override
@@ -137,7 +135,7 @@ public class BreakPointDownloader {
             public void updateRangeProgress(long rangeFileDownloadIndex) {
                 // 分段任务已下载长度
                 final long length = rangeFileDownloadIndex - realStartIndex;
-                task.onRangeFileProgressUpdate(threadId, length);
+                mainThreadExecute(()-> task.onRangeFileProgressUpdate(threadId, length));
 
             }
         };
@@ -145,6 +143,10 @@ public class BreakPointDownloader {
 
     private void asyncExecute(Runnable runnable) {
         mExecutor.execute(runnable);
+    }
+
+    public void mainThreadExecute(Runnable runnable) {
+        mHandler.post(runnable);
     }
 
     public void loadTaskRecord(Context context, LoadLocalTaskListener listener) {
@@ -157,7 +159,7 @@ public class BreakPointDownloader {
             DataCheck.checkNoEmptyWithCallback(taskRecords, data -> {
                 Map<Integer, Task> taskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
                 for (TaskRecordEntity recordEntity : data) {
-                    final Task task = Task.Builder.transformRecord(applicationContext,recordEntity);
+                    final Task task = Task.Builder.transformRecord(applicationContext, recordEntity);
                     taskMap.put(task.getTaskId(), task);
                 }
                 listener.localTaskExist(taskMap);
@@ -174,7 +176,7 @@ public class BreakPointDownloader {
     }
 
     public void onTaskProgressUpdateById(Task task) {
-        asyncExecute(()-> mDatabaseRepository.updateTaskRecord(task.getTaskId(),task.getTaskCurrentSizeJson()));
+        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.getTaskId(), task.getTaskCurrentSizeJson()));
     }
 
     public void onTaskDownloadError(Task task) {

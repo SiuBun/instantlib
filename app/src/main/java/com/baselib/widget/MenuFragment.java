@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 import com.baselib.instant.breakpoint.BreakPointHelper;
 import com.baselib.instant.breakpoint.Task;
-import com.baselib.instant.breakpoint.TaskListener;
+import com.baselib.instant.breakpoint.TaskPostListener;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
@@ -80,12 +80,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
                             .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
                             .build();
 
-                    final TaskListener taskListener = new TaskListener() {
-
-                        @Override
-                        public void postTaskFail(String msg) {
-                            LogUtils.w(msg);
-                        }
+                    final TaskPostListener taskListener = new TaskPostListener() {
 
                         @Override
                         public void postNewTaskSuccess(int taskId) {
