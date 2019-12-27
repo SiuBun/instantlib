@@ -48,7 +48,7 @@ public class BreakPointHelper {
     /**
      * 初始化断点下载(必调)
      * <p>
-     * 加载原来保存的下载任务到队列内并添加数据库监听
+     * 加载原来保存的下载任务到队列内并对未完成任务添加数据库监听
      *
      * @param context 上下文
      */
@@ -57,7 +57,9 @@ public class BreakPointHelper {
 
             for (Map.Entry<Integer, Task> entry : taskMap.entrySet()) {
                 final Task task = entry.getValue();
-                task.addTaskListener(getDatabaseTaskListener(task));
+                if (task.incompleteState()){
+                    task.addTaskListener(getDatabaseTaskListener(task));
+                }
                 mTaskMap.put(entry.getKey(), task);
             }
         });

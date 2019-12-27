@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * 数据库操作定义
+ * <p>
+ * 无论采用sqlite,还是room的方式,都需要对数据库操作
  *
  * @author wsb
  */
@@ -61,5 +63,6 @@ public interface DatabaseOperate {
      * @param id 查找id
      * @return 从数据库中查找到的任务条目
      */
+    @Nullable
     TaskRecordEntity obtainTaskRecordById(String id);
 }

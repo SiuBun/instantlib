@@ -1,7 +1,6 @@
 package com.baselib.instant.breakpoint.database;
 
 import android.content.Context;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 
 import com.baselib.instant.breakpoint.database.room.RoomStrategy;
@@ -15,27 +14,27 @@ import java.util.concurrent.TimeUnit;
 /**
  * 数据库策略管理类
  * <p>
- * 所有数据库操作交由{@link #mDatabase}处理
+ * 所有数据库操作交由{@link #mDatabaseStrategy}处理
  *
  * @author wsb
  */
 public class DataBaseRepository implements DatabaseOperate {
-    private DatabaseOperate mDatabase;
+    private DatabaseOperate mDatabaseStrategy;
     private long mUptimeMillis;
 
     public DataBaseRepository(Context context) {
         mUptimeMillis = System.currentTimeMillis();
-        mDatabase = new RoomStrategy(context);
+        mDatabaseStrategy = new RoomStrategy(context);
     }
 
     @Override
     public void addTaskRecord(TaskRecordEntity recordEntity) {
-        mDatabase.addTaskRecord(recordEntity);
+        mDatabaseStrategy.addTaskRecord(recordEntity);
     }
 
     @Override
     public void updateTaskRecord(TaskRecordEntity recordEntity) {
-        mDatabase.updateTaskRecord(recordEntity);
+        mDatabaseStrategy.updateTaskRecord(recordEntity);
     }
 
     @Override
@@ -44,29 +43,30 @@ public class DataBaseRepository implements DatabaseOperate {
         if (millis - mUptimeMillis >= TimeUnit.SECONDS.toMillis(BreakPointConst.DATABASE_UPDATE_INTERVAL)) {
             LogUtils.i("更新当前进度到"+taskId+"任务的记录里"+currentSize);
             mUptimeMillis = millis;
-            mDatabase.updateTaskRecord(taskId, currentSize);
+            mDatabaseStrategy.updateTaskRecord(taskId, currentSize);
         }
     }
 
     @Override
     public void deleteTaskRecord(TaskRecordEntity recordEntity) {
-        mDatabase.deleteTaskRecord(recordEntity);
+        mDatabaseStrategy.deleteTaskRecord(recordEntity);
     }
 
     @Override
     public void cleanTaskRecord() {
-        mDatabase.cleanTaskRecord();
+        mDatabaseStrategy.cleanTaskRecord();
     }
 
     @Nullable
     @Override
     public List<TaskRecordEntity> loadAllTaskRecord() {
         LogUtils.d("加载当前本地未完成的缓存任务");
-        return mDatabase.loadAllTaskRecord();
+        return mDatabaseStrategy.loadAllTaskRecord();
     }
 
     @Override
+    @Nullable
     public TaskRecordEntity obtainTaskRecordById(String id) {
-        return mDatabase.obtainTaskRecordById(id);
+        return mDatabaseStrategy.obtainTaskRecordById(id);
     }
 }
