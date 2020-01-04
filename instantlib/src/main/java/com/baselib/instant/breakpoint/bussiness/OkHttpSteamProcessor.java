@@ -83,18 +83,13 @@ public class OkHttpSteamProcessor implements StreamProcessor {
 //            当前分段文件的写入的位置
             long currentRangeFileIndex = 0;
 
-//            long millis = SystemClock.uptimeMillis();
             while ((length = is.read(buffer)) > 0) {
                 tmpAccessFile.write(buffer, 0, length);
 //                更新本次已下载长度
                 currentDownloadLength += length;
 //                更新当前分段文件的已下载的长度,即文件实际下载起点加已下载长度
                 currentRangeFileIndex = startIndex + currentDownloadLength;
-                downloadListener.updateRangeProgress(currentRangeFileIndex);
-
-//                if (SystemClock.uptimeMillis() - millis >= 1000) {
-//                    millis = SystemClock.uptimeMillis();
-//                }
+                downloadListener.updateRangeProgress(currentDownloadLength,currentRangeFileIndex);
             }
 
 //            分段任务下载完成

@@ -34,6 +34,7 @@ public class DataBaseRepository implements DatabaseOperate {
 
     @Override
     public void updateTaskRecord(TaskRecordEntity recordEntity) {
+        LogUtils.d("更新任务内容到"+recordEntity.getId()+"任务的记录里"+recordEntity.getCurrentSize());
         mDatabaseStrategy.updateTaskRecord(recordEntity);
     }
 
@@ -41,7 +42,7 @@ public class DataBaseRepository implements DatabaseOperate {
     public void updateTaskRecord(int taskId, String currentSize) {
         final long millis = System.currentTimeMillis();
         if (millis - mUptimeMillis >= TimeUnit.SECONDS.toMillis(BreakPointConst.DATABASE_UPDATE_INTERVAL)) {
-            LogUtils.i("更新当前进度到"+taskId+"任务的记录里"+currentSize);
+//            LogUtils.i("更新当前进度到"+taskId+"任务的记录里"+currentSize);
             mUptimeMillis = millis;
             mDatabaseStrategy.updateTaskRecord(taskId, currentSize);
         }

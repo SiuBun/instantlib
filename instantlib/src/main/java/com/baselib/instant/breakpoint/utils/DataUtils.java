@@ -82,8 +82,8 @@ public class DataUtils {
      * @param contentLength 文件长度
      * @param threadId      线程下标
      */
-    public static long getTheoryStartIndex(long contentLength, int threadId) {
-        return contentLength / BreakPointConst.DEFAULT_THREAD_COUNT * threadId;
+    public static long getTheoryStartIndex(long contentLength, int threadCount,int threadId) {
+        return contentLength / threadCount * threadId;
     }
 
     /**
@@ -92,11 +92,11 @@ public class DataUtils {
      * @param contentLength 文件长度
      * @param threadId      线程下标
      */
-    public static long getTheoryEndIndex(long contentLength, int threadId) {
-        final long segmentSize = contentLength / BreakPointConst.DEFAULT_THREAD_COUNT;
+    public static long getTheoryEndIndex(long contentLength,int threadCount, int threadId) {
+        final long segmentSize = contentLength / threadCount;
         long endIndex;
         // 如果是最后一个线程,将剩下的文件全部交给这个线程完成
-        if (threadId == BreakPointConst.DEFAULT_THREAD_COUNT - 1) {
+        if (threadId == threadCount - 1) {
             endIndex = contentLength;
         } else {
             endIndex = (threadId + 1) * segmentSize;

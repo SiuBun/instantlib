@@ -36,7 +36,8 @@ public class BreakPointDownloader {
 
     private final DownloadExecutor mExecutor = new DownloadExecutor();
 
-    private final BusinessHandler mHandler = new BusinessHandler(Looper.getMainLooper(), msg -> {});
+    private final BusinessHandler mHandler = new BusinessHandler(Looper.getMainLooper(), msg -> {
+    });
 
     /**
      * 执行指定下载任务
@@ -56,12 +57,12 @@ public class BreakPointDownloader {
         final PreloadListener preloadListener = new PreloadListener() {
             @Override
             public void preloadFail(String message) {
-                mainThreadExecute(()-> task.onTaskPreloadFail("预加载失败," + message));
+                mainThreadExecute(() -> task.onTaskPreloadFail("预加载失败," + message));
             }
 
             @Override
             public void preloadSuccess(String realDownloadUrl) {
-                mainThreadExecute(()-> task.onTaskPreloadSuccess(realDownloadUrl));
+                mainThreadExecute(() -> task.onTaskPreloadSuccess(realDownloadUrl));
                 getFileStream(task, realDownloadUrl);
             }
         };
@@ -74,13 +75,14 @@ public class BreakPointDownloader {
 
                 @Override
                 public void getFileStreamFail(String msg) {
-                    mainThreadExecute(()-> task.onTaskDownloadError("文件流获取出错: " + msg));
+                    mainThreadExecute(() -> task.onTaskDownloadError("文件流获取出错: " + msg));
                 }
 
                 @Override
                 public void getFileStreamSuccess(long contentLength, InputStream byteStream) {
-                    mainThreadExecute(()-> task.onTaskDownloadStart(downloadUrl));
+                    mainThreadExecute(() -> task.onTaskDownloadStart(downloadUrl));
 
+//                    文件分段下载方案
                     task.parseSegment(contentLength, getSegmentTaskEvaluator(task, downloadUrl));
                 }
             };
@@ -88,21 +90,33 @@ public class BreakPointDownloader {
             mStreamProcessor.getCompleteFileStream(downloadUrl, streamListener);
         } catch (Exception e) {
             e.printStackTrace();
-            mainThreadExecute(()-> task.onTaskDownloadError(e.getMessage()));
+            mainThreadExecute(() -> task.onTaskDownloadError(e.getMessage()));
         }
     }
 
     @NotNull
     private Task.SegmentTaskEvaluator getSegmentTaskEvaluator(Task task, String downloadUrl) {
-        return (threadId, start, end) -> asyncExecute(getSegmentRunnable(threadId, start, end, downloadUrl, task));
+        return new Task.SegmentTaskEvaluator() {
+            @Override
+            public void startSegmentDownload(int threadId, long start, long end) {
+                RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(threadId, start, end);
+                asyncExecute(
+                        getSegmentRunnable(start, end, downloadUrl, task, rangeDownloadListener)
+                );
+            }
+
+            @Override
+            public RangeDownloadListener getRangeDownloadListener(int threadId, long start, long end) {
+                return buildRangeDownloadListener(task, threadId, start, end);
+            }
+        };
     }
 
     @NotNull
-    private Runnable getSegmentRunnable(int threadId, long start, long end, String downloadUrl, Task task) {
+    private Runnable getSegmentRunnable(long start, long end, String downloadUrl, Task task, RangeDownloadListener rangeDownloadListener) {
         return () -> {
-            final RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(task, threadId, start, end);
             try {
-                mStreamProcessor.downloadRangeFile(downloadUrl, task.getTmpAccessFile(), start, end, rangeDownloadListener);
+                mStreamProcessor.downloadRangeFile(downloadUrl, task.getTmpFile(), start, end, rangeDownloadListener);
             } catch (Exception e) {
                 e.printStackTrace();
                 rangeDownloadListener.rangeDownloadFail(e.getMessage());
@@ -111,32 +125,30 @@ public class BreakPointDownloader {
     }
 
     @NotNull
-    private RangeDownloadListener getRangeDownloadListener(Task task, int threadId, long realStartIndex, long realEndIndex) {
+    private RangeDownloadListener buildRangeDownloadListener(Task task, int threadId, long realStartIndex, long realEndIndex) {
         return new RangeDownloadListener() {
             @Override
             public void rangeDownloadFail(String msg) {
-                mainThreadExecute(()-> task.onTaskDownloadError(threadId + "分段任务下载过程出错," + msg));
+                mainThreadExecute(() -> task.onTaskDownloadError(threadId + "分段任务下载过程出错," + msg));
             }
 
             @Override
             public void rangeDownloadFinish(long currentDownloadLength, long currentRangeFileLength) {
-                LogUtils.d(String.format(Locale.SIMPLIFIED_CHINESE, "%1d分段任务下载完成,线程的任务起点为%2d-本次共下载%3d byte,写至文件%4d处,分段文件总byte大小%5d",
+                LogUtils.d(String.format(Locale.SIMPLIFIED_CHINESE, "%1d分段任务下载完成,线程的任务从%2d处续写-本次共下载%3d byte,内容最后写入了文件%4d下标,该分段文件总byte大小%5d",
                         threadId,
                         realStartIndex,
                         currentDownloadLength,
-                        realEndIndex,
+                        realStartIndex+currentDownloadLength-1,
                         task.getSegmentFileSize(threadId)
                 ));
                 LogUtils.i(threadId + "线程代表的下载任务完成");
+                mDatabaseRepository.updateTaskRecord(task.parseToRecord());
                 task.getCountDownLatch().countDown();
             }
 
             @Override
-            public void updateRangeProgress(long rangeFileDownloadIndex) {
-                // 分段任务已下载长度
-                final long length = rangeFileDownloadIndex - realStartIndex;
-                mainThreadExecute(()-> task.onRangeFileProgressUpdate(threadId, length));
-
+            public void updateRangeProgress(long currentDownloadLength,long rangeFileDownloadIndex) {
+                mainThreadExecute(() -> task.onRangeFileProgressUpdate(threadId, rangeFileDownloadIndex));
             }
         };
     }

@@ -26,8 +26,9 @@ public interface RangeDownloadListener {
     /**
      * 下载进度更新
      *
+     * @param currentDownloadLength 分段文件本次下载长度
      * @param rangeFileDownloadIndex 当前分段文件的写入的位置
      * @throws IOException 下载过程中可能出现未捕获的异常需要进行处理
      */
-    void updateRangeProgress(long rangeFileDownloadIndex) throws IOException;
+    void updateRangeProgress(long currentDownloadLength,long rangeFileDownloadIndex) throws IOException;
 }
