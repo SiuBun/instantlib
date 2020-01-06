@@ -2,6 +2,8 @@ package com.baselib.instant.breakpoint.utils;
 
 import com.baselib.instant.util.LogUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
@@ -74,6 +76,11 @@ public class DataUtils {
             hex.append(Integer.toHexString(b & 0xFF));
         }
         return hex.toString();
+    }
+
+    @NotNull
+    public static String getThreadCacheStr(int threadId) {
+        return "thread_" + threadId;
     }
 
     /**

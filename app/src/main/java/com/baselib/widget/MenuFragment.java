@@ -46,6 +46,39 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initData() {
+//        final Task task = new Task.Builder().setTaskUrl("http://ucan.25pp.com/Wandoujia_web_seo_baidu_homepage.apk").setTaskFileDir(getContext().getCacheDir().getAbsolutePath()).setTaskFileName("666.apk").build();
+//        task.addTaskListener(new TaskPostListener() {
+//            @Override
+//            public void postNewTaskSuccess(int taskId) {
+//
+//            }
+//
+//            @Override
+//            public void onTaskDownloadError(String message) {
+//                LogUtils.i("默认任务下载出错");
+//            }
+//
+//            @Override
+//            public void onTaskProgressUpdate(long taskTotalSize, long length) {
+//
+//            }
+//
+//            @Override
+//            public void onTaskDownloadFinish() {
+//                LogUtils.i("默认任务下载完成");
+//            }
+//
+//            @Override
+//            public void onTaskCancel() {
+//
+//            }
+//
+//            @Override
+//            public void onTaskDownloadStart(String downloadUrl) {
+//
+//            }
+//        });
+//        BreakPointHelper.getInstance().postTask(getContext(), task);
 
     }
 

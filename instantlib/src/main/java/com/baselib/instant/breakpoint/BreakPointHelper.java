@@ -57,7 +57,7 @@ public class BreakPointHelper {
 
             for (Map.Entry<Integer, Task> entry : taskMap.entrySet()) {
                 final Task task = entry.getValue();
-                if (task.incompleteState()){
+                if (task.incompleteState()) {
                     task.addTaskListener(getDatabaseTaskListener(task));
                 }
                 mTaskMap.put(entry.getKey(), task);

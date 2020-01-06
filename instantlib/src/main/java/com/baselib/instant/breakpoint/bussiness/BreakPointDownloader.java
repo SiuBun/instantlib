@@ -9,6 +9,7 @@ import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
 import com.baselib.instant.breakpoint.operate.FileStreamListener;
 import com.baselib.instant.breakpoint.operate.PreloadListener;
 import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
+import com.baselib.instant.breakpoint.operate.SegmentTaskEvaluator;
 import com.baselib.instant.breakpoint.operate.StreamProcessor;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
 import com.baselib.instant.manager.BusinessHandler;
@@ -48,7 +49,7 @@ public class BreakPointDownloader {
      * <p>
      * 2.请求文件流得知完整文件大小{@link #getFileStream(Task, String)},创建占位文件并明确分段下载起始点
      * <p>
-     * 3.解析文件流开始分段下载任务{@link Task#parseSegment(long, Task.SegmentTaskEvaluator)}
+     * 3.解析文件流开始分段下载任务{@link Task#parseSegment(long, SegmentTaskEvaluator)}
      *
      * @param context 上下文
      * @param task    任务对象
@@ -95,8 +96,8 @@ public class BreakPointDownloader {
     }
 
     @NotNull
-    private Task.SegmentTaskEvaluator getSegmentTaskEvaluator(Task task, String downloadUrl) {
-        return new Task.SegmentTaskEvaluator() {
+    private SegmentTaskEvaluator getSegmentTaskEvaluator(Task task, String downloadUrl) {
+        return new SegmentTaskEvaluator() {
             @Override
             public void startSegmentDownload(int threadId, long start, long end) {
                 RangeDownloadListener rangeDownloadListener = getRangeDownloadListener(threadId, start, end);
@@ -138,16 +139,16 @@ public class BreakPointDownloader {
                         threadId,
                         realStartIndex,
                         currentDownloadLength,
-                        realStartIndex+currentDownloadLength-1,
+                        realStartIndex + currentDownloadLength - 1,
                         task.getSegmentFileSize(threadId)
                 ));
                 LogUtils.i(threadId + "线程代表的下载任务完成");
-                mDatabaseRepository.updateTaskRecord(task.parseToRecord());
+                mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task));
                 task.getCountDownLatch().countDown();
             }
 
             @Override
-            public void updateRangeProgress(long currentDownloadLength,long rangeFileDownloadIndex) {
+            public void updateRangeProgress(long currentDownloadLength, long rangeFileDownloadIndex) {
                 mainThreadExecute(() -> task.onRangeFileProgressUpdate(threadId, rangeFileDownloadIndex));
             }
         };
@@ -180,11 +181,11 @@ public class BreakPointDownloader {
     }
 
     public void onNewTaskAdd(Task task) {
-        asyncExecute(() -> mDatabaseRepository.addTaskRecord(task.parseToRecord()));
+        asyncExecute(() -> mDatabaseRepository.addTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
     public void deleteTaskRecord(Task task) {
-        asyncExecute(() -> mDatabaseRepository.deleteTaskRecord(task.parseToRecord()));
+        asyncExecute(() -> mDatabaseRepository.deleteTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
     public void onTaskProgressUpdateById(Task task) {
@@ -192,7 +193,7 @@ public class BreakPointDownloader {
     }
 
     public void onTaskDownloadError(Task task) {
-        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.parseToRecord()));
+        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
     /**
