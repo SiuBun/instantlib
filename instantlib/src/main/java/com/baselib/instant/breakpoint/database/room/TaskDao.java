@@ -24,7 +24,7 @@ public interface TaskDao {
     List<TaskRecordEntity> loadAllTaskRecord();
 
     @Query("SELECT * from download_task_record_table WHERE task_id= :id")
-    TaskRecordEntity obtainTaskRecordById(String id);
+    TaskRecordEntity obtainTaskRecordById(int id);
 
     @Delete
     void deleteTaskRecord(TaskRecordEntity recordEntity);

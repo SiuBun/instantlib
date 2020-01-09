@@ -64,5 +64,5 @@ public interface DatabaseOperate {
      * @return 从数据库中查找到的任务条目
      */
     @Nullable
-    TaskRecordEntity obtainTaskRecordById(String id);
+    TaskRecordEntity obtainTaskRecordById(int id);
 }

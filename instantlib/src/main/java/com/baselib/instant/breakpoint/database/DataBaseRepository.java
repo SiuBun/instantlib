@@ -29,12 +29,18 @@ public class DataBaseRepository implements DatabaseOperate {
 
     @Override
     public void addTaskRecord(TaskRecordEntity recordEntity) {
-        mDatabaseStrategy.addTaskRecord(recordEntity);
+        final int id = recordEntity.getId();
+        if (null == mDatabaseStrategy.obtainTaskRecordById(id)) {
+            LogUtils.i("本地不存在该id"+id+",插入新条目");
+            mDatabaseStrategy.addTaskRecord(recordEntity);
+        } else {
+            LogUtils.i("本地已存在id条目"+id+",不重复插入");
+        }
     }
 
     @Override
     public void updateTaskRecord(TaskRecordEntity recordEntity) {
-        LogUtils.d("更新任务内容到"+recordEntity.getId()+"任务的记录里"+recordEntity.getCurrentSize());
+        LogUtils.i("更新任务内容到" + recordEntity.getId() + "任务的记录里" + recordEntity.getCurrentSize());
         mDatabaseStrategy.updateTaskRecord(recordEntity);
     }
 
@@ -67,7 +73,7 @@ public class DataBaseRepository implements DatabaseOperate {
 
     @Override
     @Nullable
-    public TaskRecordEntity obtainTaskRecordById(String id) {
+    public TaskRecordEntity obtainTaskRecordById(int id) {
         return mDatabaseStrategy.obtainTaskRecordById(id);
     }
 }

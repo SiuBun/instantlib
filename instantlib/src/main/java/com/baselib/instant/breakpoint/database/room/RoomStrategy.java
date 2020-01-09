@@ -56,7 +56,7 @@ public class RoomStrategy implements DatabaseOperate {
     }
 
     @Override
-    public TaskRecordEntity obtainTaskRecordById(String id) {
+    public TaskRecordEntity obtainTaskRecordById(int id) {
         return mTaskDao.obtainTaskRecordById(id);
     }
 }
