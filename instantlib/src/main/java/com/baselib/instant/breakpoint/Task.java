@@ -229,16 +229,6 @@ public class Task implements TaskListenerOperate {
     }
 
     /**
-     * 任务取消通知所有监听对象
-     */
-    public void onTaskCancel() {
-        setTaskState(BreakPointConst.DOWNLOAD_CANCEL);
-        for (TaskPostListener listener : mTaskListenerSet) {
-            listener.onTaskCancel();
-        }
-    }
-
-    /**
      * 任务下载过程出错,通知所有监听对象
      *
      * @param message 附带消息
@@ -262,14 +252,37 @@ public class Task implements TaskListenerOperate {
     }
 
     /**
+     * 任务取消通知所有监听对象
+     */
+    public void onTaskCancel() {
+        setTaskState(BreakPointConst.DOWNLOAD_CANCEL);
+        if (mProgressInfo.deleteFile()) {
+            for (TaskPostListener listener : mTaskListenerSet) {
+                listener.onTaskCancel();
+            }
+        }
+    }
+
+    /**
+     * 下载暂停通知所有监听对象
+     */
+    public void onTaskPause() {
+        setTaskState(BreakPointConst.DOWNLOAD_PAUSE);
+        for (TaskPostListener listener : mTaskListenerSet) {
+            listener.onTaskPause();
+        }
+    }
+
+    /**
      * 下载开始通知所有监听对象
      *
-     * @param downloadUrl 从该链接处进行真正的文件下载
+     * @param downloadUrl   从该链接处进行真正的文件下载
+     * @param contentLength
      */
-    public void onTaskDownloadStart(String downloadUrl) {
+    public void onTaskDownloadStart(String downloadUrl, long contentLength) {
         setTaskState(BreakPointConst.DOWNLOAD_START);
         for (TaskPostListener listener : mTaskListenerSet) {
-            listener.onTaskDownloadStart(downloadUrl);
+            listener.onTaskDownloadStart(downloadUrl, contentLength);
         }
     }
 
@@ -290,12 +303,16 @@ public class Task implements TaskListenerOperate {
 
     private void requestDownloadSuccess() {
         setTaskState(BreakPointConst.DOWNLOAD_SUCCESS);
-        if (mProgressInfo.renameFile(getTaskFileDir(),getTaskFileName())) {
-            for (TaskPostListener listener : mTaskListenerSet) {
-                listener.onTaskDownloadFinish();
-            }
+        if (mProgressInfo.renameFile(getTaskFileDir(), getTaskFileName())) {
+            onTaskDownloadFinish();
         } else {
             LogUtils.e("文件下载完成时修改名称失败");
+        }
+    }
+
+    public void onTaskDownloadFinish() {
+        for (TaskPostListener listener : mTaskListenerSet) {
+            listener.onTaskDownloadFinish();
         }
     }
 
@@ -346,7 +363,8 @@ public class Task implements TaskListenerOperate {
             getCountDownLatch().await();
             LogUtils.d("该下载任务所有分段任务结束");
 
-            requestDownloadSuccess();
+            creator.requestDownloadSuccess();
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -384,7 +402,7 @@ public class Task implements TaskListenerOperate {
         return DataUtils.getTheoryEndIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId) - DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId) + 1;
     }
 
-    boolean incompleteState() {
+    public boolean incompleteState() {
         return getTaskState() != BreakPointConst.DOWNLOAD_SUCCESS;
     }
 
@@ -431,6 +449,11 @@ public class Task implements TaskListenerOperate {
     private int getDownloadThreadCount() {
         return mProgressInfo.getDownloadThreadCount();
     }
+
+    public boolean canWrite() {
+        return getTaskState() != BreakPointConst.DOWNLOAD_PAUSE && getTaskState() != BreakPointConst.DOWNLOAD_CANCEL;
+    }
+
 
     /**
      * 对外暴露的任务构建类

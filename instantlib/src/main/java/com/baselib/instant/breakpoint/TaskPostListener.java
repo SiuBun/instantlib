@@ -51,6 +51,12 @@ public interface TaskPostListener {
      * 任务下载开始
      *
      * @param downloadUrl 最终下载文件的链接
+     * @param contentLength
      */
-    void onTaskDownloadStart(String downloadUrl);
+    void onTaskDownloadStart(String downloadUrl, long contentLength);
+
+    /**
+     * 任务下载暂停
+     * */
+    void onTaskPause();
 }

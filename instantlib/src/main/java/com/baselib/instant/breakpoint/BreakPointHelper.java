@@ -161,8 +161,13 @@ public class BreakPointHelper {
             }
 
             @Override
-            public void onTaskDownloadStart(String downloadUrl) {
+            public void onTaskDownloadStart(String downloadUrl, long contentLength) {
 
+            }
+
+            @Override
+            public void onTaskPause() {
+                mBreakPointDownloader.onTaskProgressUpdateById(t);
             }
         };
     }
@@ -194,6 +199,21 @@ public class BreakPointHelper {
     }
 
     /**
+     * 根据任务id从列表中暂停指定任务
+     *
+     * @param taskId 任务id
+     * @return true 代表操作成功
+     */
+    public boolean pauseTask(int taskId) {
+        AtomicBoolean result = new AtomicBoolean(false);
+        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), data -> {
+            data.onTaskPause();
+            result.set(true);
+        });
+        return result.get();
+    }
+
+    /**
      * 根据任务id从列表中移除
      * <p>
      * 和{@link #postTask(Context, Task)}相对应
@@ -204,13 +224,11 @@ public class BreakPointHelper {
     public boolean removeTask(int taskId) {
         synchronized (mTaskLock) {
             AtomicBoolean removeResult = new AtomicBoolean(false);
-            DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> {
-                mBreakPointDownloader.mainThreadExecute(() -> {
-                    task.onTaskCancel();
-                    task.cleanTaskListener();
-                    removeResult.set(mTaskMap.remove(taskId) != null);
-                });
-            });
+            DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> mBreakPointDownloader.mainThreadExecute(() -> {
+                task.onTaskCancel();
+                task.cleanTaskListener();
+                removeResult.set(mTaskMap.remove(taskId) != null);
+            }));
             return removeResult.get();
         }
     }
@@ -246,7 +264,19 @@ public class BreakPointHelper {
     }
 
     private boolean taskDuplicate(Task task) {
-        return mTaskMap.containsKey(task.getTaskId());
+        return taskExist(task.getTaskId());
+    }
+
+    private boolean taskExist(int taskId) {
+        return mTaskMap.containsKey(taskId);
+    }
+
+    public String getTaskPath(int taskId) {
+        AtomicReference<String> path = new AtomicReference<>("");
+        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId),task->{
+            path.set(task.getTaskPath());
+        });
+        return path.get();
     }
 
     private static class Provider {

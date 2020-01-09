@@ -31,4 +31,11 @@ public interface RangeDownloadListener {
      * @throws IOException 下载过程中可能出现未捕获的异常需要进行处理
      */
     void updateRangeProgress(long currentDownloadLength, long rangeFileDownloadIndex) throws IOException;
+
+    /**
+     * 当前是否能继续文件流写入
+     *
+     * @return true代表可以保持写入行为
+     * */
+    boolean canWrite();
 }

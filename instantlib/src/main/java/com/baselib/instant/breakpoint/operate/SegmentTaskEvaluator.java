@@ -26,4 +26,9 @@ public interface SegmentTaskEvaluator {
      * @return 分段下载监听
      */
     RangeDownloadListener getRangeDownloadListener(int threadId, long start, long end);
+
+    /**
+     * 请求下载完成回调
+     * */
+    void requestDownloadSuccess();
 }

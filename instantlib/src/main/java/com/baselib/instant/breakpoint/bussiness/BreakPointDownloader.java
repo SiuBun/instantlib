@@ -55,19 +55,24 @@ public class BreakPointDownloader {
      * @param task    任务对象
      */
     public void executeTask(Context context, Task task) {
-        final PreloadListener preloadListener = new PreloadListener() {
-            @Override
-            public void preloadFail(String message) {
-                mainThreadExecute(() -> task.onTaskPreloadFail("预加载失败," + message));
-            }
+        if (task.incompleteState()) {
+            final PreloadListener preloadListener = new PreloadListener() {
+                @Override
+                public void preloadFail(String message) {
+                    mainThreadExecute(() -> task.onTaskPreloadFail("预加载失败," + message));
+                }
 
-            @Override
-            public void preloadSuccess(String realDownloadUrl) {
-                mainThreadExecute(() -> task.onTaskPreloadSuccess(realDownloadUrl));
-                getFileStream(task, realDownloadUrl);
-            }
-        };
-        asyncExecute(task.preload(preloadListener));
+                @Override
+                public void preloadSuccess(String realDownloadUrl) {
+                    mainThreadExecute(() -> task.onTaskPreloadSuccess(realDownloadUrl));
+                    getFileStream(task, realDownloadUrl);
+                }
+            };
+            asyncExecute(task.preload(preloadListener));
+        } else {
+            mainThreadExecute(task::onTaskDownloadFinish);
+
+        }
     }
 
     private void getFileStream(Task task, String downloadUrl) {
@@ -81,7 +86,7 @@ public class BreakPointDownloader {
 
                 @Override
                 public void getFileStreamSuccess(long contentLength, InputStream byteStream) {
-                    mainThreadExecute(() -> task.onTaskDownloadStart(downloadUrl));
+                    mainThreadExecute(() -> task.onTaskDownloadStart(downloadUrl,contentLength));
 
 //                    文件分段下载方案
                     task.parseSegment(contentLength, getSegmentTaskEvaluator(task, downloadUrl));
@@ -109,6 +114,11 @@ public class BreakPointDownloader {
             @Override
             public RangeDownloadListener getRangeDownloadListener(int threadId, long start, long end) {
                 return buildRangeDownloadListener(task, threadId, start, end);
+            }
+
+            @Override
+            public void requestDownloadSuccess() {
+                mainThreadExecute(task::onTaskDownloadFinish);
             }
         };
     }
@@ -150,6 +160,11 @@ public class BreakPointDownloader {
             @Override
             public void updateRangeProgress(long currentDownloadLength, long rangeFileDownloadIndex) {
                 mainThreadExecute(() -> task.onRangeFileProgressUpdate(threadId, rangeFileDownloadIndex));
+            }
+
+            @Override
+            public boolean canWrite() {
+                return task.canWrite();
             }
         };
     }

@@ -147,11 +147,15 @@ public class ProgressInfo {
     }
 
     public int getTaskState() {
-        return mTaskState;
+        synchronized (mLock){
+            return mTaskState;
+        }
     }
 
     public void setTaskState(int taskState) {
-        this.mTaskState = taskState;
+        synchronized (mLock){
+            this.mTaskState = taskState;
+        }
     }
 
     public CountDownLatch getCountDownLatch() {
@@ -168,5 +172,9 @@ public class ProgressInfo {
 
     public boolean renameFile(String taskFileDir, String taskFileName) {
         return mTmpFile.renameTo(new File(taskFileDir, taskFileName));
+    }
+
+    public boolean deleteFile() {
+        return mTmpFile.exists() && mTmpFile.delete();
     }
 }

@@ -4,11 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.baselib.instant.breakpoint.BreakPointHelper;
-import com.baselib.instant.breakpoint.Task;
-import com.baselib.instant.breakpoint.TaskPostListener;
 import com.baselib.instant.mvp.BaseFragment;
-import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
@@ -107,51 +103,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
         mBtnNetData.setOnClickListener(v -> getPresenter().flatMap());
 
         mBtnBpDownload.setOnClickListener(v -> {
-                    final Task task = new Task.Builder()
-                            .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
-//                            .setTaskFileName("downtask.apk")
-                            .setTaskFileDir(getContext().getFilesDir().getAbsolutePath())
-                            .build();
-
-                    final TaskPostListener taskListener = new TaskPostListener() {
-
-                        @Override
-                        public void postNewTaskSuccess(int taskId) {
-                            mTaskId = taskId;
-                            LogUtils.i("任务添加成功,等待下载,id为" + task);
-                        }
-
-                        @Override
-                        public void onTaskDownloadError(String message) {
-                            LogUtils.e(message);
-                        }
-
-                        @Override
-                        public void onTaskProgressUpdate(long taskTotalSize, long length) {
-//                            LogUtils.i("任务下载进度更新,文件大小为" + taskTotalSize + ",已下载" + length);
-                        }
-
-                        @Override
-                        public void onTaskDownloadFinish() {
-                            LogUtils.i("任务下载完成");
-                        }
-
-                        @Override
-                        public void onTaskCancel() {
-                            LogUtils.i("任务取消");
-                        }
-
-                        @Override
-                        public void onTaskDownloadStart(String downloadUrl) {
-                            LogUtils.i("下载开始,文件来源:" + downloadUrl);
-                        }
-                    };
-
-                    task.addTaskListener(taskListener);
-                    BreakPointHelper.getInstance().postTask(getContext(), task);
-
-//                    LogUtils.i("移除任务结果"+ BreakPointHelper.getInstance().removeTask(mTaskId));
-
+                    startFragmentByClz(R.id.flt_main_root, BreakPointFragment.getInstance());
                 }
         );
 

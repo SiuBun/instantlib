@@ -6,6 +6,7 @@ import com.baselib.instant.breakpoint.operate.FileStreamListener;
 import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
 import com.baselib.instant.breakpoint.operate.StreamProcessor;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
+import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -84,13 +85,21 @@ public class OkHttpSteamProcessor implements StreamProcessor {
             long currentRangeFileIndex = 0;
 
             while ((length = is.read(buffer)) > 0) {
-                tmpAccessFile.write(buffer, 0, length);
+                if (downloadListener.canWrite()) {
+                    tmpAccessFile.write(buffer, 0, length);
 //                更新本次已下载长度
-                currentDownloadLength += length;
+                    currentDownloadLength += length;
 //                更新当前分段文件的已下载的长度,即文件实际下载起点加已下载长度
-                currentRangeFileIndex = startIndex + currentDownloadLength;
-                downloadListener.updateRangeProgress(currentDownloadLength,currentRangeFileIndex);
+                    currentRangeFileIndex = startIndex + currentDownloadLength;
+                    downloadListener.updateRangeProgress(currentDownloadLength, currentRangeFileIndex);
+                } else {
+                    tmpAccessFile.close();
+                    is.close();
+                    body.close();
+                    return;
+                }
             }
+
 
 //            分段任务下载完成
             downloadListener.rangeDownloadFinish(currentDownloadLength, currentRangeFileIndex);
