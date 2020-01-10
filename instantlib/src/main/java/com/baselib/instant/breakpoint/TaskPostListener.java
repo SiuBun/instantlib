@@ -1,5 +1,7 @@
 package com.baselib.instant.breakpoint;
 
+import java.io.File;
+
 /**
  * 任务执行监听
  *
@@ -39,8 +41,10 @@ public interface TaskPostListener {
      * 任务下载完成
      * <p>
      * 所有分段任务下载完成时候回调,客户端可以在方法内执行下载完成操作
+     *
+     * @param file 所下载文件
      */
-    void onTaskDownloadFinish();
+    void onTaskDownloadFinish(File file);
 
     /**
      * 任务取消
@@ -50,13 +54,13 @@ public interface TaskPostListener {
     /**
      * 任务下载开始
      *
-     * @param downloadUrl 最终下载文件的链接
+     * @param downloadUrl   最终下载文件的链接
      * @param contentLength
      */
     void onTaskDownloadStart(String downloadUrl, long contentLength);
 
     /**
      * 任务下载暂停
-     * */
+     */
     void onTaskPause();
 }

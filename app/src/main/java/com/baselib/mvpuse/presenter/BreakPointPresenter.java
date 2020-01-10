@@ -10,6 +10,8 @@ import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.model.BreakPointModel;
 import com.baselib.mvpuse.view.BreakPointView;
 
+import java.io.File;
+
 public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPointModel> implements TaskPostListener {
     @Override
     public BreakPointModel initModel() {
@@ -55,9 +57,9 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
     }
 
     @Override
-    public void onTaskDownloadFinish() {
-        LogUtils.i("任务下载完成");
-        getView().onTaskDownloadFinish(BreakPointHelper.getInstance().getTaskPath(getModel().getTaskId()));
+    public void onTaskDownloadFinish(File file) {
+        LogUtils.i("任务下载完成,得到下载文件"+file);
+        getView().onTaskDownloadFinish(file);
 
 
     }

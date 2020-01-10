@@ -301,7 +301,7 @@ public class Task implements TaskListenerOperate {
     }
 
 
-    private void requestDownloadSuccess() {
+    public void requestDownloadSuccess() {
         setTaskState(BreakPointConst.DOWNLOAD_SUCCESS);
         if (mProgressInfo.renameFile(getTaskFileDir(), getTaskFileName())) {
             onTaskDownloadFinish();
@@ -312,7 +312,7 @@ public class Task implements TaskListenerOperate {
 
     public void onTaskDownloadFinish() {
         for (TaskPostListener listener : mTaskListenerSet) {
-            listener.onTaskDownloadFinish();
+            listener.onTaskDownloadFinish(getTmpFile());
         }
     }
 

@@ -2,6 +2,8 @@ package com.baselib.mvpuse.view;
 
 import com.baselib.instant.mvp.IBaseView;
 
+import java.io.File;
+
 public interface BreakPointView extends IBaseView {
     void onTaskDownloadStart(String downloadUrl, long contentLength);
 
@@ -13,7 +15,7 @@ public interface BreakPointView extends IBaseView {
 
     void onTaskProgressUpdate(long taskTotalSize, long length, int percentage);
 
-    void onTaskDownloadFinish(String taskPath);
+    void onTaskDownloadFinish(File taskFile);
 
 
     void setTextContent(String content);

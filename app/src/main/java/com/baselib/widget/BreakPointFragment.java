@@ -6,7 +6,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baselib.instant.breakpoint.BreakPointHelper;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.DataCheck;
 import com.baselib.instant.util.LogUtils;
@@ -14,6 +13,7 @@ import com.baselib.mvpuse.presenter.BreakPointPresenter;
 import com.baselib.mvpuse.view.BreakPointView;
 import com.baselib.use.R;
 
+import java.io.File;
 import java.util.Locale;
 
 
@@ -54,8 +54,8 @@ public class BreakPointFragment extends BaseFragment<BreakPointPresenter, BreakP
             }
 
             @Override
-            public void onTaskDownloadFinish(String taskPath) {
-                Toast.makeText(getActivity(), "文件下载成功并保存到" + taskPath, Toast.LENGTH_LONG).show();
+            public void onTaskDownloadFinish(File taskFile) {
+                Toast.makeText(getActivity(), "文件下载成功并保存为" + taskFile, Toast.LENGTH_LONG).show();
                 changeProgress(100);
 
                 mBtnPause.setEnabled(false);

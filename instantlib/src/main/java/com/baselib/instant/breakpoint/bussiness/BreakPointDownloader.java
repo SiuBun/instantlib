@@ -71,7 +71,6 @@ public class BreakPointDownloader {
             asyncExecute(task.preload(preloadListener));
         } else {
             mainThreadExecute(task::onTaskDownloadFinish);
-
         }
     }
 
@@ -118,7 +117,7 @@ public class BreakPointDownloader {
 
             @Override
             public void requestDownloadSuccess() {
-                mainThreadExecute(task::onTaskDownloadFinish);
+                mainThreadExecute(task::requestDownloadSuccess);
             }
         };
     }
@@ -156,7 +155,6 @@ public class BreakPointDownloader {
                         realStartIndex + currentDownloadLength - 1,
                         task.getSegmentFileSize(threadId)
                 ));
-                LogUtils.i(threadId + "线程代表的下载任务完成");
                 mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task));
                 rangeDownloadOver();
             }
@@ -216,7 +214,7 @@ public class BreakPointDownloader {
         asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.getTaskId(), task.getTaskCurrentSizeJson()));
     }
 
-    public void onTaskDownloadError(Task task) {
+    public void onTaskDownloadStop(Task task) {
         asyncExecute(() -> mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task)));
     }
 

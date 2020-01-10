@@ -10,6 +10,7 @@ import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -142,7 +143,7 @@ public class BreakPointHelper {
 
             @Override
             public void onTaskDownloadError(String message) {
-                mBreakPointDownloader.onTaskDownloadError(t);
+                mBreakPointDownloader.onTaskDownloadStop(t);
             }
 
             @Override
@@ -151,7 +152,7 @@ public class BreakPointHelper {
             }
 
             @Override
-            public void onTaskDownloadFinish() {
+            public void onTaskDownloadFinish(File file) {
 
             }
 
@@ -167,7 +168,7 @@ public class BreakPointHelper {
 
             @Override
             public void onTaskPause() {
-                mBreakPointDownloader.onTaskProgressUpdateById(t);
+                mBreakPointDownloader.onTaskDownloadStop(t);
             }
         };
     }
