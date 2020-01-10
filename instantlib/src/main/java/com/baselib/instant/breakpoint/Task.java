@@ -361,9 +361,14 @@ public class Task implements TaskListenerOperate {
 
             LogUtils.d("开始执行分段下载,等待分段下载结束");
             getCountDownLatch().await();
-            LogUtils.d("该下载任务所有分段任务结束");
 
-            creator.requestDownloadSuccess();
+            if (canWrite()){
+                LogUtils.d("该下载任务所有分段任务结束");
+                creator.requestDownloadSuccess();
+            }else {
+                LogUtils.d("该下载任务所有分段任务被终止");
+                mProgressInfo.resetCountDown();
+            }
 
 
         } catch (Exception e) {

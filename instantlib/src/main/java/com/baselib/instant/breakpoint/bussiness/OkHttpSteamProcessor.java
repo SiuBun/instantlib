@@ -96,6 +96,7 @@ public class OkHttpSteamProcessor implements StreamProcessor {
                     tmpAccessFile.close();
                     is.close();
                     body.close();
+                    downloadListener.rangeDownloadOver();
                     return;
                 }
             }

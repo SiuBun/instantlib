@@ -86,7 +86,7 @@ public class BreakPointDownloader {
 
                 @Override
                 public void getFileStreamSuccess(long contentLength, InputStream byteStream) {
-                    mainThreadExecute(() -> task.onTaskDownloadStart(downloadUrl,contentLength));
+                    mainThreadExecute(() -> task.onTaskDownloadStart(downloadUrl, contentLength));
 
 //                    文件分段下载方案
                     task.parseSegment(contentLength, getSegmentTaskEvaluator(task, downloadUrl));
@@ -140,7 +140,11 @@ public class BreakPointDownloader {
         return new RangeDownloadListener() {
             @Override
             public void rangeDownloadFail(String msg) {
-                mainThreadExecute(() -> task.onTaskDownloadError(threadId + "分段任务下载过程出错," + msg));
+                mainThreadExecute(() -> {
+                            task.onTaskDownloadError(threadId + "分段任务下载过程出错," + msg);
+                            rangeDownloadOver();
+                        }
+                );
             }
 
             @Override
@@ -154,7 +158,7 @@ public class BreakPointDownloader {
                 ));
                 LogUtils.i(threadId + "线程代表的下载任务完成");
                 mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task));
-                task.getCountDownLatch().countDown();
+                rangeDownloadOver();
             }
 
             @Override
@@ -165,6 +169,11 @@ public class BreakPointDownloader {
             @Override
             public boolean canWrite() {
                 return task.canWrite();
+            }
+
+            @Override
+            public void rangeDownloadOver() {
+                task.getCountDownLatch().countDown();
             }
         };
     }

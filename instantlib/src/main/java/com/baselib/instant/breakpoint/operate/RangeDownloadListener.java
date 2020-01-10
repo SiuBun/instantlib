@@ -38,4 +38,9 @@ public interface RangeDownloadListener {
      * @return true代表可以保持写入行为
      * */
     boolean canWrite();
+
+    /**
+     * 分段任务下载被结束
+     * */
+    void rangeDownloadOver();
 }

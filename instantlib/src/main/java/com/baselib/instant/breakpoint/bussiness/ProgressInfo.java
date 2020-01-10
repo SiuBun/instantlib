@@ -31,7 +31,7 @@ public class ProgressInfo {
      */
     private Map<String, Long> mDownloadFileCache;
 
-    private final CountDownLatch mCountDownLatch;
+    private CountDownLatch mCountDownLatch;
 
     /**
      * 下载的文件,下载完成以前以占位文件形式保存,下载完成后修改文件类型
@@ -41,7 +41,6 @@ public class ProgressInfo {
     public ProgressInfo() {
         mTaskState = BreakPointConst.DOWNLOAD_WAITING;
         mDownloadFileCache = initDownloadFileCache();
-        mCountDownLatch = new CountDownLatch(BreakPointConst.DEFAULT_THREAD_COUNT);
     }
 
     /**
@@ -159,6 +158,9 @@ public class ProgressInfo {
     }
 
     public CountDownLatch getCountDownLatch() {
+        if (mCountDownLatch == null){
+            mCountDownLatch = new CountDownLatch(mDownloadFileCache.size());
+        }
         return mCountDownLatch;
     }
 
@@ -176,5 +178,9 @@ public class ProgressInfo {
 
     public boolean deleteFile() {
         return mTmpFile.exists() && mTmpFile.delete();
+    }
+
+    public void resetCountDown() {
+        mCountDownLatch = null;
     }
 }
