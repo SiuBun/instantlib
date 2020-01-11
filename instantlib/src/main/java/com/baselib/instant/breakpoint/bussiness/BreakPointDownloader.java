@@ -203,7 +203,7 @@ public class BreakPointDownloader {
         });
     }
 
-    public void updateTaskStatus(Task task) {
+    public void addTaskRecord(Task task) {
         asyncExecute(() -> mDatabaseRepository.addTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
@@ -215,7 +215,7 @@ public class BreakPointDownloader {
         asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.getTaskId(), task.getTaskCurrentSizeJson()));
     }
 
-    public void onTaskDownloadStop(Task task) {
+    public void updateTaskStatus(Task task) {
         asyncExecute(() -> mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task)));
     }
 

@@ -286,7 +286,7 @@ public class Task implements TaskListenerOperate {
         }
     }
 
-    public void onStartExecute(){
+    public void onStartExecute() {
         for (TaskPostListener listener : mTaskListenerSet) {
             listener.onStartExecute(getTaskId());
         }
@@ -368,10 +368,10 @@ public class Task implements TaskListenerOperate {
             LogUtils.d("开始执行分段下载,等待分段下载结束");
             getCountDownLatch().await();
 
-            if (canWrite()){
+            if (canWrite()) {
                 LogUtils.d("该下载任务所有分段任务结束");
                 creator.requestDownloadSuccess();
-            }else {
+            } else {
                 LogUtils.d("该下载任务所有分段任务被终止");
                 mProgressInfo.resetCountDown();
             }
@@ -465,6 +465,10 @@ public class Task implements TaskListenerOperate {
         return getTaskState() != BreakPointConst.DOWNLOAD_PAUSE && getTaskState() != BreakPointConst.DOWNLOAD_CANCEL;
     }
 
+    public void setupTaskFile(String fileDir, String fileName) {
+        mProgressInfo.setTmpFile(new File(fileDir, fileName));
+    }
+
 
     /**
      * 对外暴露的任务构建类
@@ -492,6 +496,9 @@ public class Task implements TaskListenerOperate {
                     .setTaskFileDir(recordEntity.getFileDir())
                     .setTaskFileName(recordEntity.getFileName()).build();
             task.setTaskState(recordEntity.getState());
+            if (!task.incompleteState()) {
+                task.setupTaskFile(recordEntity.getFileDir(), recordEntity.getFileName());
+            }
 
             task.changeTaskCurrentSizeFromCache(recordEntity.getCurrentSize());
             task.setTaskFileTotalSize(recordEntity.getTotalSize());
