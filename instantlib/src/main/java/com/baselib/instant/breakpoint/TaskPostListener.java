@@ -52,10 +52,12 @@ public interface TaskPostListener {
     void onTaskCancel();
 
     /**
-     * 任务下载开始
+     * 任务开始下载
+     * <p>
+     * 该方法会在文件流获取完成后被调用
      *
      * @param downloadUrl   最终下载文件的链接
-     * @param contentLength
+     * @param contentLength 最终下载文件的长度
      */
     void onTaskDownloadStart(String downloadUrl, long contentLength);
 
@@ -63,4 +65,13 @@ public interface TaskPostListener {
      * 任务下载暂停
      */
     void onTaskPause();
+
+    /**
+     * 任务开始被执行
+     * <p>
+     * 该任务被添加到任务列表内,客户端可以在该方法内执行任务开始的操作
+     *
+     * @param taskId 任务在列表内的id
+     */
+    void onStartExecute(int taskId);
 }

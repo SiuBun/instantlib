@@ -55,6 +55,7 @@ public class BreakPointDownloader {
      * @param task    任务对象
      */
     public void executeTask(Context context, Task task) {
+        mainThreadExecute(task::onStartExecute);
         if (task.incompleteState()) {
             final PreloadListener preloadListener = new PreloadListener() {
                 @Override
@@ -202,7 +203,7 @@ public class BreakPointDownloader {
         });
     }
 
-    public void onNewTaskAdd(Task task) {
+    public void updateTaskStatus(Task task) {
         asyncExecute(() -> mDatabaseRepository.addTaskRecord(Task.Builder.parseToRecord(task)));
     }
 

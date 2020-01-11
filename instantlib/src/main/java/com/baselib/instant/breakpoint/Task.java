@@ -286,6 +286,12 @@ public class Task implements TaskListenerOperate {
         }
     }
 
+    public void onStartExecute(){
+        for (TaskPostListener listener : mTaskListenerSet) {
+            listener.onStartExecute(getTaskId());
+        }
+    }
+
     /**
      * 当分段文件进度更新的时候调用
      * <p>

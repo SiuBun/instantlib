@@ -138,7 +138,7 @@ public class BreakPointHelper {
             @Override
             public void postNewTaskSuccess(int taskId) {
                 LogUtils.d("数据库插入新条目,id为" + taskId);
-                mBreakPointDownloader.onNewTaskAdd(t);
+                mBreakPointDownloader.updateTaskStatus(t);
             }
 
             @Override
@@ -169,6 +169,11 @@ public class BreakPointHelper {
             @Override
             public void onTaskPause() {
                 mBreakPointDownloader.onTaskDownloadStop(t);
+            }
+
+            @Override
+            public void onStartExecute(int taskId) {
+                mBreakPointDownloader.updateTaskStatus(t);
             }
         };
     }

@@ -18,6 +18,14 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
         return new BreakPointModel();
     }
 
+    @Override
+    public void onPresenterDetach(Context context) {
+        if (BreakPointHelper.getInstance().removeTaskListener(getModel().getTaskId(),this)){
+            LogUtils.i("断点下载界面退出的时候需要移除自身这个监听对象");
+        }
+        super.onPresenterDetach(context);
+    }
+
     public void pauseTask() {
         if (BreakPointHelper.getInstance().pauseTask(getModel().getTaskId())) {
             getView().onTaskPause();
@@ -40,7 +48,6 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
 
     @Override
     public void postNewTaskSuccess(int taskId) {
-        getModel().saveId(taskId);
         LogUtils.i("任务添加成功,等待下载,id为" + taskId);
     }
 
@@ -81,6 +88,11 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
     @Override
     public void onTaskPause() {
         getView().onTaskPause();
+    }
+
+    @Override
+    public void onStartExecute(int taskId) {
+        getModel().saveId(taskId);
     }
 
     public void cancelTask() {

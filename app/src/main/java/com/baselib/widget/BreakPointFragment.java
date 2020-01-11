@@ -58,6 +58,7 @@ public class BreakPointFragment extends BaseFragment<BreakPointPresenter, BreakP
                 Toast.makeText(getActivity(), "文件下载成功并保存为" + taskFile, Toast.LENGTH_LONG).show();
                 changeProgress(100);
 
+                mBtnStart.setEnabled(false);
                 mBtnPause.setEnabled(false);
                 mBtnCancel.setEnabled(false);
             }

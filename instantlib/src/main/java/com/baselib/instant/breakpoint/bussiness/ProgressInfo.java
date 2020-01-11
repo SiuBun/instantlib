@@ -164,19 +164,25 @@ public class ProgressInfo {
         return mCountDownLatch;
     }
 
-    public File getTmpFile() {
+    public synchronized File getTmpFile() {
         return mTmpFile;
     }
 
-    public void setTmpFile(File file) {
+    public synchronized void setTmpFile(File file) {
         mTmpFile = file;
     }
 
-    public boolean renameFile(String taskFileDir, String taskFileName) {
-        return mTmpFile.renameTo(new File(taskFileDir, taskFileName));
+    public synchronized boolean renameFile(String taskFileDir, String taskFileName) {
+        boolean renameFile = false;
+        final File dest = new File(taskFileDir, taskFileName);
+        if(mTmpFile.renameTo(dest)){
+            mTmpFile = dest;
+            renameFile = true;
+        }
+        return renameFile;
     }
 
-    public boolean deleteFile() {
+    public synchronized boolean deleteFile() {
         return mTmpFile.exists() && mTmpFile.delete();
     }
 
