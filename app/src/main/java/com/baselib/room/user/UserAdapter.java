@@ -1,8 +1,6 @@
 package com.baselib.room.user;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +11,10 @@ import com.baselib.use.R;
 import java.util.Collections;
 import java.util.List;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
+public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     private final LayoutInflater mLayoutInflater;
 
@@ -37,10 +37,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        if (!mUserList.isEmpty()){
+        if (!mUserList.isEmpty()) {
             UserEntity userEntity = mUserList.get(i);
             viewHolder.tvName.setText(
-                    userEntity.getUserId()+"_"+userEntity.getUserName()+"_"+userEntity.getPassword()+"_"+userEntity.getUpdateTime()
+                userEntity.getUserId() + "_" + userEntity.getUserName() + "_" + userEntity.getPassword() + "_" +
+                    userEntity.getUpdateTime()
             );
         }
     }
@@ -56,6 +57,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvName;
+
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.textView);

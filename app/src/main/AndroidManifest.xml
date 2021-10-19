@@ -19,6 +19,7 @@
         <activity android:name="com.baselib.mvvmuse.view.activity.MvvmTestActivity" />
         <activity android:name="com.baselib.widget.MainActivity" />
         <activity
+            android:exported="true"
             android:name="com.baselib.widget.SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>

@@ -1,22 +1,22 @@
 package com.baselib.instant.mvvm.view
 
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProviders
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
 import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.CallSuper
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.annotation.CallSuper
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseActivityBinding
 import com.baselib.instant.mvvm.viewmodel.BaseViewModel
@@ -31,7 +31,8 @@ import com.baselib.instant.util.StatusBarUtil
  *
  * @author wsb
  * */
-abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(), IViewOperate, IViewBuilder {
+abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(), IViewOperate,
+    IViewBuilder {
     /**
      * 准备添加的界面
      */
@@ -88,7 +89,8 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
 //        获取页面布局对象,并准备将页面布局对象装入容器内部
         dataBinding = DataBindingUtil.inflate<DB>(layoutInflater, layoutResID, null, false).also {
-            it.root.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            it.root.layoutParams =
+                RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         }
 
         rootDataBinding.root.findViewById<RelativeLayout>(R.id.rlt_container)?.also {
@@ -153,12 +155,12 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
 
     override fun initLoadingView(): View? =
-            findViewById<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
-                getLoadingLayout().takeIf { it > 0 }?.run {
-                    vs.layoutResource = this
-                }
-                vs.inflate()
+        findViewById<ViewStub>(R.id.vs_loading).takeIf { it != null }?.let { vs ->
+            getLoadingLayout().takeIf { it > 0 }?.run {
+                vs.layoutResource = this
             }
+            vs.inflate()
+        }
 
     /**
      * 获取指定的加载阶段布局
@@ -168,12 +170,12 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
     open fun getLoadingLayout(): Int = R.layout.layout_loading_view
 
     override fun initErrorView(): View? =
-            findViewById<ViewStub>(R.id.vs_error_refresh).takeIf { it != null }?.let { vs ->
-                getErrorLayout().takeIf { it > 0 }?.run {
-                    vs.layoutResource = this
-                }
-                vs.inflate()
+        findViewById<ViewStub>(R.id.vs_error_refresh).takeIf { it != null }?.let { vs ->
+            getErrorLayout().takeIf { it > 0 }?.run {
+                vs.layoutResource = this
             }
+            vs.inflate()
+        }
 
 
     /**
@@ -248,7 +250,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
         (viewModel as BaseViewModel<*>)?.apply {
             loadingState.observe(this@AbsMvvmActivity, Observer<Boolean> { loading ->
                 loading?.run {
-                    showOrHide(loadingView,loading)
+                    showOrHide(loadingView, loading)
                     runOnUiThread {
                         animationDrawable?.apply {
                             if (loading) {
@@ -267,17 +269,17 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
             errorState.observe(this@AbsMvvmActivity, Observer<Boolean> {
                 it?.run {
-                    showOrHide(errorView,it)
+                    showOrHide(errorView, it)
                 }
             })
 
             loadedState.observe(this@AbsMvvmActivity, Observer<Boolean> {
                 it?.run {
-                    showOrHide(dataBinding.root,it)
+                    showOrHide(dataBinding.root, it)
                 }
             })
 
-            pageState.observe(this@AbsMvvmActivity,observerStatus())
+            pageState.observe(this@AbsMvvmActivity, observerStatus())
         }
 
     }
@@ -300,7 +302,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      * */
     open fun getDataFromStateBundle(savedInstanceState: Bundle) {}
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         setDataIntoStateBundle(outState)
     }

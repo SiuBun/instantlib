@@ -1,11 +1,10 @@
 package com.baselib.mvvmuse.view.fragment
 
-import android.arch.lifecycle.ViewModelProviders
-import android.os.Bundle
+import androidx.lifecycle.ViewModelProviders
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
-import com.baselib.use.databinding.LayoutFragmentOneBinding
-import com.baselib.use.R
 import com.baselib.mvvmuse.viewmodel.OneFragmentViewModel
+import com.baselib.use.R
+import com.baselib.use.databinding.LayoutFragmentOneBinding
 
 
 class OneFragment : AbsMvvmFragment<LayoutFragmentOneBinding, OneFragmentViewModel>() {

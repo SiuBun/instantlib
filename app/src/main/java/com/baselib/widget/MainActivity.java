@@ -1,11 +1,11 @@
 package com.baselib.widget;
 
-import android.support.v4.app.Fragment;
-
 import com.baselib.instant.mvp.BaseActivity;
-import com.baselib.use.R;
 import com.baselib.mvpuse.presenter.MainPresenter;
 import com.baselib.mvpuse.view.MainView;
+import com.baselib.use.R;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * 示例界面
@@ -21,7 +21,6 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
     @Override
     protected void initData() {
     }
-
 
     @Override
     protected MainView getViewImpl() {
@@ -41,9 +40,9 @@ public class MainActivity extends BaseActivity<MainPresenter, MainView> {
     @Override
     protected void initView() {
         getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.flt_main_root, new MenuFragment())
-                .commit();
+            .beginTransaction()
+            .add(R.id.flt_main_root, new MenuFragment())
+            .commit();
     }
 
     @Override

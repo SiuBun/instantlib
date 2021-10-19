@@ -1,20 +1,19 @@
 package com.baselib.room.user;
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
 
 import com.baselib.instant.mvvm.model.BaseMvvmModel;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import io.reactivex.Flowable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 class RoomModel extends BaseMvvmModel {
     private UserRepository mRepository;
-
 
     RoomModel(Application application) {
         mRepository = new UserRepository(application);

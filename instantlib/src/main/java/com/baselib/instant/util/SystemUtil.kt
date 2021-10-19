@@ -36,51 +36,14 @@ class SystemUtil {
         @SuppressLint("MissingPermission")
         fun getImei(context: Context): String {
             var imeiStr = ""
-            val telephonyManager = context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            val telephonyManager =
+                context.applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             try {
                 imeiStr = telephonyManager.deviceId
             } catch (e: Exception) {
                 LogUtils.e("SystemUtil", "获取IMEI失败:$e")
             }
             return imeiStr
-        }
-
-        /**
-         * @return 获取通信地址
-         */
-        fun getMacAddress(context: Context): String {
-            var macAddress = ""
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            try {
-                macAddress = wifiManager.connectionInfo!!.macAddress
-            } catch (e: Exception) {
-                LogUtils.e("SystemUtil", "获取Mac失败:$e")
-            }
-            return macAddress
-        }
-
-        fun getAdresseMAC(context: Context): String? {
-            val wifiMan = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val wifiInf = wifiMan.connectionInfo
-
-            var result: String? = MARSHMALLOW_MAC_ADDRESS
-            if (wifiInf != null && MARSHMALLOW_MAC_ADDRESS == wifiInf.macAddress) {
-                try {
-                    result = getAddressMacByInterface()
-                    if (result == null) {
-                        result = getAddressMacByFile(wifiMan)
-                    }
-                } catch (e: Exception) {
-                    Log.e("MobileAcces", "Erreur lecture propriete Adresse MAC ")
-                }
-            } else {
-                result = if (wifiInf != null && wifiInf.macAddress != null) {
-                    wifiInf.macAddress
-                } else {
-                    ""
-                }
-            }
-            return result
         }
 
         private fun getAddressMacByInterface(): String? {
@@ -162,7 +125,7 @@ class SystemUtil {
                 while (en.hasMoreElements()) {
                     val intf = en.nextElement()
                     val enumIpAddr = intf
-                            .inetAddresses
+                        .inetAddresses
                     while (enumIpAddr.hasMoreElements()) {
                         val inetAddress = enumIpAddr.nextElement()
                         if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
@@ -223,8 +186,10 @@ class SystemUtil {
         fun getMetaData(context: Context): Bundle? {
             var bundle: Bundle? = null
             try {
-                val appInfo = context.packageManager.getApplicationInfo(context.packageName,
-                        PackageManager.GET_META_DATA)
+                val appInfo = context.packageManager.getApplicationInfo(
+                    context.packageName,
+                    PackageManager.GET_META_DATA
+                )
 
                 if (appInfo?.metaData != null) {
                     bundle = appInfo.metaData

@@ -1,9 +1,9 @@
 package com.baselib.instant.breakpoint.database.room;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 /**
  * room数据库条目实体,不作为下载任务使用
@@ -22,10 +22,10 @@ public class TaskRecordEntity {
 
     @ColumnInfo(name = "task_url")
     private String mUrl;
-    
+
     @ColumnInfo(name = "task_dir")
     private String mFileDir;
-    
+
     @ColumnInfo(name = "task_name")
     private String mFileName;
 
@@ -79,7 +79,6 @@ public class TaskRecordEntity {
         this.mUpdateTime = mUpdateTime;
     }
 
-
     public String getUrl() {
         return mUrl;
     }
@@ -107,14 +106,14 @@ public class TaskRecordEntity {
     @Override
     public String toString() {
         return "TaskRecordEntity{" +
-                "id='" + id + '\'' +
-                ", state=" + state +
-                ", mUrl='" + mUrl + '\'' +
-                ", mFileDir='" + mFileDir + '\'' +
-                ", mFileName='" + mFileName + '\'' +
-                ", mTotalSize=" + mTotalSize +
-                ", mCurrentSize=" + mCurrentSize +
-                ", mUpdateTime=" + mUpdateTime +
-                '}';
+            "id='" + id + '\'' +
+            ", state=" + state +
+            ", mUrl='" + mUrl + '\'' +
+            ", mFileDir='" + mFileDir + '\'' +
+            ", mFileName='" + mFileName + '\'' +
+            ", mTotalSize=" + mTotalSize +
+            ", mCurrentSize=" + mCurrentSize +
+            ", mUpdateTime=" + mUpdateTime +
+            '}';
     }
 }

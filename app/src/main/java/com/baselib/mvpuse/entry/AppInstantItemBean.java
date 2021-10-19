@@ -4,15 +4,16 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
 
 public class AppInstantItemBean implements Comparable {
     private Drawable mAppIcon;
     private String mAppName;
     private int mAppSize;
-    private boolean isSystem=false;
+    private boolean isSystem = false;
     private String mAppPackageName;
     private boolean isRealApp;
 
@@ -94,6 +95,6 @@ public class AppInstantItemBean implements Comparable {
 
     @Override
     public int compareTo(@NonNull Object o) {
-        return ((AppInstantItemBean)o).mAppName.compareTo(this.mAppName);
+        return ((AppInstantItemBean) o).mAppName.compareTo(this.mAppName);
     }
 }

@@ -39,9 +39,7 @@ class NetUtil {
              */
             try {
                 val networkInfo = manager.activeNetworkInfo
-                if (networkInfo.isAvailable) {
-                    available = true
-                }
+                available = networkInfo?.isAvailable == true
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -61,10 +59,10 @@ class NetUtil {
             val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             try {
                 val networkinfo = manager.activeNetworkInfo
-                if (networkinfo.type == ConnectivityManager.TYPE_WIFI) {
+                if (networkinfo?.type == ConnectivityManager.TYPE_WIFI) {
                     networkState = NETWORK_STATE_WIFI
                 } else {
-                    if (networkinfo.type == ConnectivityManager.TYPE_MOBILE) {
+                    if (networkinfo?.type == ConnectivityManager.TYPE_MOBILE) {
                         networkState = when (networkinfo.subtype) {
                             TelephonyManager.NETWORK_TYPE_1xRTT -> NETWORK_STATE_MOBILE_2G
                             TelephonyManager.NETWORK_TYPE_CDMA -> NETWORK_STATE_MOBILE_2G
@@ -135,7 +133,8 @@ class NetUtil {
                 }
 
                 if (networkInfo != null && networkInfo.isConnected
-                        && networkInfo.type == ConnectivityManager.TYPE_WIFI) {
+                    && networkInfo.type == ConnectivityManager.TYPE_WIFI
+                ) {
                     result = true
                 }
             }

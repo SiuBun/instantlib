@@ -1,14 +1,14 @@
 package com.baselib.instant.breakpoint.database.room;
 
-import android.arch.persistence.room.Room;
 import android.content.Context;
-import android.support.annotation.Nullable;
-
 
 import com.baselib.instant.breakpoint.database.DatabaseOperate;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
 
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.room.Room;
 
 /**
  * room数据库方案实现数据库操作
@@ -20,7 +20,8 @@ public class RoomStrategy implements DatabaseOperate {
     private final TaskDao mTaskDao;
 
     public RoomStrategy(Context context) {
-        TaskDatabase taskDatabase = Room.databaseBuilder(context.getApplicationContext(), TaskDatabase.class, BreakPointConst.DB_NAME).build();
+        TaskDatabase taskDatabase = Room
+            .databaseBuilder(context.getApplicationContext(), TaskDatabase.class, BreakPointConst.DB_NAME).build();
         mTaskDao = taskDatabase.getTaskDao();
     }
 

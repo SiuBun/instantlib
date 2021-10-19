@@ -1,7 +1,6 @@
 package com.baselib.instant.breakpoint;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import com.baselib.instant.breakpoint.bussiness.BreakPointDownloader;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
@@ -15,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
+import androidx.annotation.NonNull;
 
 /**
  * 断点下载工具类,对外暴露方法
@@ -97,7 +98,6 @@ public class BreakPointHelper {
         }
     }
 
-
     /**
      * 提交任务
      * <p>
@@ -178,7 +178,6 @@ public class BreakPointHelper {
         };
     }
 
-
     /**
      * 添加任务
      * <p>
@@ -230,11 +229,12 @@ public class BreakPointHelper {
     public boolean removeTask(int taskId) {
         synchronized (mTaskLock) {
             AtomicBoolean removeResult = new AtomicBoolean(false);
-            DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> mBreakPointDownloader.mainThreadExecute(() -> {
-                task.onTaskCancel();
-                task.cleanTaskListener();
-                removeResult.set(mTaskMap.remove(taskId) != null);
-            }));
+            DataCheck
+                .checkNoNullWithCallback(mTaskMap.get(taskId), task -> mBreakPointDownloader.mainThreadExecute(() -> {
+                    task.onTaskCancel();
+                    task.cleanTaskListener();
+                    removeResult.set(mTaskMap.remove(taskId) != null);
+                }));
             return removeResult.get();
         }
     }
@@ -250,7 +250,8 @@ public class BreakPointHelper {
      */
     public boolean removeTaskListener(int taskId, @NonNull TaskPostListener listener) {
         AtomicBoolean removeResult = new AtomicBoolean(false);
-        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> removeResult.set(task.removeTaskListener(listener)));
+        DataCheck
+            .checkNoNullWithCallback(mTaskMap.get(taskId), task -> removeResult.set(task.removeTaskListener(listener)));
         return removeResult.get();
     }
 
@@ -279,7 +280,7 @@ public class BreakPointHelper {
 
     public String getTaskPath(int taskId) {
         AtomicReference<String> path = new AtomicReference<>("");
-        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId),task->{
+        DataCheck.checkNoNullWithCallback(mTaskMap.get(taskId), task -> {
             path.set(task.getTaskPath());
         });
         return path.get();

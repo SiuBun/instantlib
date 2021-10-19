@@ -2,8 +2,6 @@ package com.baselib.instant.breakpoint;
 
 import android.content.Context;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.annotation.WorkerThread;
 import android.text.TextUtils;
 
 import com.baselib.instant.breakpoint.bussiness.ProgressInfo;
@@ -20,6 +18,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.WorkerThread;
 
 /**
  * 下载的任务对象
@@ -87,19 +88,18 @@ public class Task implements TaskListenerOperate {
     @Override
     public String toString() {
         return "Task{" +
-                "mTaskId=" + mTaskId +
-                ", mTaskUrl='" + mTaskUrl + '\'' +
-                ", mTaskFileDir='" + mTaskFileDir + '\'' +
-                ", mTaskFileName='" + mTaskFileName + '\'' +
-                ", mTaskListenerSet='" + mTaskListenerSet + '\'' +
-                '}';
+            "mTaskId=" + mTaskId +
+            ", mTaskUrl='" + mTaskUrl + '\'' +
+            ", mTaskFileDir='" + mTaskFileDir + '\'' +
+            ", mTaskFileName='" + mTaskFileName + '\'' +
+            ", mTaskListenerSet='" + mTaskListenerSet + '\'' +
+            '}';
     }
 
     private Task() {
         mTaskListenerSet = new HashSet<>();
         mProgressInfo = new ProgressInfo();
     }
-
 
     public File getTmpFile() {
         return mProgressInfo.getTmpFile();
@@ -301,11 +301,11 @@ public class Task implements TaskListenerOperate {
      * @param rangeFileDownloadIndex 本次分段任务已下载长度
      */
     public void onRangeFileProgressUpdate(int threadId, long rangeFileDownloadIndex) {
-        long currentRangeLength = rangeFileDownloadIndex - DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId);
+        long currentRangeLength = rangeFileDownloadIndex -
+            DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId);
         changeDownloadCacheById(threadId, currentRangeLength);
         onTaskProgressUpdate(mProgressInfo.getTaskDownloadedLength());
     }
-
 
     public void requestDownloadSuccess() {
         setTaskState(BreakPointConst.DOWNLOAD_SUCCESS);
@@ -387,21 +387,23 @@ public class Task implements TaskListenerOperate {
         // 线程开始下载的位置
         final long startIndex = getDownloadStartIndexById(threadId);
 
-        final long intentStartIndex = DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId);
+        final long intentStartIndex =
+            DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId);
 
         // 线程结束下载的位置
         final long endIndex = DataUtils.getTheoryEndIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId);
 
-        LogUtils.d(threadId + "线程在本次文件下载的理论起点下标为" + intentStartIndex + ",该文件会最后写在" + endIndex + "下标处,本地记录之前已下载了" + getDownloadCacheById(threadId) + " byte");
+        LogUtils.d(threadId + "线程在本次文件下载的理论起点下标为" + intentStartIndex + ",该文件会最后写在" + endIndex + "下标处,本地记录之前已下载了" +
+            getDownloadCacheById(threadId) + " byte");
         if (startIndex == endIndex + 1) {
 //            LogUtils.i(threadId + "不需要再进行重复下载");
-            creator.getRangeDownloadListener(threadId, startIndex, endIndex).rangeDownloadFinish(0L, endIndex - intentStartIndex);
+            creator.getRangeDownloadListener(threadId, startIndex, endIndex)
+                .rangeDownloadFinish(0L, endIndex - intentStartIndex);
         } else {
 //            LogUtils.i(threadId + "在本次下载的实际起点下标为" + startIndex);
             creator.startSegmentDownload(threadId, startIndex, endIndex);
         }
     }
-
 
     /**
      * 根据分段任务id获取该段任务所需下载的文件大小
@@ -410,13 +412,13 @@ public class Task implements TaskListenerOperate {
      * @return 该段任务所需下载的文件大小
      */
     public long getSegmentFileSize(int threadId) {
-        return DataUtils.getTheoryEndIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId) - DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId) + 1;
+        return DataUtils.getTheoryEndIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId) -
+            DataUtils.getTheoryStartIndex(getTaskFileTotalSize(), getDownloadThreadCount(), threadId) + 1;
     }
 
     public boolean incompleteState() {
         return getTaskState() != BreakPointConst.DOWNLOAD_SUCCESS;
     }
-
 
     private void changeTaskCurrentSizeFromCache(String currentSize) {
         mProgressInfo.changeTaskCurrentSizeFromCache(currentSize);
@@ -469,7 +471,6 @@ public class Task implements TaskListenerOperate {
         mProgressInfo.setTmpFile(new File(fileDir, fileName));
     }
 
-
     /**
      * 对外暴露的任务构建类
      * <p>
@@ -492,9 +493,9 @@ public class Task implements TaskListenerOperate {
          */
         public static Task transformRecord(Context context, TaskRecordEntity recordEntity) {
             final Task task = new Builder()
-                    .setTaskUrl(recordEntity.getUrl())
-                    .setTaskFileDir(recordEntity.getFileDir())
-                    .setTaskFileName(recordEntity.getFileName()).build();
+                .setTaskUrl(recordEntity.getUrl())
+                .setTaskFileDir(recordEntity.getFileDir())
+                .setTaskFileName(recordEntity.getFileName()).build();
             task.setTaskState(recordEntity.getState());
             if (!task.incompleteState()) {
                 task.setupTaskFile(recordEntity.getFileDir(), recordEntity.getFileName());

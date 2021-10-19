@@ -1,40 +1,49 @@
 ext {
     version = [
-            androidArchSdkVersion: "1.1.0",
+            lifecycle_version    : "2.3.1",
+            room                 : "2.3.0",
+
             retrofit             : "2.4.0",
             okhttp               : "4.2.0",
-            support              : "28.0.0",
+
+            material             : "1.4.0",
+            appcompatx           : "1.3.1",
     ]
 
     dependence = [
 
-            "lifecycle-compiler"    : "android.arch.lifecycle:compiler:${version["androidArchSdkVersion"]}",
-            "lifecycle-runtime"     : "android.arch.lifecycle:runtime:${version["androidArchSdkVersion"]}",
-            "lifecycle-extensions"  : "android.arch.lifecycle:extensions:${version["androidArchSdkVersion"]}",
-            "lifecycle-common-java8": "android.arch.lifecycle:common-java8:${version["androidArchSdkVersion"]}",
+            "lifecycle-viewmodel"           : "androidx.lifecycle:lifecycle-viewmodel-ktx:${version["lifecycle_version"]}",
+            "lifecycle-livedata"            : "androidx.lifecycle:lifecycle-livedata-ktx:${version["lifecycle_version"]}",
+            "lifecycle-viewmodel-savedstate": "androidx.lifecycle:lifecycle-viewmodel-savedstate:${version["lifecycle_version"]}",
+            // Annotation processor
+            "lifecycle-compiler"            : "androidx.lifecycle:lifecycle-compiler:${version["lifecycle_version"]}",
+            // alternately - if using Java8, use the following instead of lifecycle-compiler
+            "lifecycle-common-java8"        : "androidx.lifecycle:lifecycle-common-java8:${version["lifecycle_version"]}",
 
 //room
-            "room-compiler"         : "android.arch.persistence.room:compiler:${version.androidArchSdkVersion}",
-            "room-runtime"          : "android.arch.persistence.room:runtime:${version.androidArchSdkVersion}",
-            "room-rxjava2"          : "android.arch.persistence.room:rxjava2:${version.androidArchSdkVersion}",
+            "room-compiler"                 : "androidx.room:room-compiler:${version["room"]}",
+            "room-runtime"                  : "androidx.room:room-runtime:${version["room"]}",
+            "room-rxjava2"                  : "androidx.room:room-rxjava2:${version["room"]}",
+            "room-ktx"                      : "androidx.room:room-ktx:${version.room}",
+            "room-testing"                  : "androidx.room:room-testing:${version["room"]}",
 
 //rxjava
-            "rxjava"                : 'io.reactivex.rxjava2:rxjava:2.2.7',
-            "rxandroid"             : 'io.reactivex.rxjava2:rxandroid:2.1.1',
-            "rxadapter"             : "com.squareup.retrofit2:adapter-rxjava2:${version["retrofit"]}",
+            "rxjava"                        : 'io.reactivex.rxjava2:rxjava:2.2.7',
+            "rxandroid"                     : 'io.reactivex.rxjava2:rxandroid:2.1.1',
+            "rxadapter"                     : "com.squareup.retrofit2:adapter-rxjava2:${version["retrofit"]}",
 
 //            gson
-            "gson"                  : "com.google.code.gson:gson:${version["retrofit"]}",
+            "gson"                          : "com.google.code.gson:gson:${version["retrofit"]}",
 
 //            retrofit2
-            "retrofit"              : "com.squareup.retrofit2:retrofit:${version["retrofit"]}",
-            "converter-gson"        : "com.squareup.retrofit2:converter-gson:${version["retrofit"]}",
-            "okio"                  : "com.squareup.okio:okio:${version["retrofit"]}",
-            "okhttp"                : "com.squareup.okhttp3:okhttp:${version["okhttp"]}",
-            "logging-interceptor"   : "com.squareup.okhttp3:logging-interceptor:${version["okhttp"]}",
+            "retrofit"                      : "com.squareup.retrofit2:retrofit:${version["retrofit"]}",
+            "converter-gson"                : "com.squareup.retrofit2:converter-gson:${version["retrofit"]}",
+            "okio"                          : "com.squareup.okio:okio:${version["retrofit"]}",
+            "okhttp"                        : "com.squareup.okhttp3:okhttp:${version["okhttp"]}",
+            "logging-interceptor"           : "com.squareup.okhttp3:logging-interceptor:${version["okhttp"]}",
 
-            "design"                : "com.android.support:design:${version["support"]}",
-            "appcompat"             : "com.android.support:appcompat-v7:${version["support"]}",
+            "material"                      : "com.google.android.material:material:${version["material"]}",
+            "appcompat"                     : "androidx.appcompat:appcompat:${version["appcompatx"]}",
 
     ]
 }

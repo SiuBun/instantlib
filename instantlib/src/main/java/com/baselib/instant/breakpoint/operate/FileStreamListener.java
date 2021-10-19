@@ -1,8 +1,8 @@
 package com.baselib.instant.breakpoint.operate;
 
-import android.support.annotation.WorkerThread;
-
 import java.io.InputStream;
+
+import androidx.annotation.WorkerThread;
 
 /**
  * 文件流获取监听

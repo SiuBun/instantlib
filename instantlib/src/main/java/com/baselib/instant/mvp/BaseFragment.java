@@ -5,20 +5,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 /**
  * 项目中mvp架构的Fragment基类
@@ -48,7 +49,8 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreateView");
         mFragmentView = inflater.inflate(getFragmentLayout(), container, false);
 
@@ -77,7 +79,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      */
     protected abstract V getViewImpl();
 
-
     /**
      * 初始化P层对象
      *
@@ -96,7 +97,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      * @param fragmentView fragment对象所填充的布局
      */
     protected abstract void initFragmentViews(View fragmentView);
-
 
     private void initHandler() {
         mHandler = new BusinessHandler(Looper.getMainLooper(), getHandlerListener());

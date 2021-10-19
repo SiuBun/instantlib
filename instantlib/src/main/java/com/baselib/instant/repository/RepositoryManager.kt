@@ -1,9 +1,9 @@
 package com.baselib.instant.repository
 
 import android.app.Application
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
 import android.content.Context
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.baselib.instant.manager.IRepositoryManager
 import com.baselib.instant.net.provide.ConfigProvider
 import com.baselib.instant.repository.cache.Cache
@@ -34,6 +34,7 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
     }
 
     private val mModuleMap: MutableMap<String, String> = mutableMapOf()
+
     /**
      * 建造工厂示例对象,实例化各个缓存对象
      * */
@@ -68,19 +69,20 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
 
     override fun obtainRetrofit(hostUrl: String): Retrofit {
         return (mRetrofitCache[hostUrl]
-                ?: ConfigProvider.getRetrofitBuilder(hostUrl).build().also { mRetrofitCache.put(hostUrl, it) }) as Retrofit
+            ?: ConfigProvider.getRetrofitBuilder(hostUrl).build().also { mRetrofitCache.put(hostUrl, it) }) as Retrofit
     }
 
     override fun <T> obtainCacheService(retrofit: Retrofit, service: Class<T>): T {
         val key = service::class.java.name + "_" + retrofit.baseUrl()
         return (mRetrofitServiceCache[key]
-                ?: (retrofit.create(service).also { mRetrofitServiceCache.put(key, it) })) as T
+            ?: (retrofit.create(service).also { mRetrofitServiceCache.put(key, it) })) as T
     }
 
     override fun <T : RoomDatabase> obtainDatabase(databaseClz: Class<T>, dbName: String): T {
         val name = databaseClz::class.java.simpleName
         return (mRoomDatabaseCache[name]
-                ?: Room.databaseBuilder(application, databaseClz, dbName).build().also { mRoomDatabaseCache.put(name, it) }) as T
+            ?: Room.databaseBuilder(application, databaseClz, dbName).build()
+                .also { mRoomDatabaseCache.put(name, it) }) as T
     }
 
     fun attachModule(name: String, url: String): RepositoryManager = apply {
@@ -88,7 +90,7 @@ class RepositoryManager private constructor(context: Context) : IRepositoryManag
     }
 
     fun getModuleUrl(moduleName: String): String = mModuleMap[moduleName]
-            ?: throw IllegalAccessException("this module and url not attached")
+        ?: throw IllegalAccessException("this module and url not attached")
 
     override fun onManagerDetach() {
         mRetrofitServiceCache.clear()

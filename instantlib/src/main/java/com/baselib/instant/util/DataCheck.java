@@ -1,12 +1,9 @@
 package com.baselib.instant.util;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
-
 import java.util.Collection;
-import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * 数据检测类
@@ -35,7 +32,7 @@ public class DataCheck {
      * @param data 数据对象
      */
     public static <T> void checkNoNullWithCallback(@Nullable T data, ICheckCallback<T> checkResult) {
-        takeIf(!checkNull(data), (result)-> checkResult.conformExpect(data));
+        takeIf(!checkNull(data), (result) -> checkResult.conformExpect(data));
     }
 
     /**
@@ -46,7 +43,6 @@ public class DataCheck {
     private static <T> boolean checkNull(@Nullable T data) {
         return null == data;
     }
-
 
     /**
      * 当表达式结果满足的时候,执行相关操作
@@ -89,12 +85,11 @@ public class DataCheck {
         return checkNull(collection) || collection.isEmpty();
     }
 
-    public static <T extends Collection>void checkNoEmptyWithCallback(T collection,ICheckCallback<T> checkCallback) {
-        if (!checkEmpty(collection)){
+    public static <T extends Collection> void checkNoEmptyWithCallback(T collection, ICheckCallback<T> checkCallback) {
+        if (!checkEmpty(collection)) {
             checkCallback.conformExpect(collection);
         }
     }
-
 
     /**
      * 工具方法检查结果回调

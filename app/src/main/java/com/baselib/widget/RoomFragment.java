@@ -1,7 +1,5 @@
 package com.baselib.widget;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.support.v7.widget.LinearLayoutManager;
 
 import com.baselib.instant.mvvm.view.AbsMvvmFragment;
 import com.baselib.instant.util.LogUtils;
@@ -14,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class RoomFragment extends AbsMvvmFragment<LayoutFragmentRoomBinding, RoomViewModel> {
 

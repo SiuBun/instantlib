@@ -1,8 +1,8 @@
 package com.baselib.instant.mvvm.viewmodel
 
 import android.app.Application
-import android.arch.lifecycle.*
-import android.support.annotation.CallSuper
+import androidx.annotation.CallSuper
+import androidx.lifecycle.*
 import com.baselib.instant.mvvm.model.IModel
 import com.baselib.instant.util.LogUtils
 import io.reactivex.disposables.CompositeDisposable
@@ -14,8 +14,9 @@ import io.reactivex.disposables.Disposable
  *
  * 只关注M层
  * */
-abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: Application, model: M? = null) : AndroidViewModel(application),
-        DefaultLifecycleObserver, IViewModel {
+abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: Application, model: M? = null) :
+    AndroidViewModel(application),
+    DefaultLifecycleObserver, IViewModel {
 
     protected var model: M? = null
 
@@ -58,7 +59,7 @@ abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: 
         }
     }
 
-    private fun statusEnabled(statuses: Int, status: Int): Boolean = (statuses and status)!= 0
+    private fun statusEnabled(statuses: Int, status: Int): Boolean = (statuses and status) != 0
 //            .apply {LogUtils.d("$statuses 和 $status 与运算为$this")}
 
 

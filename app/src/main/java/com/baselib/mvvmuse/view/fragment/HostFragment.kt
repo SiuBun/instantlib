@@ -1,13 +1,13 @@
 package com.baselib.mvvmuse.view.fragment
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentPagerAdapter
 import android.text.TextUtils
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.ViewModelProviders
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
-import com.baselib.use.R
 import com.baselib.mvvmuse.viewmodel.HostFragmentViewModel
+import com.baselib.use.R
 import com.baselib.use.databinding.LayoutFragmentHostBinding
 
 class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentViewModel>() {
@@ -25,7 +25,8 @@ class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentView
         }
     }
 
-    override fun initViewModel(): HostFragmentViewModel = ViewModelProviders.of(this).get(HostFragmentViewModel::class.java)
+    override fun initViewModel(): HostFragmentViewModel =
+        ViewModelProviders.of(this).get(HostFragmentViewModel::class.java)
 
     override fun getContentLayout(): Int = R.layout.layout_fragment_host
 

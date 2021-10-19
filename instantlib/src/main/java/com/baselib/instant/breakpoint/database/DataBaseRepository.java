@@ -1,7 +1,6 @@
 package com.baselib.instant.breakpoint.database;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import com.baselib.instant.breakpoint.database.room.RoomStrategy;
 import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
@@ -10,6 +9,8 @@ import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.Nullable;
 
 /**
  * 数据库策略管理类
@@ -31,10 +32,10 @@ public class DataBaseRepository implements DatabaseOperate {
     public void addTaskRecord(TaskRecordEntity recordEntity) {
         final int id = recordEntity.getId();
         if (null == mDatabaseStrategy.obtainTaskRecordById(id)) {
-            LogUtils.i("本地不存在该id"+id+",插入新条目");
+            LogUtils.i("本地不存在该id" + id + ",插入新条目");
             mDatabaseStrategy.addTaskRecord(recordEntity);
         } else {
-            LogUtils.i("本地已存在id条目"+id+",不重复插入");
+            LogUtils.i("本地已存在id条目" + id + ",不重复插入");
         }
     }
 

@@ -3,12 +3,13 @@ package com.baselib.instant.mvp;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.LayoutRes;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
+
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * activity基类

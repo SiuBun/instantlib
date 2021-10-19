@@ -45,7 +45,7 @@
                 android:text="@{viewModelInLayout.jump}"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="onJump"
+                android:onClick="@{()->viewModelInLayout.onJumpClick()}"
                 />
         </LinearLayout>
     </FrameLayout>

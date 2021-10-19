@@ -1,7 +1,6 @@
 package com.baselib.widget;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 
 import com.baselib.instant.manager.GlobalManager;
@@ -14,6 +13,8 @@ import com.baselib.mvpuse.view.SplashView;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
 
 /**
  * 示例闪屏界面
@@ -28,34 +29,37 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     protected void initData() {
         SplashModel model = getPresenter().getModel();
 
-        final PermissionsManager manager = (PermissionsManager) GlobalManager.Companion.getManager(GlobalManager.PERMISSION_SERVICE);
+        final PermissionsManager manager =
+            (PermissionsManager) GlobalManager.Companion.getManager(GlobalManager.PERMISSION_SERVICE);
 
-        PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
+        PermissionsManager.IPermissionsCheckCallback checkCallback =
+            new PermissionsManager.IPermissionsCheckCallback() {
 
-            @Override
-            public void onCheckedFinish(String[] permissionsBeDenied) {
-                if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
-                    delayedToJump();
-                } else {
-                    LogUtils.d("被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
-                    repeatPermissionReq(manager,permissionsBeDenied);
+                @Override
+                public void onCheckedFinish(String[] permissionsBeDenied) {
+                    if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
+                        delayedToJump();
+                    } else {
+                        LogUtils.d("被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
+                        repeatPermissionReq(manager, permissionsBeDenied);
+                    }
                 }
-            }
-        };
+            };
         manager.checkPermissions(getActivity(), model.getPermissions(), 1001, checkCallback);
     }
 
-    private void repeatPermissionReq(PermissionsManager manager,String[] permissionsBeDenied) {
-        PermissionsManager.IPermissionsCheckCallback checkCallback = new PermissionsManager.IPermissionsCheckCallback() {
+    private void repeatPermissionReq(PermissionsManager manager, String[] permissionsBeDenied) {
+        PermissionsManager.IPermissionsCheckCallback checkCallback =
+            new PermissionsManager.IPermissionsCheckCallback() {
 
-            @Override
-            public void onCheckedFinish(String[] permissionsBeDenied) {
-                if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
-                    delayedToJump();
+                @Override
+                public void onCheckedFinish(String[] permissionsBeDenied) {
+                    if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
+                        delayedToJump();
+                    }
                 }
-            }
-        };
-        manager.notifyReqPermission(getActivity(),permissionsBeDenied, checkCallback);
+            };
+        manager.notifyReqPermission(getActivity(), permissionsBeDenied, checkCallback);
     }
 
     private void delayedToJump() {
@@ -120,9 +124,11 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        final PermissionsManager manager = (PermissionsManager)GlobalManager.Companion.getManager(GlobalManager.PERMISSION_SERVICE);
+        final PermissionsManager manager =
+            (PermissionsManager) GlobalManager.Companion.getManager(GlobalManager.PERMISSION_SERVICE);
         manager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

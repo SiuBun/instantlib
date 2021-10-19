@@ -1,6 +1,7 @@
 package time;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -12,6 +13,7 @@ public class TestJunitTimeout {
     String message = "Robert";
     MessageUtil messageUtil = new MessageUtil(message);
 
+    @Ignore
     @Test(timeout = 5)
     public void testPrintMessage() {
         System.out.println("Inside testPrintMessage()");

@@ -1,6 +1,6 @@
 package com.baselib.instant.manager
 
-import android.arch.persistence.room.RoomDatabase
+import androidx.room.RoomDatabase
 import retrofit2.Retrofit
 
 /**
@@ -37,6 +37,6 @@ interface IRepositoryManager : IManager {
      * @return Cache Service
      * */
 
-    fun <T> obtainCacheService(retrofit: Retrofit,service: Class<T>): T
+    fun <T> obtainCacheService(retrofit: Retrofit, service: Class<T>): T
 
 }

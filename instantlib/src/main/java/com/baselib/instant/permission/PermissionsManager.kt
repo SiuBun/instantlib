@@ -8,10 +8,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.PermissionChecker
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import com.baselib.instant.manager.IManager
 import com.baselib.instant.util.LogUtils
 import com.baselib.instant.util.SystemUtil
@@ -40,7 +40,12 @@ class PermissionsManager : IManager {
      * @param requestCode 请求内容
      * @param callback    回调[IPermissionsCheckCallback]
      */
-    fun checkPermissions(activity: Activity, permissions: Array<String>, requestCode: Int, callback: IPermissionsCheckCallback) {
+    fun checkPermissions(
+        activity: Activity,
+        permissions: Array<String>,
+        requestCode: Int,
+        callback: IPermissionsCheckCallback
+    ) {
         if (NOTIFY_REQ_CODE == requestCode) {
             LogUtils.d("请不要使用该权限请求码,否则会出现权限重新请求错乱问题")
             return
@@ -108,7 +113,11 @@ class PermissionsManager : IManager {
      * @param activity            展示弹窗的上下文
      * @param permissionsBeDenied 需要重新授权的权限内容
      */
-    fun notifyReqPermission(activity: Activity, permissionsBeDenied: Array<String>, callback: IPermissionsCheckCallback) {
+    fun notifyReqPermission(
+        activity: Activity,
+        permissionsBeDenied: Array<String>,
+        callback: IPermissionsCheckCallback
+    ) {
         //        已勾选禁止,不再询问的权限将保存到该列表
         val list = ArrayList<String>()
         for (permission in permissionsBeDenied) {
@@ -124,7 +133,8 @@ class PermissionsManager : IManager {
                 ActivityCompat.requestPermissions(activity, permissionsBeDenied, NOTIFY_REQ_CODE)
             }
             val negative = DialogInterface.OnClickListener { dialog, _ -> dialog.dismiss() }
-            AlertDialog.Builder(activity).setMessage("已关闭相关权限,可能影响部分功能,是否重新授权").setPositiveButton("重新授权", positive).setNegativeButton("拒绝", negative).create().show()
+            AlertDialog.Builder(activity).setMessage("已关闭相关权限,可能影响部分功能,是否重新授权").setPositiveButton("重新授权", positive)
+                .setNegativeButton("拒绝", negative).create().show()
         } else {
             showSystemPermissionsSettingDialog(activity, permissionsBeDenied)
         }
@@ -141,21 +151,21 @@ class PermissionsManager : IManager {
         val mPackName = activity.packageName
 
         AlertDialog.Builder(activity)
-                .setMessage("已禁用相关权限如下:\n \t " + Arrays.toString(permissionsBeDenied) + "\n 请进入应用权限页手动授予再打开应用")
-                .setPositiveButton("设置") { dialog, _ ->
-                    dialog.dismiss()
+            .setMessage("已禁用相关权限如下:\n \t " + Arrays.toString(permissionsBeDenied) + "\n 请进入应用权限页手动授予再打开应用")
+            .setPositiveButton("设置") { dialog, _ ->
+                dialog.dismiss()
 
-                    val packageURI = Uri.parse("package:$mPackName")
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    activity.startActivity(intent)
-                    activity.finish()
-                }
-                .setNegativeButton("取消") { dialog, _ ->
-                    //关闭页面或者做其他操作
-                    dialog.dismiss()
-                }
-                .create().show()
+                val packageURI = Uri.parse("package:$mPackName")
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                activity.startActivity(intent)
+                activity.finish()
+            }
+            .setNegativeButton("取消") { dialog, _ ->
+                //关闭页面或者做其他操作
+                dialog.dismiss()
+            }
+            .create().show()
     }
 
     /**

@@ -1,12 +1,13 @@
 package com.baselib.room.user;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {UserEntity.class}, version = 1,exportSchema = false)
 public abstract class UserDatabase extends RoomDatabase {
@@ -18,7 +19,8 @@ public abstract class UserDatabase extends RoomDatabase {
         if (null == sUserDatabase) {
             synchronized (UserDatabase.class) {
                 if (null == sUserDatabase) {
-                    sUserDatabase = Room.databaseBuilder(context.getApplicationContext(),UserDatabase.class,"user_database")
+                    sUserDatabase = Room
+                        .databaseBuilder(context.getApplicationContext(),UserDatabase.class,"user_database")
 //                            .addCallback(sRoomDatabaseCallback)
                             .build();
                 }

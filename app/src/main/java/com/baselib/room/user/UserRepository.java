@@ -1,15 +1,15 @@
 package com.baselib.room.user;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
-import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.executor.ThreadExecutorProxy;
+import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.repository.RepositoryManager;
 import com.baselib.instant.util.LogUtils;
 
 import java.util.List;
 
+import androidx.lifecycle.LiveData;
 import io.reactivex.Flowable;
 
 public class UserRepository {
@@ -17,7 +17,7 @@ public class UserRepository {
     private final UserDao mUserDao;
     private ThreadExecutorProxy mThreadManager;
 
-    UserRepository(Context context){
+    UserRepository(Context context) {
         mThreadManager = (ThreadExecutorProxy) GlobalManager.Companion.getManager(GlobalManager.EXECUTOR_POOL_SERVICE);
 
         UserDatabase db = RepositoryManager.getProvider(context).obtainDatabase(UserDatabase.class, "user_database");
@@ -29,7 +29,7 @@ public class UserRepository {
         return mUserDao.getAllUser();
     }
 
-    void insertUser(UserEntity entity){
+    void insertUser(UserEntity entity) {
         mThreadManager.execute(() -> mUserDao.inserUser(entity)
         );
     }

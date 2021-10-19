@@ -1,10 +1,10 @@
 package com.baselib.instant.util;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.baselib.instant.BuildConfig;
 import com.baselib.instant.Const;
+
+import androidx.annotation.NonNull;
 
 /**
  * log工具类

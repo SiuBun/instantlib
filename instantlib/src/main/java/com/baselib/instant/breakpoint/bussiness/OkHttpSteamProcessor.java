@@ -1,12 +1,9 @@
 package com.baselib.instant.breakpoint.bussiness;
 
-import android.support.annotation.WorkerThread;
-
 import com.baselib.instant.breakpoint.operate.FileStreamListener;
 import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
 import com.baselib.instant.breakpoint.operate.StreamProcessor;
 import com.baselib.instant.breakpoint.utils.BreakPointConst;
-import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,8 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.WorkerThread;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -36,8 +33,8 @@ public class OkHttpSteamProcessor implements StreamProcessor {
     @WorkerThread
     public void getCompleteFileStream(String url, FileStreamListener streamListener) {
         Request request = new Request.Builder()
-                .url(url)
-                .build();
+            .url(url)
+            .build();
 
         getHttpClient().newCall(request).enqueue(new Callback() {
             @Override
@@ -62,11 +59,12 @@ public class OkHttpSteamProcessor implements StreamProcessor {
 
     @Override
     @WorkerThread
-    public void downloadRangeFile(String url, File file, long startIndex, long endIndex, RangeDownloadListener downloadListener) throws IOException {
+    public void downloadRangeFile(String url, File file, long startIndex, long endIndex,
+                                  RangeDownloadListener downloadListener) throws IOException {
         Request request = new Request.Builder()
-                .header("RANGE", "bytes=" + startIndex + "-" + endIndex)
-                .url(url)
-                .build();
+            .header("RANGE", "bytes=" + startIndex + "-" + endIndex)
+            .url(url)
+            .build();
 
         final Response response = getHttpClient().newCall(request).execute();
         final ResponseBody body = response.body();
@@ -116,7 +114,7 @@ public class OkHttpSteamProcessor implements StreamProcessor {
 //                    .connectTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
 //                    .readTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
 //                    .callTimeout(BreakPointConst.DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                    .build();
+                .build();
         }
         return mOkHttpClient;
     }

@@ -1,19 +1,19 @@
 package com.baselib.instant.mvvm.view
 
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.Observer
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
-import android.support.annotation.CallSuper
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.annotation.CallSuper
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.Observer
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseFragmentBinding
 import com.baselib.instant.mvvm.viewmodel.BaseViewModel
@@ -73,16 +73,20 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        return DataBindingUtil.inflate<LayoutBaseFragmentBinding>(inflater, getBaseLayout(), container, false)?.let { rootBinding ->
-            rootDataBinding = rootBinding
+        return DataBindingUtil.inflate<LayoutBaseFragmentBinding>(inflater, getBaseLayout(), container, false)
+            ?.let { rootBinding ->
+                rootDataBinding = rootBinding
 
-            dataBinding = DataBindingUtil.inflate<DB>(inflater, getContentLayout(), null, false).apply {
-                root.layoutParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                dataBinding = DataBindingUtil.inflate<DB>(inflater, getContentLayout(), null, false).apply {
+                    root.layoutParams = RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
+
+                rootBinding.rltContainer.addView(dataBinding.root)
+                rootBinding.root
             }
-
-            rootBinding.rltContainer.addView(dataBinding.root)
-            rootBinding.root
-        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -109,7 +113,7 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
         initObserverAndData()
 
-        if (isFirstVisible()){
+        if (isFirstVisible()) {
             lazyLoadData()
         }
     }
@@ -123,9 +127,9 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
     @CallSuper
     override fun initObserverAndData() {
         (viewModel as BaseViewModel<*>).apply {
-            loadingState.observe(this@AbsMvvmFragment, Observer {
+            loadingState.observe(viewLifecycleOwner, Observer {
                 it?.run {
-                    showOrHide(loadingView,this)
+                    showOrHide(loadingView, this)
                     activity?.runOnUiThread {
 
                         animationDrawable?.apply {
@@ -143,26 +147,26 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
                 }
             })
 
-            loadedState.observe(this@AbsMvvmFragment, Observer {
+            loadedState.observe(viewLifecycleOwner, Observer {
                 it?.run {
-                    showOrHide(dataBinding.root,this)
+                    showOrHide(dataBinding.root, this)
                 }
             })
 
 
-            emptyState.observe(this@AbsMvvmFragment, Observer {
+            emptyState.observe(viewLifecycleOwner, Observer {
                 it?.run {
-                    showOrHide(emptyView,this)
+                    showOrHide(emptyView, this)
                 }
             })
 
-            errorState.observe(this@AbsMvvmFragment, Observer {
+            errorState.observe(viewLifecycleOwner, Observer {
                 it?.run {
-                    showOrHide(errorView,this)
+                    showOrHide(errorView, this)
                 }
             })
 
-            pageState.observe(this@AbsMvvmFragment,observerStatus())
+            pageState.observe(viewLifecycleOwner, observerStatus())
         }
     }
 

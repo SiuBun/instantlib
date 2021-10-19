@@ -1,14 +1,6 @@
 package com.baselib.room.user;
 
 import android.app.Application;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.databinding.ObservableField;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextUtils;
 
@@ -19,13 +11,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.databinding.ObservableField;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-
 
 public class RoomViewModel extends BaseViewModel<RoomModel> {
 
@@ -79,7 +75,8 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
             public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
                 T instance;
                 try {
-                    instance = modelClass.getConstructor(Application.class, RoomModel.class).newInstance(application, new RoomModel(application));
+                    instance = modelClass.getConstructor(Application.class, RoomModel.class)
+                        .newInstance(application, new RoomModel(application));
                 } catch (Exception e) {
                     e.printStackTrace();
                     instance = null;
@@ -109,13 +106,13 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
 
         mSaveState.set("保存用户资料");
 
-        getModel().insertUser(userId.toString(),userName.toString(),password.toString());
+        getModel().insertUser(userId.toString(), userName.toString(), password.toString());
 
 
     }
 
     public void loadLocalUser() {
-        if (allUserSourse!=null){
+        if (allUserSourse != null) {
             mShowUserLiveData.removeSource(allUserSourse);
         }
         allUserSourse = getModel().getAllUser();
@@ -130,7 +127,7 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
 
     public void loadOneUser() {
         Disposable subscribe = getModel().getOneUser().subscribe(userEntities -> {
-            LogUtils.i("收到加载单一用户的数据"+userEntities);
+            LogUtils.i("收到加载单一用户的数据" + userEntities);
             ArrayList<UserEntity> list = new ArrayList<>();
             list.add(userEntities);
             mShowUserLiveData.postValue(list);

@@ -1,10 +1,10 @@
 package com.baselib.mvvmuse.view.fragment
 
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProviders
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
-import com.baselib.use.databinding.LayoutFragmentTwoBinding
-import com.baselib.use.R
 import com.baselib.mvvmuse.viewmodel.TwoFragmentViewModel
+import com.baselib.use.R
+import com.baselib.use.databinding.LayoutFragmentTwoBinding
 import java.util.*
 import java.util.concurrent.TimeUnit
 

@@ -1,10 +1,10 @@
 package com.baselib.room.user;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "user_table")
 public class UserEntity {
@@ -69,10 +69,10 @@ public class UserEntity {
     @Override
     public String toString() {
         return "UserEntity{" +
-                "mUserId='" + mUserId + '\'' +
-                ", mUserName='" + mUserName + '\'' +
-                ", mPassword='" + mPassword + '\'' +
-                ", mUpdateTime=" + mUpdateTime +
-                '}';
+            "mUserId='" + mUserId + '\'' +
+            ", mUserName='" + mUserName + '\'' +
+            ", mPassword='" + mPassword + '\'' +
+            ", mUpdateTime=" + mUpdateTime +
+            '}';
     }
 }

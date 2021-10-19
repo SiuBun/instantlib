@@ -2,7 +2,6 @@ package com.baselib.mvpuse;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
 
 import com.baselib.instant.breakpoint.BreakPointHelper;
 import com.baselib.instant.manager.GlobalManager;
@@ -11,6 +10,8 @@ import com.baselib.instant.net.client.OkHttpNetClient;
 import com.baselib.instant.repository.provider.sp.MultiProcessSharedPreferences;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.use.BuildConfig;
+
+import androidx.multidex.MultiDex;
 
 public class DemoApp extends Application {
 
@@ -25,13 +26,13 @@ public class DemoApp extends Application {
         super.onCreate();
         setDebugMode(BuildConfig.DEBUG);
         GlobalManager.Companion.initNetManager(
-                new NetworkManager.Builder()
-                        .setRetryCount(1)
-                        .setTimeOut(10)
-                        .setCacheAvailableTime(10)
-                        .setCacheFile(getCacheDir())
-                        .setClient(OkHttpNetClient.build())
-                        .build()
+            new NetworkManager.Builder()
+                .setRetryCount(1)
+                .setTimeOut(10)
+                .setCacheAvailableTime(10)
+                .setCacheFile(getCacheDir())
+                .setClient(OkHttpNetClient.build())
+                .build()
         );
 
         BreakPointHelper.getInstance().attachApplication(this);
@@ -44,12 +45,14 @@ public class DemoApp extends Application {
         LogUtils.e("onTerminate");
         super.onTerminate();
     }
+
     @Override
     public void onLowMemory() {
         // 低内存的时候执行
         LogUtils.e("onLowMemory");
         super.onLowMemory();
     }
+
     @Override
     public void onTrimMemory(int level) {
         // 程序在内存清理的时候执行
