@@ -1,11 +1,11 @@
 package com.baselib.instant.mvp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.LayoutRes;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
@@ -22,7 +22,7 @@ import com.baselib.instant.util.LogUtils;
  *
  * @author wsb
  */
-public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends FragmentActivity {
+public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends AppCompatActivity {
     private P presenter;
     private AlertDialog progressBar;
     private BusinessHandler businessHandler;

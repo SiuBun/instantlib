@@ -16,7 +16,6 @@ import com.baselib.instant.manager.IManager
 import com.baselib.instant.util.LogUtils
 import com.baselib.instant.util.SystemUtil
 import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * 权限管理者

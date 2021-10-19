@@ -6,7 +6,7 @@
         <item name="actionBarItemBackground">@drawable/toolbar_draw</item>
         <item name="selectableItemBackground">@drawable/toolbar_draw</item>
         <item name="titleTextAppearance">@style/ToolBar.Title</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
         <!--<item name="android:textSize">18sp</item> &lt;!&ndash;  搞掂字体大小&ndash;&gt;-->
     </style>
 

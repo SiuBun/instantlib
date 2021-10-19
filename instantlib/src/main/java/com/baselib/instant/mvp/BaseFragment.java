@@ -1,7 +1,6 @@
 package com.baselib.instant.mvp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,13 +12,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
-
 
 /**
  * 项目中mvp架构的Fragment基类
