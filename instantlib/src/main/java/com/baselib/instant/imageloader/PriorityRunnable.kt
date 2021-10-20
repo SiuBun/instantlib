@@ -12,9 +12,9 @@ abstract class PriorityRunnable internal constructor(
 
     abstract val priority: Int
 
-    override fun compareTo(another: PriorityRunnable): Int {
+    override fun compareTo(other: PriorityRunnable): Int {
         val priority1 = priority
-        val priority2 = another.priority
+        val priority2 = other.priority
         //			return priority1 < priority2 ? 1 : (priority1 == priority2 ? 0 : -1);
 
         return when {
@@ -23,8 +23,8 @@ abstract class PriorityRunnable internal constructor(
             //this优先级高，排在前边
             priority1 > priority2 -> -1
             //this请求时间早，排在前边
-            request.requestTime < another.request.requestTime -> -1
-            request.requestTime > another.request.requestTime -> 1
+            request.requestTime < other.request.requestTime -> -1
+            request.requestTime > other.request.requestTime -> 1
             else -> 0
         }
     }

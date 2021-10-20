@@ -1,6 +1,6 @@
 package com.baselib.mvvmuse.view.fragment
 
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
 import com.baselib.mvvmuse.viewmodel.ThreeFragmentViewModel
 import com.baselib.use.R
@@ -9,7 +9,7 @@ import com.baselib.use.databinding.LayoutFragmentThreeBinding
 
 class ThreeFragment : AbsMvvmFragment<LayoutFragmentThreeBinding, ThreeFragmentViewModel>() {
     override fun initViewModel() =
-        ViewModelProviders.of(this, ThreeFragmentViewModel.getFactory(requireActivity().application))
+        ViewModelProvider(this, ThreeFragmentViewModel.getFactory(requireActivity().application))
             .get(ThreeFragmentViewModel::class.java)
 
     override fun getContentLayout(): Int = R.layout.layout_fragment_three

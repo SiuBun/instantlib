@@ -136,7 +136,7 @@ class GoogleMarketUtils {
                     val pm = context.packageManager
                     val resolveList = pm.queryIntentActivities(intent, 0)
                     //获取第一个浏览器启动
-                    if (resolveList != null && resolveList.size > 0) {
+                    if (resolveList.size > 0) {
                         val activityInfo = if (resolveList[0] != null) resolveList[0].activityInfo else null
                         val packageName = activityInfo?.packageName
                         val activityName = activityInfo?.name

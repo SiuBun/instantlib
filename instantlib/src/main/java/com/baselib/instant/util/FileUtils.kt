@@ -268,12 +268,13 @@ class FileUtils {
                 val file = File(filePath)
                 if (file.exists()) {
                     if (file.isDirectory) {
-                        val listFiles = file.listFiles()
-                        for (fileItem in listFiles) {
-                            if (fileItem.isDirectory) {
-                                delFile(fileItem.absolutePath)
+                        file.listFiles()?.apply {
+                            for (fileItem in this) {
+                                if (fileItem.isDirectory) {
+                                    delFile(fileItem.absolutePath)
+                                }
+                                fileItem.delete()
                             }
-                            fileItem.delete()
                         }
                     }
                     file.delete()
@@ -385,7 +386,7 @@ class FileUtils {
 
                     val buffer = ByteArray(64)
                     // 读取流内容
-                    val len = inputStream!!.read(buffer)
+                    val len = inputStream.read(buffer)
                     if (len > 0) {
                         // 生成字符串
                         rawTxtString = String(buffer, 0, len).trim { it <= ' ' }

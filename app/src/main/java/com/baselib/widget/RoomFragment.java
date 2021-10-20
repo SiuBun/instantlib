@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class RoomFragment extends AbsMvvmFragment<LayoutFragmentRoomBinding, RoomViewModel> {
@@ -22,7 +22,8 @@ public class RoomFragment extends AbsMvvmFragment<LayoutFragmentRoomBinding, Roo
     @NotNull
     @Override
     public RoomViewModel initViewModel() {
-        return ViewModelProviders.of(this, RoomViewModel.getFactory(getActivity().getApplication())).get(RoomViewModel.class);
+        return new ViewModelProvider(this, RoomViewModel.getFactory(getActivity().getApplication()))
+            .get(RoomViewModel.class);
     }
 
     public static RoomFragment getInstance() {

@@ -1,6 +1,6 @@
 package com.baselib.mvvmuse.view.activity
 
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.baselib.instant.mvvm.view.AbsMvvmActivity
 import com.baselib.mvvmuse.view.fragment.HostFragment
 import com.baselib.mvvmuse.viewmodel.MvvmTestViewModel
@@ -33,8 +33,11 @@ class MvvmTestActivity : AbsMvvmActivity<ActivityMvvmTestBinding, MvvmTestViewMo
 
     }
 
-    override fun initViewModel(): MvvmTestViewModel =
-        ViewModelProviders.of(this, MvvmTestViewModel.getFactory(application)).get(MvvmTestViewModel::class.java)
+    override fun initViewModel(): MvvmTestViewModel = ViewModelProvider(
+        this, MvvmTestViewModel.getFactory(application)
+    )
+        .get(MvvmTestViewModel::class.java)
+
 
     override fun getContentLayout(): Int = R.layout.activity_mvvm_test
 

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.baselib.instant.mvvm.view.AbsMvvmFragment
 import com.baselib.mvvmuse.viewmodel.HostFragmentViewModel
 import com.baselib.use.R
@@ -26,7 +26,7 @@ class HostFragment : AbsMvvmFragment<LayoutFragmentHostBinding, HostFragmentView
     }
 
     override fun initViewModel(): HostFragmentViewModel =
-        ViewModelProviders.of(this).get(HostFragmentViewModel::class.java)
+        ViewModelProvider(this).get(HostFragmentViewModel::class.java)
 
     override fun getContentLayout(): Int = R.layout.layout_fragment_host
 

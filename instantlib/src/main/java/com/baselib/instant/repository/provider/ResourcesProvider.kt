@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import androidx.core.content.res.ResourcesCompat
 
 import com.baselib.instant.util.LogUtils
 
@@ -68,7 +69,7 @@ class ResourcesProvider private constructor(context: Context) {
         if (id == 0) {
             LogUtils.e("ResourcesProvider", "color:$res is not found")
         }
-        return mResources.getColor(id)
+        return ResourcesCompat.getColor(mResources, id, null)
     }
 
     fun getInteger(res: String): Int {
@@ -111,12 +112,13 @@ class ResourcesProvider private constructor(context: Context) {
         return mResources.getString(id)
     }
 
-    fun getDrawable(res: String): Drawable {
+    fun getDrawable(res: String): Drawable? {
         val id = mResources.getIdentifier(res, "drawable", mPkgName)
         if (id == 0) {
             LogUtils.e("ResourcesProvider", "drawable:$res is not found")
         }
-        return mResources.getDrawable(id)
+
+        return ResourcesCompat.getDrawable(mResources, id, null)
     }
 
     fun getView(res: String, root: ViewGroup): View {

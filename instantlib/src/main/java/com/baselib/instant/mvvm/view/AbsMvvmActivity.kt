@@ -11,12 +11,13 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseActivityBinding
 import com.baselib.instant.mvvm.viewmodel.BaseViewModel
@@ -101,7 +102,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
         if (defineStatusBar()) {
             // 设置透明状态栏，兼容4.4
-            StatusBarUtil.setColor(this, resources.getColor(R.color.colorTheme), 0)
+            StatusBarUtil.setColor(this, ResourcesCompat.getColor(resources,R.color.colorTheme,null), 0)
         }
 
         loadingView = initLoadingView()
@@ -247,7 +248,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      */
     @CallSuper
     override fun initObserverAndData() {
-        (viewModel as BaseViewModel<*>)?.apply {
+        (viewModel as BaseViewModel<*>).apply {
             loadingState.observe(this@AbsMvvmActivity, Observer<Boolean> { loading ->
                 loading?.run {
                     showOrHide(loadingView, loading)
@@ -318,7 +319,7 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
 
     abstract fun initViewModel(): VM
 
-    fun <T : ViewModel> initViewModelByClz(clazz: Class<T>): ViewModel = ViewModelProviders.of(this).get(clazz)
+    fun <T : ViewModel> initViewModelByClz(clazz: Class<T>): ViewModel = ViewModelProvider(this).get(clazz)
 
     protected fun <T : View> getView(id: Int): T = findViewById<View>(id) as T
 

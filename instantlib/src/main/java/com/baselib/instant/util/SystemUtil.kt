@@ -191,7 +191,7 @@ class SystemUtil {
                     PackageManager.GET_META_DATA
                 )
 
-                if (appInfo?.metaData != null) {
+                if (appInfo.metaData != null) {
                     bundle = appInfo.metaData
                 }
             } catch (e: PackageManager.NameNotFoundException) {
