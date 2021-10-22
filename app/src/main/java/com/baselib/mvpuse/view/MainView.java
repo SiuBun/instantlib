@@ -1,7 +1,7 @@
 package com.baselib.mvpuse.view;
 
 
-import com.baselib.instant.mvp.IBaseView;
+import com.baselib.instant.mvp.IMvpView;
 /**
  * 示例代码
  * <p>
@@ -9,5 +9,5 @@ import com.baselib.instant.mvp.IBaseView;
  *
  * @author wsb
  */
-public interface MainView extends IBaseView {
+public interface MainView extends IMvpView {
 }

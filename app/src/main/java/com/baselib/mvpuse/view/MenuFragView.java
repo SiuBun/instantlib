@@ -1,7 +1,6 @@
 package com.baselib.mvpuse.view;
 
-import com.baselib.instant.mvp.IBaseView;
+import com.baselib.instant.mvp.IMvpView;
 
-public interface MenuFragView extends IBaseView {
-    void toast(String content);
+public interface MenuFragView extends IMvpView {
 }

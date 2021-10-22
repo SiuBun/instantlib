@@ -16,9 +16,7 @@ import com.baselib.use.R;
 import java.io.File;
 import java.util.Locale;
 
-
-public class BreakPointFragment extends BaseFragment<BreakPointPresenter, BreakPointView> {
-
+public class BreakPointFragment extends BaseFragment<BreakPointPresenter> implements BreakPointView {
 
     private TextView mTvTaskContent;
     private ProgressBar mPgbCommit;
@@ -32,79 +30,68 @@ public class BreakPointFragment extends BaseFragment<BreakPointPresenter, BreakP
     }
 
     @Override
-    protected BreakPointView getViewImpl() {
-        return new BreakPointView() {
-
-
-            @Override
-            public void setTextContent(String content) {
-                mTvTaskContent.setText(content);
-            }
-
-
-            @Override
-            public void onTaskDownloadError(String message) {
-                LogUtils.e(message);
-            }
-
-            @Override
-            public void onTaskProgressUpdate(long taskTotalSize, long length, int percentage) {
-                showDownloadProgress(length, taskTotalSize);
-                changeProgress(percentage);
-            }
-
-            @Override
-            public void onTaskDownloadFinish(File taskFile) {
-                Toast.makeText(getActivity(), "文件下载成功并保存为" + taskFile, Toast.LENGTH_LONG).show();
-                changeProgress(100);
-
-                mBtnStart.setEnabled(false);
-                mBtnPause.setEnabled(false);
-                mBtnCancel.setEnabled(false);
-            }
-
-            @Override
-            public void onTaskCancel() {
-                changeProgress(0);
-                showDownloadProgress(0, getPresenter().getLength());
-                mBtnStart.setEnabled(true);
-                mBtnPause.setEnabled(false);
-                mBtnCancel.setEnabled(false);
-
-                Toast.makeText(getActivity(), "任务取消", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onTaskDownloadStart(String downloadUrl, long contentLength) {
-                getPresenter().saveLength(contentLength);
-                mBtnStart.setEnabled(false);
-                mBtnPause.setEnabled(true);
-                mBtnCancel.setEnabled(true);
-
-                showDownloadProgress(0, contentLength);
-            }
-
-            @Override
-            public void onTaskPause() {
-                mBtnStart.setEnabled(true);
-                mBtnPause.setEnabled(false);
-                mBtnCancel.setEnabled(true);
-            }
-
-
-            @Override
-            public void changeProgress(int percentage) {
-                mPgbCommit.setProgress(percentage);
-            }
-
-        };
+    public void setTextContent(String content) {
+        mTvTaskContent.setText(content);
     }
 
     @Override
-    protected BreakPointPresenter initPresenter() {
-        return new BreakPointPresenter();
+    public void onTaskDownloadError(String message) {
+        LogUtils.e(message);
     }
 
+    @Override
+    public void onTaskProgressUpdate(long taskTotalSize, long length, int percentage) {
+        showDownloadProgress(length, taskTotalSize);
+        changeProgress(percentage);
+    }
+
+    @Override
+    public void onTaskDownloadFinish(File taskFile) {
+        Toast.makeText(getActivity(), "文件下载成功并保存为" + taskFile, Toast.LENGTH_LONG).show();
+        changeProgress(100);
+
+        mBtnStart.setEnabled(false);
+        mBtnPause.setEnabled(false);
+        mBtnCancel.setEnabled(false);
+    }
+
+    @Override
+    public void onTaskCancel() {
+        changeProgress(0);
+        showDownloadProgress(0, getPresenter().getLength());
+        mBtnStart.setEnabled(true);
+        mBtnPause.setEnabled(false);
+        mBtnCancel.setEnabled(false);
+
+        Toast.makeText(getActivity(), "任务取消", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onTaskDownloadStart(String downloadUrl, long contentLength) {
+        getPresenter().saveLength(contentLength);
+        mBtnStart.setEnabled(false);
+        mBtnPause.setEnabled(true);
+        mBtnCancel.setEnabled(true);
+
+        showDownloadProgress(0, contentLength);
+    }
+
+    @Override
+    public void onTaskPause() {
+        mBtnStart.setEnabled(true);
+        mBtnPause.setEnabled(false);
+        mBtnCancel.setEnabled(true);
+    }
+
+    @Override
+    public void changeProgress(int percentage) {
+        mPgbCommit.setProgress(percentage);
+    }
+
+    @Override
+    public BreakPointPresenter initPresenter() {
+        return new BreakPointPresenter();
+    }
 
     @Override
     protected void initData() {
@@ -124,7 +111,8 @@ public class BreakPointFragment extends BaseFragment<BreakPointPresenter, BreakP
     @Override
     protected void initListener() {
 
-        mBtnStart.setOnClickListener(v -> DataCheck.checkNoNullWithCallback(getActivity(), activity -> getPresenter().startTask(activity)));
+        mBtnStart.setOnClickListener(
+            v -> DataCheck.checkNoNullWithCallback(getActivity(), activity -> getPresenter().startTask(activity)));
 
         mBtnPause.setOnClickListener(v -> getPresenter().pauseTask());
 

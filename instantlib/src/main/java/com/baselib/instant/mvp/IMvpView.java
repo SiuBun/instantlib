@@ -1,5 +1,7 @@
 package com.baselib.instant.mvp;
 
+import android.app.Activity;
+
 /**
  * View层基类
  * <p>
@@ -7,5 +9,8 @@ package com.baselib.instant.mvp;
  *
  * @author wsb
  */
-public interface IBaseView {
+public interface IMvpView {
+    Activity reqActivity();
+
+    void toast(String content);
 }

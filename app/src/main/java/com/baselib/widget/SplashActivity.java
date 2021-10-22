@@ -3,15 +3,10 @@ package com.baselib.widget;
 import android.content.Intent;
 import android.view.KeyEvent;
 
-import com.baselib.instant.manager.GlobalManager;
 import com.baselib.instant.mvp.BaseActivity;
-import com.baselib.instant.permission.PermissionsManager;
-import com.baselib.instant.util.LogUtils;
-import com.baselib.mvpuse.model.SplashModel;
 import com.baselib.mvpuse.presenter.SplashPresenter;
 import com.baselib.mvpuse.view.SplashView;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -23,14 +18,15 @@ import androidx.annotation.NonNull;
  *
  * @author wsb
  */
-public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
+public class SplashActivity extends BaseActivity<SplashPresenter> implements SplashView {
 
     @Override
     protected void initData() {
-        getPresenter().checkPermissions(getActivity(),1001);
+        getPresenter().checkPermissions(reqActivity(), 1001);
     }
 
-    private void delayedToJump() {
+    @Override
+    public void delayedToJump() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -41,21 +37,11 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     }
 
     private void junpToMain() {
-        Intent intent = new Intent(getActivity(), MainActivity.class);
+        Intent intent = new Intent(reqActivity(), MainActivity.class);
         startActivity(intent);
         finish();
         //取消界面跳转时的动画
         overridePendingTransition(0, 0);
-    }
-
-    @Override
-    protected SplashView getViewImpl() {
-        return new SplashView() {
-            @Override
-            public void delayedToJump() {
-                SplashActivity.this.delayedToJump();
-            }
-        };
     }
 
     @Override

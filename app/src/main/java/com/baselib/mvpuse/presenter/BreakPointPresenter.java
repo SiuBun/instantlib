@@ -12,6 +12,9 @@ import com.baselib.mvpuse.view.BreakPointView;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+
 public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPointModel> implements TaskPostListener {
     @Override
     public BreakPointModel initModel() {
@@ -19,11 +22,11 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
     }
 
     @Override
-    public void onPresenterDetach(Context context) {
-        if (BreakPointHelper.getInstance().removeTaskListener(getModel().getTaskId(),this)){
+    public void onDestroy(@NonNull LifecycleOwner owner) {
+        if (BreakPointHelper.getInstance().removeTaskListener(getModel().getTaskId(), this)) {
             LogUtils.i("断点下载界面退出的时候需要移除自身这个监听对象");
         }
-        super.onPresenterDetach(context);
+        super.onDestroy(owner);
     }
 
     public void pauseTask() {
@@ -36,10 +39,10 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
 
     public void startTask(Context context) {
         final Task task = new Task.Builder()
-                .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
+            .setTaskUrl("https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk")
 //                            .setTaskFileName("downtask.apk")
-                .setTaskFileDir(context.getFilesDir().getAbsolutePath())
-                .build();
+            .setTaskFileDir(context.getFilesDir().getAbsolutePath())
+            .build();
 
 
         task.addTaskListener(this);
@@ -65,7 +68,7 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
 
     @Override
     public void onTaskDownloadFinish(File file) {
-        LogUtils.i("任务下载完成,得到下载文件"+file);
+        LogUtils.i("任务下载完成,得到下载文件" + file);
         getView().onTaskDownloadFinish(file);
 
 
@@ -106,7 +109,6 @@ public class BreakPointPresenter extends BasePresenter<BreakPointView, BreakPoin
     public long getLength() {
         return getModel().getContentLength();
     }
-
 
 
 }

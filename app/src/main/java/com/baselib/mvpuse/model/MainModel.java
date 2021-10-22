@@ -1,8 +1,7 @@
 package com.baselib.mvpuse.model;
 
-import android.content.Context;
-
 import com.baselib.instant.mvp.BaseModel;
+
 /**
  * 示例代码
  * <p>
@@ -11,9 +10,4 @@ import com.baselib.instant.mvp.BaseModel;
  * @author wsb
  */
 public class MainModel extends BaseModel {
-
-    @Override
-    public void onModelDetach(Context context) {
-        super.onModelDetach(context);
-    }
 }

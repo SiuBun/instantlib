@@ -12,14 +12,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.baselib.instant.mvp.BaseFragment;
-import com.baselib.use.R;
 import com.baselib.mvpuse.presenter.LoginFragPresenter;
 import com.baselib.mvpuse.view.LoginFragView;
+import com.baselib.use.R;
 
-public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragView> {
+public class LoginFragment extends BaseFragment<LoginFragPresenter> implements LoginFragView {
     private Button mBtnLogin;
     private Button mBtnLogout;
     private EditText mEtAccount;
@@ -27,33 +26,26 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
     private LinearLayout mLltLoginContainer;
     private ImageView mIvLogo;
 
-
     @Override
     public int getFragmentLayout() {
         return R.layout.fragment_main_login;
     }
 
     @Override
-    protected LoginFragView getViewImpl() {
-        return new LoginFragView(){
-
-            @Override
-            public void controlProgress(boolean show) {
-                controlProgressBar(show);
-            }
-
-            @Override
-            public void loginResult(boolean result) {
-                Toast.makeText(getActivity(), result ? "成功" : "失败", Toast.LENGTH_SHORT).show();
-                if (result) {
-                    startFragmentByClz(R.id.flt_main_root,new MenuFragment(),true);
-                }
-            }
-        };
+    public void controlProgress(boolean show) {
+        controlProgressBar(show);
     }
 
     @Override
-    protected LoginFragPresenter initPresenter() {
+    public void loginResult(boolean result) {
+        toast(result ? "成功" : "失败");
+        if (result) {
+            startFragmentByClz(R.id.flt_main_root, new MenuFragment(), true);
+        }
+    }
+
+    @Override
+    public LoginFragPresenter initPresenter() {
         return new LoginFragPresenter();
     }
 
@@ -64,12 +56,12 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
 
     @Override
     protected void initFragmentViews(View fragmentView) {
-        mIvLogo = findViewById(R.id.iv_logo,ImageView.class);
-        mLltLoginContainer = findViewById(R.id.llt_login_container,LinearLayout.class);
-        mBtnLogin = findViewById(R.id.button_login,Button.class);
-        mBtnLogout = findViewById(R.id.button_logout,Button.class);
-        mEtAccount = findViewById(R.id.editText,EditText.class);
-        mEtPsw = findViewById(R.id.editText2,EditText.class);
+        mIvLogo = findViewById(R.id.iv_logo, ImageView.class);
+        mLltLoginContainer = findViewById(R.id.llt_login_container, LinearLayout.class);
+        mBtnLogin = findViewById(R.id.button_login, Button.class);
+        mBtnLogout = findViewById(R.id.button_logout, Button.class);
+        mEtAccount = findViewById(R.id.editText, EditText.class);
+        mEtPsw = findViewById(R.id.editText2, EditText.class);
     }
 
     @Override
@@ -112,7 +104,7 @@ public class LoginFragment extends BaseFragment<LoginFragPresenter, LoginFragVie
 
         //通过测量，获取ivLogo的高度
         mIvLogo.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
         int logoHeight = mIvLogo.getMeasuredHeight();
 
 

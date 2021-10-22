@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.baselib.instant.manager.BusinessHandler;
 import com.baselib.instant.util.LogUtils;
@@ -22,20 +23,16 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 /**
- * 项目中mvp架构的Fragment基类
- * <p>
- * 定义时候指定P层对象并要求实现对应的{@link IBaseView}子类接口
- * <p>
- * 其子类只需要关注
+ * 只需要关注
  * <Li>{@link #initPresenter()}应该使用什么样的P层对象</Li>
  * <Li>{@link #getFragmentLayout()}方法返回什么内容的布局</Li>
  * <Li>{@link #initFragmentViews(View)}布局内容里哪些控件对象需要实体化</Li>
  *
  * @author wsb
  */
-public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView> extends Fragment {
+public abstract class BaseFragment<P extends BasePresenter> extends MvpFragment<P> {
     private View mFragmentView;
-    private P mBasePresenter;
+
     private AlertDialog mProgressBar;
     private BusinessHandler mHandler;
 
@@ -51,8 +48,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreate");
-        mBasePresenter = initPresenter();
-        mBasePresenter.attach(getViewImpl());
     }
 
     @Nullable
@@ -75,21 +70,10 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
         supportView();
     }
 
-    /**
-     * 获取V层绑定对象
-     * <p>
-     * 子类实现该方法完成和P层对象的绑定
-     *
-     * @return V层绑定对象
-     */
-    protected abstract V getViewImpl();
-
-    /**
-     * 初始化P层对象
-     *
-     * @return P层逻辑对象
-     */
-    protected abstract P initPresenter();
+    @Override
+    public void toast(String content) {
+        reqActivity().runOnUiThread(() -> Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show());
+    }
 
     /**
      * 加载数据
@@ -114,10 +98,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
      */
     public BusinessHandler.IHandlerMsgListener getHandlerListener() {
         return null;
-    }
-
-    public P getPresenter() {
-        return mBasePresenter;
     }
 
     /**
@@ -223,7 +203,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public void onDestroyView() {
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroyView");
         widgetDestroy();
-        mBasePresenter.onPresenterDetach(getActivity());
         mHandler.onDestroy();
         super.onDestroyView();
     }

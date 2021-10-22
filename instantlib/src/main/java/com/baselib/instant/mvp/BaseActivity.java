@@ -1,6 +1,5 @@
 package com.baselib.instant.mvp;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Looper;
 
@@ -9,22 +8,18 @@ import com.baselib.instant.util.LogUtils;
 
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * activity基类
- * <p>
- * 项目中mvp架构的activity相关类都要继承自该类.可以通过实现
+ *
+ * 带基础功能界面，可以通过实现
  * <Li>{@link #getContentId()},
  * <Li>{@link #buildProgressBar()}
  * 等抽象方法来实现界面快速构建.
- * <p>
- * 子类继承该类时候需要传入对应泛型指定P层和V层,原先需要子类手动继承,后优化调整为子类提供接口实例即可,从面向方法调整为面向接口编程
  *
  * @author wsb
  */
-public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView> extends AppCompatActivity {
-    private P presenter;
+public abstract class BaseActivity<P extends BasePresenter> extends MvpActivity<P> {
+
     private AlertDialog progressBar;
     private BusinessHandler businessHandler;
 
@@ -40,10 +35,7 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
 
 //        初始化控件和监听,及轮询处理等
         initView();
-        presenter = iniPresenter();
-        if (presenter != null) {
-            presenter.attach(getViewImpl());
-        }
+
         initListener();
 
         initData();
@@ -115,21 +107,10 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
         runOnUiThread(runnable);
     }
 
-    /**
-     * 获取V层绑定对象
-     * <p>
-     * 子类实现该方法完成和P层对象的绑定
-     *
-     * @return V层绑定对象
-     */
-    protected abstract V getViewImpl();
-
-    @Override
     protected void onDestroy() {
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onDestroy");
         widgetDestory();
         businessHandler.onDestroy();
-        presenter.onPresenterDetach(getActivity());
         super.onDestroy();
     }
 
@@ -141,22 +122,6 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     public void widgetDestory() {
         controlProgressBar(false);
         progressBar = null;
-    }
-
-    /**
-     * 初始化P层对象
-     *
-     * @return P层逻辑对象
-     */
-    protected abstract P iniPresenter();
-
-    /**
-     * 获取该界面内的P层对象
-     *
-     * @return 界面对应的P层对象
-     */
-    public P getPresenter() {
-        return presenter;
     }
 
     public BusinessHandler getHandler() {
@@ -196,10 +161,6 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
     protected void activitySettingAfterSetContent() {
         supportView();
         initHandler();
-    }
-
-    public Activity getActivity() {
-        return this;
     }
 
     @Override
