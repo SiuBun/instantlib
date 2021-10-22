@@ -10,7 +10,7 @@ import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
 import com.baselib.use.R;
 
-public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
+public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFragView{
 
     private Button mBtnRx;
     private Button mBtnOther;
@@ -26,17 +26,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
     }
 
     @Override
-    protected MenuFragView getViewImpl() {
-        return new MenuFragView() {
-            @Override
-            public void toast(String content) {
-                getActivity().runOnUiThread(() -> Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show());
-            }
-        };
-    }
-
-    @Override
-    protected MenuPresenter initPresenter() {
+    public MenuPresenter initPresenter() {
         return new MenuPresenter();
     }
 
@@ -94,8 +84,6 @@ public class MenuFragment extends BaseFragment<MenuPresenter, MenuFragView> {
 
     @Override
     protected void initListener() {
-        getPresenter().observerAppChange(getContext());
-
         mBtnRx.setOnClickListener(v -> getPresenter().createString());
 
         mBtnOther.setOnClickListener(v -> getPresenter().fromIterable(v.getContext()));

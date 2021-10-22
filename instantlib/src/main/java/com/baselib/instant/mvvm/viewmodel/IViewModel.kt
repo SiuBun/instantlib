@@ -6,10 +6,6 @@ package com.baselib.instant.mvvm.viewmodel
  * @author wsb
  * */
 interface IViewModel {
-    /**
-     * 初始化操作
-     */
-    fun onViewModelStart()
 
     /**
      * 改变当前界面是否已准备好加载数据状态

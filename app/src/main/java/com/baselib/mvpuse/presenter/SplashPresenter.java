@@ -34,7 +34,7 @@ public class SplashPresenter extends BasePresenter<SplashView, SplashModel> {
                         getView().delayedToJump();
                     } else {
                         LogUtils.d("被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
-                        repeatPermissionReq(activity,manager, permissionsBeDenied);
+                        repeatPermissionReq(activity, manager, permissionsBeDenied);
                     }
                 }
             };

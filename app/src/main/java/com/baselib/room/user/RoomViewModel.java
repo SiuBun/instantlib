@@ -4,7 +4,7 @@ import android.app.Application;
 import android.text.Editable;
 import android.text.TextUtils;
 
-import com.baselib.instant.mvvm.viewmodel.BaseViewModel;
+import com.baselib.instant.mvvm.viewmodel.BaseRxViewModel;
 import com.baselib.instant.util.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import io.reactivex.disposables.Disposable;
 
-public class RoomViewModel extends BaseViewModel<RoomModel> {
+public class RoomViewModel extends BaseRxViewModel<RoomModel> {
 
     private ObservableField<String> mLocalData;
     private ObservableField<String> mSaveState;
@@ -58,8 +58,8 @@ public class RoomViewModel extends BaseViewModel<RoomModel> {
     }
 
     @Override
-    public void onViewModelStart() {
-        super.onViewModelStart();
+    public void onCreate(@NonNull LifecycleOwner owner) {
+        super.onCreate(owner);
         mLocalData = new ObservableField<>("暂无");
         mSaveState = new ObservableField<>("save");
     }

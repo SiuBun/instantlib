@@ -1,7 +1,7 @@
 package com.baselib.mvpuse.view;
 
-import com.baselib.instant.mvp.IBaseView;
+import com.baselib.instant.mvp.IMvpView;
 
-public interface SplashView extends IBaseView {
+public interface SplashView extends IMvpView {
     void delayedToJump();
 }

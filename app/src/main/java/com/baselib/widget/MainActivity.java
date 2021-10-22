@@ -14,18 +14,12 @@ import androidx.fragment.app.Fragment;
  *
  * @author wsb
  */
-public class MainActivity extends BaseActivity<MainPresenter, MainView> {
+public class MainActivity extends BaseActivity<MainPresenter> implements MainView {
 
     private Fragment mFragmentMain;
 
     @Override
     protected void initData() {
-    }
-
-    @Override
-    protected MainView getViewImpl() {
-        return new MainView() {
-        };
     }
 
     @Override

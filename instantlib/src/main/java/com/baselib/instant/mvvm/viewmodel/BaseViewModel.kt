@@ -1,12 +1,9 @@
 package com.baselib.instant.mvvm.viewmodel
 
 import android.app.Application
-import androidx.annotation.CallSuper
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.baselib.instant.mvvm.model.IModel
-import com.baselib.instant.util.LogUtils
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 
 
 /**
@@ -15,10 +12,7 @@ import io.reactivex.disposables.Disposable
  * 只关注M层
  * */
 abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: Application, model: M? = null) :
-    AndroidViewModel(application),
-    DefaultLifecycleObserver, IViewModel {
-
-    protected var model: M? = null
+    MvvmViewModel<M>(application, model), IViewModel {
 
     /**
      * 标志位，标志已经初始化完成
@@ -29,9 +23,6 @@ abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: 
      * 是否已被加载过一次，第二次就不再去请求数据了
      */
     private val loadedOnceState: MutableLiveData<Boolean> = MutableLiveData()
-
-    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
-
 
     companion object {
         const val SHOW_LOADING = 0x00000001
@@ -71,9 +62,6 @@ abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: 
     internal val loadedState: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
-        model?.let {
-            this.model = model
-        }
         preparedState.value = false
         loadedOnceState.value = false
 
@@ -90,47 +78,5 @@ abstract class BaseViewModel<M : IModel> @JvmOverloads constructor(application: 
     override fun changeLoadedOnceState(loadedOnce: Boolean) = loadedOnceState.postValue(loadedOnce)
 
     override fun getLoadedOnceState(): Boolean = loadedOnceState.value ?: false
-
-    override fun onViewModelStart() {
-        LogUtils.lifeLog(this::class.java.simpleName, "IViewModel-onStart")
-    }
-
-    @CallSuper
-    override fun onCreate(owner: LifecycleOwner) {
-        LogUtils.lifeLog(owner::class.java.simpleName, "onCreate")
-        onViewModelStart()
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        LogUtils.lifeLog(owner::class.java.simpleName, "onResume")
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        LogUtils.lifeLog(owner::class.java.simpleName, "onPause")
-    }
-
-    override fun onStart(owner: LifecycleOwner) {
-        LogUtils.lifeLog(owner::class.java.simpleName, "onStart")
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        LogUtils.lifeLog(owner::class.java.simpleName, "onStop")
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        LogUtils.lifeLog(owner::class.java.simpleName, "onDestroy")
-    }
-
-    protected fun addDisposable(disposable: Disposable) {
-        compositeDisposable.add(disposable)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        LogUtils.lifeLog(this::class.java.simpleName, "onCleared")
-        if (!compositeDisposable.isDisposed) {
-            compositeDisposable.clear()
-        }
-    }
 
 }

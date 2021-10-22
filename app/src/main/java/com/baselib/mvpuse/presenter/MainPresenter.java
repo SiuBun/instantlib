@@ -1,10 +1,8 @@
 package com.baselib.mvpuse.presenter;
 
-import android.content.Context;
-
 import com.baselib.instant.mvp.BasePresenter;
-import com.baselib.mvpuse.view.MainView;
 import com.baselib.mvpuse.model.MainModel;
+import com.baselib.mvpuse.view.MainView;
 
 public class MainPresenter extends BasePresenter<MainView, MainModel> {
 
@@ -13,9 +11,4 @@ public class MainPresenter extends BasePresenter<MainView, MainModel> {
         return new MainModel();
     }
 
-
-    @Override
-    public void onPresenterDetach(Context context) {
-        super.onPresenterDetach(context);
-    }
 }
