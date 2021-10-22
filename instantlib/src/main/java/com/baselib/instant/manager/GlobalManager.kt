@@ -46,7 +46,7 @@ class GlobalManager : IManager {
          * @param name 目标名称
          * @return 各功能管理对象
          */
-        fun getManager(name: String): IManager? {
+        fun getManager(name: String): IManager {
             var baseManager: IManager? = instance.managerMap[name]
             if (baseManager == null) {
                 baseManager = instance.createManagerByName(name)

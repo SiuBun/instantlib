@@ -65,7 +65,7 @@ dependencies {
     implementation rootProject.ext.dependence["lifecycle-viewmodel"]
     implementation rootProject.ext.dependence["lifecycle-livedata"]
     implementation rootProject.ext.dependence["lifecycle-viewmodel-savedstate"]
-    annotationProcessor rootProject.ext.dependence["lifecycle-compiler"]
+    kapt rootProject.ext.dependence["lifecycle-compiler"]
     implementation rootProject.ext.dependence["lifecycle-common-java8"]
 
     kapt rootProject.ext.dependence["room-compiler"]

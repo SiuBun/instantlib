@@ -27,39 +27,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
 
     @Override
     protected void initData() {
-        SplashModel model = getPresenter().getModel();
-
-        final PermissionsManager manager =
-            (PermissionsManager) GlobalManager.Companion.getManager(GlobalManager.PERMISSION_SERVICE);
-
-        PermissionsManager.IPermissionsCheckCallback checkCallback =
-            new PermissionsManager.IPermissionsCheckCallback() {
-
-                @Override
-                public void onCheckedFinish(String[] permissionsBeDenied) {
-                    if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
-                        delayedToJump();
-                    } else {
-                        LogUtils.d("被拒绝的权限如下" + Arrays.toString(permissionsBeDenied));
-                        repeatPermissionReq(manager, permissionsBeDenied);
-                    }
-                }
-            };
-        manager.checkPermissions(getActivity(), model.getPermissions(), 1001, checkCallback);
-    }
-
-    private void repeatPermissionReq(PermissionsManager manager, String[] permissionsBeDenied) {
-        PermissionsManager.IPermissionsCheckCallback checkCallback =
-            new PermissionsManager.IPermissionsCheckCallback() {
-
-                @Override
-                public void onCheckedFinish(String[] permissionsBeDenied) {
-                    if (permissionsBeDenied == null || permissionsBeDenied.length == 0) {
-                        delayedToJump();
-                    }
-                }
-            };
-        manager.notifyReqPermission(getActivity(), permissionsBeDenied, checkCallback);
+        getPresenter().checkPermissions(getActivity(),1001);
     }
 
     private void delayedToJump() {
@@ -83,6 +51,10 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     @Override
     protected SplashView getViewImpl() {
         return new SplashView() {
+            @Override
+            public void delayedToJump() {
+                SplashActivity.this.delayedToJump();
+            }
         };
     }
 
@@ -127,8 +99,7 @@ public class SplashActivity extends BaseActivity<SplashPresenter, SplashView> {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        final PermissionsManager manager =
-            (PermissionsManager) GlobalManager.Companion.getManager(GlobalManager.PERMISSION_SERVICE);
-        manager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        getPresenter().onRequestPermissionsResult(requestCode, permissions, grantResults);
+
     }
 }

@@ -46,7 +46,6 @@ public abstract class BaseActivity<P extends BasePresenter, V extends IBaseView>
         }
         initListener();
 
-
         initData();
     }
 

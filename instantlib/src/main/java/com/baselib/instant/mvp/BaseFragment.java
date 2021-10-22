@@ -47,6 +47,14 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public abstract @LayoutRes
     int getFragmentLayout();
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreate");
+        mBasePresenter = initPresenter();
+        mBasePresenter.attach(getViewImpl());
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -57,10 +65,7 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
         initFragmentViews(mFragmentView);
         fragmentSetting();
         initHandler();
-        mBasePresenter = initPresenter();
-        if (mBasePresenter != null) {
-            mBasePresenter.attach(getViewImpl());
-        }
+
         initListener();
         initData();
         return mFragmentView;
@@ -237,12 +242,6 @@ public abstract class BaseFragment<P extends BasePresenter, V extends IBaseView>
     public void onAttach(Context context) {
         super.onAttach(context);
         LogUtils.lifeLog(this.getClass().getSimpleName(), " onAttach");
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        LogUtils.lifeLog(this.getClass().getSimpleName(), " onCreate");
     }
 
     @Override

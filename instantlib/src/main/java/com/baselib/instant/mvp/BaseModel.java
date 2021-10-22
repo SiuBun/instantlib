@@ -9,20 +9,11 @@ import android.content.Context;
  * @author wsb
  */
 public class BaseModel {
-    private int mTaskId;
 
     /**
      * 数据层销毁回调
      * */
     public void onModelDetach(Context context) {
 
-    }
-
-    public void saveId(int taskId) {
-        mTaskId = taskId;
-    }
-
-    public int getTaskId() {
-        return mTaskId;
     }
 }
