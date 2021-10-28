@@ -19,6 +19,7 @@ android {
 
     packagingOptions {
         exclude 'META-INF/*'
+        resources.excludes += "DebugProbesKt.bin"
     }
 
     buildTypes {
@@ -40,6 +41,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+//    Gradle Kotlin DSL
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+//    using kotlinx.coroutines on Android
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+
     implementation project(':instantlib')
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation 'androidx.multidex:multidex:2.0.1'
@@ -74,7 +81,7 @@ dependencies {
     implementation rootProject.ext.dependence["room-rxjava2"]
 
 
-    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
