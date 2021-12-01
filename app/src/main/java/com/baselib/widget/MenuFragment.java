@@ -2,15 +2,18 @@ package com.baselib.widget;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
+import com.baselib.bussiness.ByteObtain;
 import com.baselib.instant.mvp.BaseFragment;
+import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
 import com.baselib.use.R;
 
-public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFragView{
+import java.util.Arrays;
+
+public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFragView {
 
     private Button mBtnRx;
     private Button mBtnOther;
@@ -66,6 +69,11 @@ public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFra
 //        });
 //        BreakPointHelper.getInstance().postTask(getContext(), task);
 
+
+        String url = "http://www.baidu.com";
+        LogUtils.d("start req byte from url: " + url);
+        byte[] bytes = ByteObtain.getInstance().getByteFromUrl(url);
+        LogUtils.d("resp byte from url: " + Arrays.toString(bytes));
     }
 
     private int mTaskId;
