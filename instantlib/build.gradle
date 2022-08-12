@@ -5,14 +5,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
 
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 32
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -73,7 +71,9 @@ dependencies {
     implementation rootProject.ext.dependence["room-ktx"]
     implementation rootProject.ext.dependence["room-rxjava2"]
 
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation rootProject.ext.dependence["junit"]
+    implementation rootProject.ext.dependence["ktx"]
+    implementation rootProject.ext.dependence["kotlin-stdlib"]
 
 
 }

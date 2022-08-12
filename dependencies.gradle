@@ -1,13 +1,17 @@
 ext {
     version = [
-            lifecycle_version    : "2.3.1",
-            room                 : "2.3.0",
+            lifecycle_version: "2.3.1",
+            room             : "2.3.0",
 
-            retrofit             : "2.4.0",
-            okhttp               : "4.2.0",
+            retrofit         : "2.4.0",
+            okhttp           : "4.2.0",
 
-            material             : "1.4.0",
-            appcompatx           : "1.3.1",
+            material         : "1.4.0",
+            appcompatx       : "1.3.1",
+            junit            : "4.13.2",
+            ktx              : "1.6.0",
+            coroutines       : "1.5.2",
+            kotlin_stdlib    : "1.6.20"
     ]
 
     dependence = [
@@ -45,5 +49,12 @@ ext {
             "material"                      : "com.google.android.material:material:${version["material"]}",
             "appcompat"                     : "androidx.appcompat:appcompat:${version["appcompatx"]}",
 
+            "junit"                         : "junit:junit:${version["junit"]}",
+
+            "coroutines-core"               : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${version["coroutines"]}",
+            "coroutines-android"            : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${version["coroutines"]}",
+
+            "ktx"                           : "androidx.core:core-ktx:${version["ktx"]}",
+            "kotlin-stdlib"                 : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${version["kotlin_stdlib"]}"
     ]
 }
