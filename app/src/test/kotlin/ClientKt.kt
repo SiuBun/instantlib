@@ -1,6 +1,6 @@
 import android.os.Bundle
 
-class Client {
+class ClientKt {
     companion object {
         private const val STATUS_PREPARE_DOWNLOAD = 0
         private const val STATUS_DOWNLOADING = 1
@@ -10,7 +10,7 @@ class Client {
         private const val STATUS_DOWNLOAD_STOP = 4
         private const val STATUS_DOWNLOAD_RESTART = 5
 
-        private val client = Client()
+        private val client = ClientKt()
 
         fun planA() {
             val status = STATUS_DOWNLOADING
