@@ -3,13 +3,17 @@ package com.baselib.widget;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+
 import com.baselib.bussiness.ByteObtain;
 import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
 import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
+import com.baselib.mvvmuse.view.fragment.MultiVp2Fragment;
 import com.baselib.use.R;
+import com.baselib.use.databinding.FragmentMenuBinding;
 
 import java.util.Arrays;
 
@@ -22,6 +26,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFra
     private Button mBtnMvvm;
     private Button mBtnRoom;
     private Button mBtnRepository;
+    private FragmentMenuBinding menuBinding;
 
     @Override
     public int getFragmentLayout() {
@@ -69,7 +74,6 @@ public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFra
 //        });
 //        BreakPointHelper.getInstance().postTask(getContext(), task);
 
-
         String url = "http://www.baidu.com";
         LogUtils.d("start req byte from url: " + url);
         byte[] bytes = ByteObtain.getInstance().getByteFromUrl(url);
@@ -81,6 +85,7 @@ public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFra
     @Override
     protected void initFragmentViews(View fragmentView) {
 
+        menuBinding = FragmentMenuBinding.bind(fragmentView);
         mBtnRx = findViewById(R.id.btn_rx, Button.class);
         mBtnOther = findViewById(R.id.btn_get_apps, Button.class);
         mBtnNetData = findViewById(R.id.btn_net_data, Button.class);
@@ -108,6 +113,8 @@ public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFra
         mBtnRoom.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, RoomFragment.getInstance()));
 
         mBtnRepository.setOnClickListener(v -> getPresenter().useRepository(getContext()));
+
+        menuBinding.btnVp2.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, MultiVp2Fragment.getInstance()));
     }
 
     @Override
