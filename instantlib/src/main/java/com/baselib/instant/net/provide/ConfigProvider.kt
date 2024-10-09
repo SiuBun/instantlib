@@ -5,7 +5,6 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -21,7 +20,7 @@ object ConfigProvider {
         baseUrl(hostUrl)
         addConverterFactory(NullOnEmptyConverterFactory())
         addConverterFactory(GsonConverterFactory.create(obtainGson()))
-        addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+//        addCallAdapterFactory(RxJava2CallAdapterFactory.create())
     }
 
     fun obtainOkHttpClient(): OkHttpClient.Builder = OkHttpClient.Builder().apply {

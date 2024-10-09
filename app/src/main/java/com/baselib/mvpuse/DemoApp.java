@@ -9,7 +9,6 @@ import com.baselib.instant.net.NetworkManager;
 import com.baselib.instant.net.client.OkHttpNetClient;
 import com.baselib.instant.repository.provider.sp.MultiProcessSharedPreferences;
 import com.baselib.instant.util.LogUtils;
-import com.baselib.use.BuildConfig;
 
 import androidx.multidex.MultiDex;
 
@@ -24,7 +23,7 @@ public class DemoApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        setDebugMode(BuildConfig.DEBUG);
+        setDebugMode(true);
         GlobalManager.Companion.initNetManager(
             new NetworkManager.Builder()
                 .setRetryCount(1)

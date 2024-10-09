@@ -16,7 +16,6 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.baselib.mvvmuse.view.activity.MvvmTestActivity" />
         <activity android:name="com.baselib.widget.MainActivity" />
         <activity
             android:exported="true"

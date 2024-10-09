@@ -3,7 +3,6 @@ package com.baselib.instant.mvvm.view
 import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
@@ -12,12 +11,11 @@ import android.widget.RelativeLayout
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.viewbinding.ViewBinding
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseActivityBinding
 import com.baselib.instant.mvvm.viewmodel.BaseViewModel
@@ -32,7 +30,7 @@ import com.baselib.instant.util.StatusBarUtil
  *
  * @author wsb
  * */
-abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompatActivity(), IViewOperate,
+abstract class AbsMvvmActivity<DB : ViewBinding, VM : IViewModel> : AppCompatActivity(), IViewOperate,
     IViewBuilder {
     /**
      * 准备添加的界面
@@ -86,13 +84,12 @@ abstract class AbsMvvmActivity<DB : ViewDataBinding, VM : IViewModel> : AppCompa
      * */
     override fun setContentView(layoutResID: Int) {
 //        获取根部布局对象
-        rootDataBinding = DataBindingUtil.inflate(LayoutInflater.from(this), getBaseLayout(), null, false)
-
+        rootDataBinding = LayoutBaseActivityBinding.inflate(layoutInflater)
 //        获取页面布局对象,并准备将页面布局对象装入容器内部
-        dataBinding = DataBindingUtil.inflate<DB>(layoutInflater, layoutResID, null, false).also {
-            it.root.layoutParams =
-                RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        }
+//        dataBinding = DataBindingUtil.inflate<DB>(layoutInflater, layoutResID, null, false).also {
+//            it.root.layoutParams =
+//                RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+//        }
 
         rootDataBinding.root.findViewById<RelativeLayout>(R.id.rlt_container)?.also {
             it.addView(dataBinding.root)

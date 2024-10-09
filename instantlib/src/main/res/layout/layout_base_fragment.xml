@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlt_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id="@+id/rlt_container"
+    <!--加载失败-->
+    <ViewStub
+        android:id="@+id/vs_error_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        />
 
-        <!--加载失败-->
-        <ViewStub
-            android:id="@+id/vs_error_refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            />
+    <!--加载中..-->
+    <ViewStub
+        android:id="@+id/vs_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        />
 
-        <!--加载中..-->
-        <ViewStub
-            android:id="@+id/vs_loading"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            />
+    <!--数据为空-->
+    <ViewStub
+        android:id="@+id/vs_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        />
 
-        <!--数据为空-->
-        <ViewStub
-            android:id="@+id/vs_empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            />
-
-    </RelativeLayout>
-</layout>
+</RelativeLayout>

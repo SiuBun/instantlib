@@ -9,11 +9,10 @@ import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.annotation.CallSuper
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
+import androidx.viewbinding.ViewBinding
 import com.baselib.instant.R
 import com.baselib.instant.databinding.LayoutBaseFragmentBinding
 import com.baselib.instant.mvvm.viewmodel.BaseViewModel
@@ -27,7 +26,7 @@ import com.baselib.instant.util.LogUtils
  *
  * @author wsb
  * */
-abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment(), IViewOperate, IViewBuilder {
+abstract class AbsMvvmFragment<DB : ViewBinding, VM : IViewModel> : Fragment(), IViewOperate, IViewBuilder {
     /**
      * 加载中
      * */
@@ -73,16 +72,16 @@ abstract class AbsMvvmFragment<DB : ViewDataBinding, VM : IViewModel> : Fragment
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        return DataBindingUtil.inflate<LayoutBaseFragmentBinding>(inflater, getBaseLayout(), container, false)
+        return LayoutBaseFragmentBinding.inflate(inflater, container, false)
             ?.let { rootBinding ->
                 rootDataBinding = rootBinding
 
-                dataBinding = DataBindingUtil.inflate<DB>(inflater, getContentLayout(), null, false).apply {
-                    root.layoutParams = RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                }
+//                dataBinding = DataBindingUtil.inflate<DB>(inflater, getContentLayout(), null, false).apply {
+//                    root.layoutParams = RelativeLayout.LayoutParams(
+//                        ViewGroup.LayoutParams.MATCH_PARENT,
+//                        ViewGroup.LayoutParams.MATCH_PARENT
+//                    )
+//                }
 
                 rootBinding.rltContainer.addView(dataBinding.root)
                 rootBinding.root

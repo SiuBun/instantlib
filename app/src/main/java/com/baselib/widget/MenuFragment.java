@@ -10,8 +10,6 @@ import com.baselib.instant.mvp.BaseFragment;
 import com.baselib.instant.util.LogUtils;
 import com.baselib.mvpuse.presenter.MenuPresenter;
 import com.baselib.mvpuse.view.MenuFragView;
-import com.baselib.mvvmuse.view.activity.MvvmTestActivity;
-import com.baselib.mvvmuse.view.fragment.MultiVp2Fragment;
 import com.baselib.use.R;
 import com.baselib.use.databinding.FragmentMenuBinding;
 
@@ -108,13 +106,13 @@ public class MenuFragment extends BaseFragment<MenuPresenter> implements MenuFra
                 }
         );
 
-        mBtnMvvm.setOnClickListener(v -> startActivity(MvvmTestActivity.class));
+//        mBtnMvvm.setOnClickListener(v -> startActivity(MvvmTestActivity.class));
 
-        mBtnRoom.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, RoomFragment.getInstance()));
+//        mBtnRoom.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, RoomFragment.getInstance()));
 
         mBtnRepository.setOnClickListener(v -> getPresenter().useRepository(getContext()));
 
-        menuBinding.btnVp2.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, MultiVp2Fragment.getInstance()));
+//        menuBinding.btnVp2.setOnClickListener(v -> startFragmentByClz(R.id.flt_main_root, MultiVp2Fragment.getInstance()));
     }
 
     @Override
