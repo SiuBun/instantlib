@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Looper;
 
 import com.baselib.instant.breakpoint.Task;
-import com.baselib.instant.breakpoint.database.DataBaseRepository;
-import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
 import com.baselib.instant.breakpoint.operate.FileStreamListener;
 import com.baselib.instant.breakpoint.operate.PreloadListener;
 import com.baselib.instant.breakpoint.operate.RangeDownloadListener;
@@ -31,7 +29,7 @@ import java.util.Map;
  */
 public class BreakPointDownloader {
 
-    private DataBaseRepository mDatabaseRepository;
+//    private DataBaseRepository mDatabaseRepository;
 
     private StreamProcessor mStreamProcessor = new OkHttpSteamProcessor();
 
@@ -156,7 +154,7 @@ public class BreakPointDownloader {
                         realStartIndex + currentDownloadLength - 1,
                         task.getSegmentFileSize(threadId)
                 ));
-                mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task));
+                // mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task));
                 rangeDownloadOver();
             }
 
@@ -187,36 +185,36 @@ public class BreakPointDownloader {
 
     public void loadTaskRecord(Context context, LoadLocalTaskListener listener) {
         final Context applicationContext = context.getApplicationContext();
-        mDatabaseRepository = new DataBaseRepository(applicationContext);
-        asyncExecute(() -> {
-            final List<TaskRecordEntity> taskRecords = mDatabaseRepository.loadAllTaskRecord();
-            DataCheck.checkEmpty(taskRecords);
-
-            DataCheck.checkNoEmptyWithCallback(taskRecords, data -> {
-                Map<Integer, Task> taskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
-                for (TaskRecordEntity recordEntity : data) {
-                    final Task task = Task.Builder.transformRecord(applicationContext, recordEntity);
-                    taskMap.put(task.getTaskId(), task);
-                }
-                listener.localTaskExist(taskMap);
-            });
-        });
+//        mDatabaseRepository = new DataBaseRepository(applicationContext);
+//        asyncExecute(() -> {
+//            final List<TaskRecordEntity> taskRecords = mDatabaseRepository.loadAllTaskRecord();
+//            DataCheck.checkEmpty(taskRecords);
+//
+//            DataCheck.checkNoEmptyWithCallback(taskRecords, data -> {
+//                Map<Integer, Task> taskMap = new HashMap<>(BreakPointConst.DEFAULT_CAPACITY);
+//                for (TaskRecordEntity recordEntity : data) {
+//                    final Task task = Task.Builder.transformRecord(applicationContext, recordEntity);
+//                    taskMap.put(task.getTaskId(), task);
+//                }
+//                listener.localTaskExist(taskMap);
+//            });
+//        });
     }
 
     public void addTaskRecord(Task task) {
-        asyncExecute(() -> mDatabaseRepository.addTaskRecord(Task.Builder.parseToRecord(task)));
+//        asyncExecute(() -> mDatabaseRepository.addTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
     public void deleteTaskRecord(Task task) {
-        asyncExecute(() -> mDatabaseRepository.deleteTaskRecord(Task.Builder.parseToRecord(task)));
+//        asyncExecute(() -> mDatabaseRepository.deleteTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
     public void onTaskProgressUpdateById(Task task) {
-        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.getTaskId(), task.getTaskCurrentSizeJson()));
+//        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(task.getTaskId(), task.getTaskCurrentSizeJson()));
     }
 
     public void updateTaskStatus(Task task) {
-        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task)));
+//        asyncExecute(() -> mDatabaseRepository.updateTaskRecord(Task.Builder.parseToRecord(task)));
     }
 
     /**

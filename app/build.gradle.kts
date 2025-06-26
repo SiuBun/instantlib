@@ -1,17 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.baselib.use"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.baselib.use"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -52,18 +51,7 @@ dependencies {
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.viewbinding)
-    ksp(libs.lifecycle.compiler)
     implementation(libs.lifecycle.common.java8)
-
-    ksp(libs.room.compiler)
-    implementation(libs.room.runtime)
-    implementation(libs.room.rxjava2)
-    implementation(libs.room.ktx)
-    implementation(libs.room.testing)
-
-    implementation(libs.rxjava)
-    implementation(libs.rxandroid)
-    implementation(libs.rxadapter)
 
     implementation(libs.gson)
     implementation(libs.retrofit)
@@ -82,5 +70,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    androidTestImplementation(libs.room.testing)
 }

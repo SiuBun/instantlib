@@ -4,10 +4,6 @@ import android.app.Application;
 import android.content.Context;
 
 import com.baselib.instant.breakpoint.BreakPointHelper;
-import com.baselib.instant.manager.GlobalManager;
-import com.baselib.instant.net.NetworkManager;
-import com.baselib.instant.net.client.OkHttpNetClient;
-import com.baselib.instant.repository.provider.sp.MultiProcessSharedPreferences;
 import com.baselib.instant.util.LogUtils;
 
 import androidx.multidex.MultiDex;
@@ -24,15 +20,6 @@ public class DemoApp extends Application {
     public void onCreate() {
         super.onCreate();
         setDebugMode(true);
-        GlobalManager.Companion.initNetManager(
-            new NetworkManager.Builder()
-                .setRetryCount(1)
-                .setTimeOut(10)
-                .setCacheAvailableTime(10)
-                .setCacheFile(getCacheDir())
-                .setClient(OkHttpNetClient.build())
-                .build()
-        );
 
         BreakPointHelper.getInstance().attachApplication(this);
 
@@ -61,6 +48,5 @@ public class DemoApp extends Application {
 
     private void setDebugMode(boolean debug) {
         LogUtils.setLogSwitch(debug);
-        MultiProcessSharedPreferences.DEBUG = debug;
     }
 }

@@ -1,112 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#B48787"
+    android:layout_centerHorizontal="true"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btn_rx"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="rx_create_str"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintVertical_chainStyle="spread"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/btn_get_apps"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <Button
-        android:id="@+id/btn_get_apps"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="rx_all_app"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/btn_rx"
-        app:layout_constraintLeft_toRightOf="@id/btn_rx"
-        app:layout_constraintRight_toLeftOf="@id/btn_net_data"
-        />
-    <Button
-        android:id="@+id/btn_net_data"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="rx_net_data"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/btn_rx"
-        app:layout_constraintLeft_toRightOf="@id/btn_get_apps"
-        app:layout_constraintRight_toRightOf="parent"
-        />
     <Button
         android:id="@+id/btn_bp_download"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/zo_50dp"
         android:text="download"
         android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
-    <Button
-        android:id="@+id/btn_rx_repository"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="rx_repository"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintLeft_toRightOf="@id/btn_bp_download"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_get_apps" />
-    <Button
-        android:id="@+id/btn_mvvm"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="mvvm"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintHorizontal_chainStyle="spread"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_vp2"
-        app:layout_constraintTop_toBottomOf="@id/btn_bp_download" />
+        android:textSize="@dimen/zo_14sp" />
 
-    <Button
-        android:id="@+id/btn_vp2"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="multi_vp2"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintStart_toEndOf="@id/btn_mvvm"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_bp_download" />
-
-    <Button
-        android:id="@+id/btn_room"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/zo_50dp"
-        android:text="room"
-        android:textAllCaps="false"
-        android:textSize="@dimen/zo_14sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_mvvm" />
 
     <ProgressBar
         android:id="@+id/progress_bar_init"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
+        android:layout_height="@dimen/zo_30dp"
         android:layout_marginLeft="@dimen/zo_20dp"
         android:layout_marginRight="@dimen/zo_20dp"
-        android:layout_height="@dimen/zo_30dp"
-        android:max="100"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_room" />
+        android:max="100" />
 
 
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

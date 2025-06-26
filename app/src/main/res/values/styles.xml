@@ -8,20 +8,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!--闪屏界面主题-->
-    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <!--只需要提供这个属性即可,配上指定图片-->
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@drawable/background_splash</item>
-    </style>
-
-    <style name="word_title">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">26dp</item>
-        <item name="android:textSize">24sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:paddingLeft">8dp</item>
+    <!-- Edge-to-Edge theme -->
+    <style name="EdgeToEdgeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- 启用边到边显示 -->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
 </resources>

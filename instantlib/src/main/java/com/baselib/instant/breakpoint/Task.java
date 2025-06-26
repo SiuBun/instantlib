@@ -5,7 +5,6 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import com.baselib.instant.breakpoint.bussiness.ProgressInfo;
-import com.baselib.instant.breakpoint.database.room.TaskRecordEntity;
 import com.baselib.instant.breakpoint.operate.PreloadListener;
 import com.baselib.instant.breakpoint.operate.SegmentTaskEvaluator;
 import com.baselib.instant.breakpoint.operate.TaskListenerOperate;
@@ -491,22 +490,22 @@ public class Task implements TaskListenerOperate {
          * @param recordEntity 本地记录的条目
          * @return 可执行的任务
          */
-        public static Task transformRecord(Context context, TaskRecordEntity recordEntity) {
-            final Task task = new Builder()
-                .setTaskUrl(recordEntity.getUrl())
-                .setTaskFileDir(recordEntity.getFileDir())
-                .setTaskFileName(recordEntity.getFileName()).build();
-            task.setTaskState(recordEntity.getState());
-            if (!task.incompleteState()) {
-                task.setupTaskFile(recordEntity.getFileDir(), recordEntity.getFileName());
-            }
-
-            task.changeTaskCurrentSizeFromCache(recordEntity.getCurrentSize());
-            task.setTaskFileTotalSize(recordEntity.getTotalSize());
-            task.setTaskId(recordEntity.getId());
-            task.supplementField(context);
-            return task;
-        }
+//        public static Task transformRecord(Context context, TaskRecordEntity recordEntity) {
+//            final Task task = new Builder()
+//                .setTaskUrl(recordEntity.getUrl())
+//                .setTaskFileDir(recordEntity.getFileDir())
+//                .setTaskFileName(recordEntity.getFileName()).build();
+//            task.setTaskState(recordEntity.getState());
+//            if (!task.incompleteState()) {
+//                task.setupTaskFile(recordEntity.getFileDir(), recordEntity.getFileName());
+//            }
+//
+//            task.changeTaskCurrentSizeFromCache(recordEntity.getCurrentSize());
+//            task.setTaskFileTotalSize(recordEntity.getTotalSize());
+//            task.setTaskId(recordEntity.getId());
+//            task.supplementField(context);
+//            return task;
+//        }
 
         /**
          * 将任务转换为本地记录
@@ -514,18 +513,18 @@ public class Task implements TaskListenerOperate {
          * @param task 内存中的下载任务
          * @return 本地记录
          */
-        public static TaskRecordEntity parseToRecord(Task task) {
-            final TaskRecordEntity recordEntity = new TaskRecordEntity();
-            recordEntity.setCurrentSize(task.getTaskCurrentSizeJson());
-            recordEntity.setFileDir(task.getTaskFileDir());
-            recordEntity.setFileName(task.getTaskFileName());
-            recordEntity.setId(task.getTaskId());
-            recordEntity.setState(task.getTaskState());
-            recordEntity.setTotalSize(task.getTaskFileTotalSize());
-            recordEntity.setUpdateTime(System.currentTimeMillis());
-            recordEntity.setUrl(task.getTaskUrl());
-            return recordEntity;
-        }
+//        public static TaskRecordEntity parseToRecord(Task task) {
+//            final TaskRecordEntity recordEntity = new TaskRecordEntity();
+//            recordEntity.setCurrentSize(task.getTaskCurrentSizeJson());
+//            recordEntity.setFileDir(task.getTaskFileDir());
+//            recordEntity.setFileName(task.getTaskFileName());
+//            recordEntity.setId(task.getTaskId());
+//            recordEntity.setState(task.getTaskState());
+//            recordEntity.setTotalSize(task.getTaskFileTotalSize());
+//            recordEntity.setUpdateTime(System.currentTimeMillis());
+//            recordEntity.setUrl(task.getTaskUrl());
+//            return recordEntity;
+//        }
 
         public Builder setTaskFileDir(@NonNull String fileDir) {
             this.mTaskFileDir = fileDir;

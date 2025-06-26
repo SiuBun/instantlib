@@ -1,12 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.baselib.instant"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -46,13 +45,7 @@ dependencies {
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.viewbinding)
-    ksp(libs.lifecycle.compiler)
     implementation(libs.lifecycle.common.java8)
-
-    ksp(libs.room.compiler)
-    implementation(libs.room.runtime)
-    implementation(libs.room.rxjava2)
-    implementation(libs.room.ktx)
 
     implementation(libs.gson)
     implementation(libs.retrofit)
