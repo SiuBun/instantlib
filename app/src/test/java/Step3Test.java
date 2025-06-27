@@ -1,4 +1,4 @@
-import com.baselib.queue.Step3_ProducerConsumerDrainTo;
+import com.baselib.queue.simple.ProducerConsumerDrainTo;
 
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ public class Step3Test {
         System.out.println("目标：通过策略模式统一处理器，对比基础方案和批量处理方案的性能差异");
         System.out.println();
 
-        Step3_ProducerConsumerDrainTo demo = new Step3_ProducerConsumerDrainTo();
+        ProducerConsumerDrainTo demo = new ProducerConsumerDrainTo();
         // 使用统一的Producer-Consumer处理器，支持两种消费者策略：
         System.out.println("🧪 统一处理器测试 - 支持多种消费者策略");
         System.out.println("   BasicConsumerStrategy: 逐个处理信令，使用take()阻塞获取");

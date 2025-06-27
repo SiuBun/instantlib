@@ -1,11 +1,12 @@
-package com.baselib.queue;
+package com.baselib.queue.simple;
+
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.entity.SignalProcessorMonitor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * - 队列组合对整体处理性能的影响
  * - 如何根据业务特点选择最佳的队列组合
  */
-public class Step4_ReceiveQueueDrainMultiConsumer {
+public class ReceiveQueueDrainMultiConsumer {
 
     /**
      * 可配置队列组合的处理器

@@ -1,4 +1,4 @@
-package com.baselib.queue;
+package com.baselib.queue.entity;
 
 // 信令数据结构
 public class Signal {

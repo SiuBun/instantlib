@@ -1,4 +1,4 @@
-package com.baselib.queue;
+package com.baselib.queue.entity;
 
 // 信令类型定义
 public enum SignalType {

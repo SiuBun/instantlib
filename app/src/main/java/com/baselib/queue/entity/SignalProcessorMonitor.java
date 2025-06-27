@@ -1,4 +1,4 @@
-package com.baselib.queue;
+package com.baselib.queue.entity;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
-import com.baselib.queue.CommonOperation;
-import com.baselib.queue.LiveStreamSignalProcessor;
-import com.baselib.queue.Signal;
-import com.baselib.queue.SignalType;
+import com.baselib.queue.simple.CommonOperation;
+import com.baselib.queue.simple.LiveStreamSignalProcessor;
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.entity.SignalType;
 
 import org.junit.Test;
 

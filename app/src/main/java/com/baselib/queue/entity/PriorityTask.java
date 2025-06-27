@@ -1,4 +1,4 @@
-package com.baselib.queue;
+package com.baselib.queue.entity;
 
 /**
  * 优先级任务类

@@ -1,4 +1,8 @@
-package com.baselib.queue;
+package com.baselib.queue.simple;
+
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.entity.SignalProcessorMonitor;
+import com.baselib.queue.entity.SignalType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +33,7 @@ import java.util.stream.Collectors;
  * - drainTo批量获取的优势
  * - 优先级处理策略
  */
-public class Step3_ProducerConsumerDrainTo {
+public class ProducerConsumerDrainTo {
 
     public static final int SIGN_COUNT = 5000;
     public static final int RECEIVE_QUEUE_CAP = 500;
@@ -261,7 +265,7 @@ public class Step3_ProducerConsumerDrainTo {
         Map<SignalType, Long> distribution = signals.stream()
                 .collect(Collectors.groupingBy(Signal::getType, Collectors.counting()));
         distribution.forEach((type, count) ->
-                System.out.printf("   %s: %d (%.1f%%)%n", type.getDesc(), count, count * 100.0 / Step3_ProducerConsumerDrainTo.SIGN_COUNT));
+                System.out.printf("   %s: %d (%.1f%%)%n", type.getDesc(), count, count * 100.0 / ProducerConsumerDrainTo.SIGN_COUNT));
         System.out.println();
 
         for (ProducerConsumerProcessor processor : processors) {

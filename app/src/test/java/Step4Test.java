@@ -1,7 +1,7 @@
-import com.baselib.queue.CommonOperation;
-import com.baselib.queue.Signal;
-import com.baselib.queue.SignalType;
-import com.baselib.queue.Step4_ReceiveQueueDrainMultiConsumer;
+import com.baselib.queue.simple.CommonOperation;
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.entity.SignalType;
+import com.baselib.queue.simple.ReceiveQueueDrainMultiConsumer;
 
 import org.junit.Test;
 
@@ -36,14 +36,14 @@ public class Step4Test {
                 System.out.printf("   %s: %d (%.1f%%)%n", type.getDesc(), count, count * 100.0 / SIGNAL_COUNT));
         System.out.println();
 
-        Step4_ReceiveQueueDrainMultiConsumer demo = new Step4_ReceiveQueueDrainMultiConsumer();
+        ReceiveQueueDrainMultiConsumer demo = new ReceiveQueueDrainMultiConsumer();
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor[] array = getReceiveExecutorQueueProcessors();
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor[] array = getReceiveExecutorQueueProcessors();
 
 
         // 3. 测试最终优化处理器
         for (int i = 0; i < array.length; i++) {
-            Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor processor = array[i];
+            ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor processor = array[i];
             int finalI = i;
             String planName = String.format("第%d个方案", i);
             demo.runProcessorTest(planName, () -> {
@@ -65,48 +65,48 @@ public class Step4Test {
         System.out.println("🎉 第四步测试完成！");
     }
 
-    private static Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor[] getReceiveExecutorQueueProcessors() {
+    private static ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor[] getReceiveExecutorQueueProcessors() {
         final int RECEIVE_QUEUE_SIZE = 500;
         final int THREAD_POOL_QUEUE_SIZE = 400;
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor linkedLinkedProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor linkedLinkedProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new LinkedBlockingQueue<>(RECEIVE_QUEUE_SIZE),
                 new LinkedBlockingQueue<>(THREAD_POOL_QUEUE_SIZE));
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor linkedArrayProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor linkedArrayProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new LinkedBlockingQueue<>(RECEIVE_QUEUE_SIZE),
                 new ArrayBlockingQueue<>(THREAD_POOL_QUEUE_SIZE));
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor linkedSyncProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor linkedSyncProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new LinkedBlockingQueue<>(),
                 new SynchronousQueue<>());
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor arrayArrayProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor arrayArrayProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new ArrayBlockingQueue<>(RECEIVE_QUEUE_SIZE),
                 new ArrayBlockingQueue<>(THREAD_POOL_QUEUE_SIZE));
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor arrayLinkedProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor arrayLinkedProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new ArrayBlockingQueue<>(RECEIVE_QUEUE_SIZE),
                 new LinkedBlockingQueue<>(THREAD_POOL_QUEUE_SIZE));
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor arraySyncProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor arraySyncProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new ArrayBlockingQueue<>(RECEIVE_QUEUE_SIZE),
                 new SynchronousQueue<>());
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor syncSyncProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor syncSyncProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new SynchronousQueue<>(),
                 new SynchronousQueue<>());
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor syncArrayProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor syncArrayProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new SynchronousQueue<>(),
                 new ArrayBlockingQueue<>(THREAD_POOL_QUEUE_SIZE));
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor syncLinkedProcessor = new Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor syncLinkedProcessor = new ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor(
                 new SynchronousQueue<>(),
                 new LinkedBlockingQueue<>(THREAD_POOL_QUEUE_SIZE));
 
 
-        Step4_ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor[] array = {
+        ReceiveQueueDrainMultiConsumer.ReceiveExecutorQueueProcessor[] array = {
                 linkedLinkedProcessor, linkedArrayProcessor, linkedSyncProcessor,
                 arrayArrayProcessor, arrayLinkedProcessor, arraySyncProcessor,
                 syncSyncProcessor, syncLinkedProcessor, syncArrayProcessor,

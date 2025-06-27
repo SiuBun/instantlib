@@ -1,5 +1,9 @@
-package com.baselib.queue;
+package com.baselib.queue.simple;
 
+
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.entity.SignalProcessorMonitor;
+import com.baselib.queue.entity.SignalType;
 
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +29,7 @@ import java.util.stream.Collectors;
  * - 线程池配置对性能的影响
  * - 初步的性能监控
  */
-public class Step2_LiveStreamSignalExecutor {
+public class SignalByExecutor {
     public static final int SIGN_COUNT = 5000;
 
     // 使用统一的性能监控器

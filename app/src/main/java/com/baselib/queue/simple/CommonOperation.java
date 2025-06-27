@@ -1,4 +1,7 @@
-package com.baselib.queue;
+package com.baselib.queue.simple;
+
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.entity.SignalType;
 
 import java.util.ArrayList;
 import java.util.Collections;

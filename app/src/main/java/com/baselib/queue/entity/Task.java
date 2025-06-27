@@ -1,11 +1,11 @@
-package com.baselib.queue;
+package com.baselib.queue.entity;
 
 public class Task {
     final int id;
     final String name;
     final long createTime;
 
-    Task(int id, String name) {
+    public Task(int id, String name) {
         this.id = id;
         this.name = name;
         this.createTime = System.currentTimeMillis();

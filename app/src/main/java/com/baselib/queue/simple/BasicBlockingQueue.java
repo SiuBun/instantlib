@@ -1,4 +1,7 @@
-package com.baselib.queue;
+package com.baselib.queue.simple;
+
+import com.baselib.queue.entity.PriorityTask;
+import com.baselib.queue.entity.Task;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * - 阻塞和非阻塞操作的区别
  * - 生产者消费者基本模式
  */
-public class Step1_BasicBlockingQueue {
+public class BasicBlockingQueue {
 
     /**
      * 通用的基础操作测试

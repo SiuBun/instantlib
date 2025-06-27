@@ -1,6 +1,6 @@
-import com.baselib.queue.CommonOperation;
-import com.baselib.queue.Signal;
-import com.baselib.queue.Step2_LiveStreamSignalExecutor;
+import com.baselib.queue.simple.CommonOperation;
+import com.baselib.queue.entity.Signal;
+import com.baselib.queue.simple.SignalByExecutor;
 
 import org.junit.Test;
 
@@ -24,16 +24,16 @@ public class Step2Test {
         int signalCount = 500;
 
         // 使用便捷方法创建不同处理器
-        Step2_LiveStreamSignalExecutor.SignalProcessor[] processors = {
-                new Step2_LiveStreamSignalExecutor.SignalProcessor(new SynchronousQueue<>()),
-                new Step2_LiveStreamSignalExecutor.SignalProcessor(new ArrayBlockingQueue<>(1000)),
-                new Step2_LiveStreamSignalExecutor.SignalProcessor(new LinkedBlockingQueue<>(1000)),
-                new Step2_LiveStreamSignalExecutor.SignalProcessor(new ArrayBlockingQueue<>(400)),
-                new Step2_LiveStreamSignalExecutor.SignalProcessor(new LinkedBlockingQueue<>(400)),
+        SignalByExecutor.SignalProcessor[] processors = {
+                new SignalByExecutor.SignalProcessor(new SynchronousQueue<>()),
+                new SignalByExecutor.SignalProcessor(new ArrayBlockingQueue<>(1000)),
+                new SignalByExecutor.SignalProcessor(new LinkedBlockingQueue<>(1000)),
+                new SignalByExecutor.SignalProcessor(new ArrayBlockingQueue<>(400)),
+                new SignalByExecutor.SignalProcessor(new LinkedBlockingQueue<>(400)),
         };
 
         for (int i = 0; i < processors.length; i++) {
-            Step2_LiveStreamSignalExecutor.SignalProcessor processor = processors[i];
+            SignalByExecutor.SignalProcessor processor = processors[i];
             System.out.printf("%d️⃣ 测试%s处理器%n", i + 1, processor.getQueueType());
 
             processor.start();
@@ -79,11 +79,11 @@ public class Step2Test {
 
         // 只测试推荐的队列类型，避免SynchronousQueue在高负载下的问题
         System.out.println("🔥 ArrayBlockingQueue处理器 - 高负载测试");
-        Step2_LiveStreamSignalExecutor.testSignalProcessor(new ArrayBlockingQueue<>(1000), signalCount);
+        SignalByExecutor.testSignalProcessor(new ArrayBlockingQueue<>(1000), signalCount);
         System.out.println("=".repeat(50));
 
         System.out.println("🔥 LinkedBlockingQueue处理器 - 高负载测试");
-        Step2_LiveStreamSignalExecutor.testSignalProcessor(new LinkedBlockingQueue<>(1000), signalCount);
+        SignalByExecutor.testSignalProcessor(new LinkedBlockingQueue<>(1000), signalCount);
         System.out.println("=".repeat(50));
 
         System.out.println("✅ 高负载信令处理对比测试完成");
